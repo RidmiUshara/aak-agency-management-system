@@ -2,6 +2,8 @@ package lk.aak.agency.service;
 
 import lk.aak.agency.model.Customer;
 import lk.aak.agency.repository.CustomerRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,16 @@ public class CustomerService {
     public List<Customer> getAllCustomers() {
         return customerRepository.findAll(
                 Sort.by(Sort.Direction.ASC, "customerName")
+        );
+    }
+
+    public Page<Customer> getCustomers(int page, int size) {
+        return customerRepository.findAll(
+                PageRequest.of(
+                        Math.max(page, 0),
+                        Math.max(size, 1),
+                        Sort.by(Sort.Direction.ASC, "customerName")
+                )
         );
     }
 

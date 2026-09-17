@@ -101,6 +101,12 @@
       <p>Click “Add Customer” to add the first customer.</p>
     </div>
   </section>
+
+  <nav class="aak-pagination" th:if="${totalPages > 1}" aria-label="Customer list pages">
+    <a th:if="${currentPage > 0}" th:href="@{/customers(page=${currentPage - 1})}" class="btn button">Previous</a>
+    <span class="aak-pagination-status" th:text="'Page ' + ${currentPage + 1} + ' of ' + ${totalPages} + ' (' + ${totalRecords} + ' total)'"></span>
+    <a th:if="${currentPage + 1 < totalPages}" th:href="@{/customers(page=${currentPage + 1})}" class="btn button">Next</a>
+  </nav>
 </main>
   <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
 </body>
