@@ -1,13 +1,12 @@
-[README-3.md](https://github.com/user-attachments/files/32347827/README-3.md)
-[README-3.md](https://github.com/user-attachments/files/32347773/README-3.md)
-<img width="2048" height="1280" alt="dashboard" src="https://github.com/user-attachments/assets/876b6088-e266-401b-91e1-7bf068db9d67" />
+
+
 # AAK Agency Management System
 
 AAK Agency Management System is a Spring Boot web application developed to manage the day-to-day operations of a CBL product distribution agency. It brings customer, product, purchase, sales, stock, payment, cheque and reporting activities into one system.
 
 ## System Preview
 
-![AAK Agency Management Dashboard](docs/screenshots/dashboard.png)
+<img width="2048" height="1280" alt="dashboard" src="https://github.com/user-attachments/assets/876b6088-e266-401b-91e1-7bf068db9d67" />
 
 *AAK Agency dashboard showing business, financial and stock summaries with quick access to the main management sections.*
 
