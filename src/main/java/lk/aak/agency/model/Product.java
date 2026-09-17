@@ -1,6 +1,9 @@
 package lk.aak.agency.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
@@ -12,6 +15,8 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "CBL product code is required.")
+    @Size(max = 100, message = "CBL product code must be 100 characters or fewer.")
     @Column(
             name = "cbl_product_code",
             nullable = false,
@@ -19,6 +24,8 @@ public class Product {
     )
     private String cblProductCode;
 
+    @NotBlank(message = "Product name is required.")
+    @Size(max = 200, message = "Product name must be 200 characters or fewer.")
     @Column(
             name = "product_name",
             nullable = false
@@ -34,12 +41,14 @@ public class Product {
     @Column(name = "net_weight")
     private String netWeight;
 
+    @NotBlank(message = "Unit is required.")
     @Column(
             name = "unit",
             nullable = false
     )
     private String unit;
 
+    @DecimalMin(value = "0", message = "MRP cannot be negative.")
     @Column(
             name = "mrp",
             precision = 12,
@@ -47,6 +56,7 @@ public class Product {
     )
     private BigDecimal mrp;
 
+    @DecimalMin(value = "0", message = "Standard selling price cannot be negative.")
     @Column(
             name = "standard_selling_price",
             precision = 12,
@@ -54,6 +64,7 @@ public class Product {
     )
     private BigDecimal standardSellingPrice;
 
+    @DecimalMin(value = "0", message = "Reorder level cannot be negative.")
     @Column(
             name = "reorder_level",
             precision = 15,

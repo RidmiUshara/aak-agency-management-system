@@ -215,6 +215,7 @@
                  th:field="*{customerName}"
                  placeholder="Enter customer or supermarket name"
                  required>
+          <span class="field-error" th:if="${#fields.hasErrors('customerName')}" th:errors="*{customerName}"></span>
         </div>
 
         <div class="form-group">
@@ -251,6 +252,7 @@
           <input type="tel"
                  th:field="*{phone}"
                  placeholder="Example: 0712345678">
+          <span class="field-error" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></span>
         </div>
 
         <div class="form-group">
@@ -261,6 +263,7 @@
                  min="0"
                  step="0.01"
                  placeholder="0.00">
+          <span class="field-error" th:if="${#fields.hasErrors('creditLimit')}" th:errors="*{creditLimit}"></span>
         </div>
 
         <div class="form-group">
@@ -270,6 +273,7 @@
                  th:field="*{paymentTermsDays}"
                  min="0"
                  placeholder="21">
+          <span class="field-error" th:if="${#fields.hasErrors('paymentTermsDays')}" th:errors="*{paymentTermsDays}"></span>
         </div>
 
         <div class="form-group">
