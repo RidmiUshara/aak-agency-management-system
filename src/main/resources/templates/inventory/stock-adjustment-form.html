@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Stock Adjustment - AAK Agency</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #222;
+        }
+
+        header {
+            background: #213f66;
+            color: white;
+            padding: 25px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: #e4edf7;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 7px;
+        }
+
+        main {
+            width: 90%;
+            max-width: 1050px;
+            margin: 38px auto;
+        }
+
+        .page-heading {
+            margin-bottom: 24px;
+        }
+
+        .page-heading h2 {
+            color: #213f66;
+            font-size: 30px;
+            margin-bottom: 7px;
+        }
+
+        .page-heading p {
+            color: #65707c;
+            line-height: 1.5;
+        }
+
+        .alert {
+            padding: 15px 18px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #842029;
+            border-left: 5px solid #dc3545;
+        }
+
+        .form-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            border-top: 5px solid #e0a800;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-title {
+            color: #213f66;
+            font-size: 21px;
+            margin-bottom: 22px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e8eef7;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 21px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            color: #213f66;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            border: 1px solid #cbd3dc;
+            border-radius: 7px;
+            padding: 12px;
+            font-size: 15px;
+            color: #222;
+            background: white;
+            outline: none;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #198754;
+            box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.12);
+        }
+
+        select:disabled {
+            background: #edf1f5;
+            color: #555;
+        }
+
+        textarea {
+            min-height: 105px;
+            resize: vertical;
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        .help-text {
+            color: #6c757d;
+            font-size: 12px;
+            line-height: 1.45;
+            margin-top: 6px;
+        }
+
+        .selected-product {
+            display: none;
+            margin-top: 9px;
+            padding: 12px;
+            border-radius: 7px;
+            background: #d7f0e3;
+            color: #12613d;
+            font-weight: bold;
+        }
+
+        .warning-box {
+            margin-top: 23px;
+            padding: 16px;
+            border-radius: 8px;
+            background: #fff3cd;
+            color: #664d03;
+            line-height: 1.5;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 11px;
+            margin-top: 27px;
+            padding-top: 21px;
+            border-top: 1px solid #e5e9ef;
+        }
+
+        .btn {
+            display: inline-block;
+            border: none;
+            border-radius: 7px;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+        }
+
+        .btn-save {
+            background: #198754;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 700px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            main {
+                width: 95%;
+                margin: 25px auto;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full-width {
+                grid-column: auto;
+            }
+
+            .form-card {
+                padding: 21px;
+            }
+
+            .button-group {
+                flex-direction: column-reverse;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+
+<body>
+
+<header>
+    <div>
+        <h1>AAK Agency</h1>
+        <p>Stock Adjustment Management</p>
+    </div>
+
+    <a th:href="@{/inventory}">
+        Back to Inventory
+    </a>
+</header>
+
+<main>
+
+    <section class="page-heading">
+        <h2>Record Stock Adjustment</h2>
+
+        <p>
+            Record damaged, expired, missing, excess or corrected
+            warehouse stock with a clear movement history.
+        </p>
+    </section>
+
+    <div class="alert alert-error"
+         th:if="${errorMessage}"
+         th:text="${errorMessage}">
+    </div>
+
+    <section class="form-card">
+
+        <h3 class="form-title">
+            Adjustment Information
+        </h3>
+
+        <form id="adjustmentForm"
+              method="post"
+              th:action="@{/inventory/adjustments/save}"
+              th:object="${stockAdjustment}">
+
+            <div class="form-grid">
+
+                <div class="form-group full-width">
+
+                    <label for="productSearch">
+                        Search and Select Product
+                        <span class="required">*</span>
+                    </label>
+
+                    <input id="productSearch"
+                           type="text"
+                           list="productOptions"
+                           placeholder="Type product name, weight or CBL code"
+                           autocomplete="off"
+                           required>
+
+                    <input id="productId"
+                           type="hidden"
+                           name="productId">
+
+                    <datalist id="productOptions">
+
+                        <option th:each="product : ${products}"
+                                th:value="${product.displayName
+                                + ' | '
+                                + product.cblProductCode}"
+                                th:attr="data-id=${product.id},
+                                data-unit=${product.unit}">
+                        </option>
+
+                    </datalist>
+
+                    <div class="selected-product"
+                         id="selectedProduct">
+                    </div>
+
+                    <span class="help-text">
+                        Type the product name or code and select the
+                        correct product from the list.
+                    </span>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="adjustmentType">
+                        Adjustment Reason
+                        <span class="required">*</span>
+                    </label>
+
+                    <select id="adjustmentType"
+                            th:field="*{adjustmentType}"
+                            onchange="updateDirection()"
+                            required>
+
+                        <option value="">
+                            Select reason
+                        </option>
+
+                        <option value="DAMAGED">
+                            Damaged Stock
+                        </option>
+
+                        <option value="EXPIRED">
+                            Expired Stock
+                        </option>
+
+                        <option value="MISSING">
+                            Missing Stock
+                        </option>
+
+                        <option value="STOCK_CORRECTION_OUT">
+                            Stock Correction - Reduce
+                        </option>
+
+                        <option value="STOCK_CORRECTION_IN">
+                            Stock Correction - Add
+                        </option>
+
+                        <option value="OTHER">
+                            Other
+                        </option>
+
+                    </select>
+
+                    <span class="help-text">
+                        Select why the warehouse stock is being adjusted.
+                    </span>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="directionSelector">
+                        Stock Direction
+                        <span class="required">*</span>
+                    </label>
+
+                    <select id="directionSelector"
+                            onchange="copyDirection()">
+
+                        <option value="">
+                            Select direction
+                        </option>
+
+                        <option value="IN">
+                            Add to Stock
+                        </option>
+
+                        <option value="OUT">
+                            Reduce from Stock
+                        </option>
+
+                    </select>
+
+                    <input id="direction"
+                           type="hidden"
+                           th:field="*{direction}">
+
+                    <span class="help-text"
+                          id="directionHelp">
+                        Direction is selected automatically from the reason.
+                    </span>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="quantity">
+                        Quantity
+                        <span class="required">*</span>
+                    </label>
+
+                    <input id="quantity"
+                           type="number"
+                           th:field="*{quantity}"
+                           min="0.01"
+                           step="0.01"
+                           placeholder="Example: 12.00"
+                           required>
+
+                    <span class="help-text">
+                        Enter the quantity using the product’s
+                        PKT or PCS unit.
+                    </span>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="adjustmentDate">
+                        Adjustment Date and Time
+                        <span class="required">*</span>
+                    </label>
+
+                    <input id="adjustmentDate"
+                           type="datetime-local"
+                           th:field="*{adjustmentDate}"
+                           required>
+
+                </div>
+
+                <div class="form-group full-width">
+
+                    <label for="referenceNumber">
+                        Reference Number
+                    </label>
+
+                    <input id="referenceNumber"
+                           type="text"
+                           th:field="*{referenceNumber}"
+                           maxlength="100"
+                           placeholder="Example: DAMAGE-2026-001"
+                           autocomplete="off">
+
+                    <span class="help-text">
+                        Optional internal document or physical
+                        stock-count reference.
+                    </span>
+
+                </div>
+
+                <div class="form-group full-width">
+
+                    <label for="notes">
+                        Notes
+                    </label>
+
+                    <textarea id="notes"
+                              th:field="*{notes}"
+                              placeholder="Explain the adjustment reason and any supporting details"></textarea>
+
+                </div>
+
+            </div>
+
+            <div class="warning-box">
+                Stock-reducing adjustments cannot be greater than the
+                product’s current available stock. Every adjustment will
+                be permanently recorded in Stock Movement History.
+            </div>
+
+            <div class="button-group">
+
+                <a class="btn btn-cancel"
+                   th:href="@{/inventory}">
+                    Cancel
+                </a>
+
+                <button class="btn btn-save"
+                        type="submit">
+                    Save Stock Adjustment
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</main>
+
+<script>
+    const productSearch =
+        document.getElementById("productSearch");
+
+    const productId =
+        document.getElementById("productId");
+
+    const productOptions =
+        document.getElementById("productOptions");
+
+    const selectedProduct =
+        document.getElementById("selectedProduct");
+
+    const adjustmentType =
+        document.getElementById("adjustmentType");
+
+    const directionSelector =
+        document.getElementById("directionSelector");
+
+    const direction =
+        document.getElementById("direction");
+
+    productSearch.addEventListener(
+        "input",
+        selectProduct
+    );
+
+    function selectProduct() {
+        const typedValue =
+            productSearch.value.trim();
+
+        const options =
+            productOptions.querySelectorAll("option");
+
+        let matchedOption = null;
+
+        options.forEach(function (option) {
+            if (option.value === typedValue) {
+                matchedOption = option;
+            }
+        });
+
+        if (matchedOption) {
+            productId.value =
+                matchedOption.dataset.id;
+
+            selectedProduct.textContent =
+                "Selected: "
+                + matchedOption.value
+                + " | Unit: "
+                + matchedOption.dataset.unit;
+
+            selectedProduct.style.display =
+                "block";
+
+        } else {
+            productId.value = "";
+            selectedProduct.textContent = "";
+            selectedProduct.style.display =
+                "none";
+        }
+    }
+
+    function updateDirection() {
+        const selectedType =
+            adjustmentType.value;
+
+        if (selectedType === "STOCK_CORRECTION_IN") {
+            setAutomaticDirection("IN");
+
+        } else if (
+            selectedType === "DAMAGED"
+            || selectedType === "EXPIRED"
+            || selectedType === "MISSING"
+            || selectedType === "STOCK_CORRECTION_OUT"
+        ) {
+            setAutomaticDirection("OUT");
+
+        } else if (selectedType === "OTHER") {
+            directionSelector.disabled = false;
+            directionSelector.value = "";
+            direction.value = "";
+
+        } else {
+            directionSelector.disabled = true;
+            directionSelector.value = "";
+            direction.value = "";
+        }
+    }
+
+    function setAutomaticDirection(value) {
+        directionSelector.disabled = true;
+        directionSelector.value = value;
+        direction.value = value;
+    }
+
+    function copyDirection() {
+        direction.value =
+            directionSelector.value;
+    }
+
+    document.getElementById(
+        "adjustmentForm"
+    ).addEventListener(
+        "submit",
+        function (event) {
+
+            if (!productId.value) {
+                event.preventDefault();
+
+                alert(
+                    "Please search and select a valid product."
+                );
+
+                productSearch.focus();
+                return;
+            }
+
+            if (!direction.value) {
+                event.preventDefault();
+
+                alert(
+                    "Please select the stock direction."
+                );
+
+                directionSelector.focus();
+            }
+        }
+    );
+
+    updateDirection();
+</script>
+
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>

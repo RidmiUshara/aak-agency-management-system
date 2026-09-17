@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title>Products - AAK Agency</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f4f6f9;
+      color: #222222;
+    }
+
+    .header {
+      background-color: #1e3a5f;
+      color: white;
+      padding: 22px 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header h1 {
+      margin-bottom: 5px;
+    }
+
+    .header p {
+      color: #e4edf7;
+    }
+
+    .header a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 6px;
+    }
+
+    .header a:hover {
+      background-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1450px;
+      margin: 35px auto;
+    }
+
+    .page-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 22px;
+    }
+
+    .page-heading h2 {
+      color: #1e3a5f;
+      margin-bottom: 6px;
+      font-size: 30px;
+    }
+
+    .page-heading p {
+      color: #606a75;
+    }
+
+    .search-section {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 22px;
+      border-top: 4px solid #1e3a5f;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
+    }
+
+    .search-label {
+      display: block;
+      color: #1e3a5f;
+      font-weight: bold;
+      margin-bottom: 9px;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .search-row input {
+      flex: 1;
+      border: 1px solid #cbd3dc;
+      border-radius: 7px;
+      padding: 12px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .search-row input:focus {
+      border-color: #198754;
+      box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.12);
+    }
+
+    .search-help {
+      color: #777777;
+      font-size: 12px;
+      margin-top: 7px;
+    }
+
+    .btn {
+      display: inline-block;
+      border: none;
+      border-radius: 7px;
+      padding: 11px 16px;
+      color: white;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .btn-add {
+      background-color: #198754;
+      padding: 13px 20px;
+    }
+
+    .btn-add:hover {
+      background-color: #146c43;
+    }
+
+    .btn-clear {
+      background-color: #6c757d;
+    }
+
+    .btn-clear:hover {
+      background-color: #5c636a;
+    }
+
+    .btn-edit {
+      background-color: #0d6efd;
+    }
+
+    .btn-edit:hover {
+      background-color: #0b5ed7;
+    }
+
+    .btn-delete {
+      background-color: #dc3545;
+    }
+
+    .btn-delete:hover {
+      background-color: #bb2d3b;
+    }
+
+    .message {
+      border-radius: 7px;
+      padding: 14px;
+      margin-bottom: 20px;
+    }
+
+    .success-message {
+      background-color: #d1e7dd;
+      color: #0f5132;
+      border-left: 5px solid #198754;
+    }
+
+    .error-message {
+      background-color: #f8d7da;
+      color: #842029;
+      border-left: 5px solid #dc3545;
+    }
+
+    .table-container {
+      background-color: white;
+      border-radius: 11px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background-color: #e8eef7;
+      color: #1e3a5f;
+      text-align: left;
+      padding: 16px;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 15px 16px;
+      border-top: 1px solid #eeeeee;
+      vertical-align: middle;
+    }
+
+    tbody tr:hover {
+      background-color: #f8fafc;
+    }
+
+    .product-code {
+      color: #1e3a5f;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .product-name {
+      color: #222222;
+      font-weight: bold;
+      min-width: 190px;
+    }
+
+    .product-weight {
+      display: inline-block;
+      color: #1e3a5f;
+      background-color: #e8eef7;
+      border-radius: 15px;
+      padding: 5px 10px;
+      font-size: 13px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .unit {
+      display: inline-block;
+      color: #12613d;
+      background-color: #d7f0e3;
+      border-radius: 15px;
+      padding: 5px 10px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .price {
+      color: #1e3a5f;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 6px 11px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .status-active {
+      background-color: #d1e7dd;
+      color: #0f5132;
+    }
+
+    .status-inactive {
+      background-color: #e2e3e5;
+      color: #41464b;
+    }
+
+    .status-discontinued {
+      background-color: #f8d7da;
+      color: #842029;
+    }
+
+    .actions {
+      display: flex;
+      gap: 7px;
+    }
+
+    .delete-form {
+      display: inline;
+    }
+
+    .empty-message {
+      padding: 42px;
+      text-align: center;
+      color: #777777;
+    }
+
+    .empty-message h3 {
+      color: #1e3a5f;
+      margin-bottom: 7px;
+    }
+
+    #searchEmptyMessage {
+      display: none;
+    }
+
+    @media (max-width: 750px) {
+      .header,
+      .page-heading {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .header {
+        gap: 14px;
+      }
+
+      .page-heading {
+        gap: 16px;
+      }
+
+      .container {
+        width: 94%;
+        margin: 25px auto;
+      }
+
+      .search-row {
+        flex-direction: column;
+      }
+
+      .btn-add,
+      .btn-clear {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+
+<body>
+
+<header class="header">
+
+  <div>
+    <h1>AAK Agency</h1>
+    <p>Product Management</p>
+  </div>
+
+  <a th:href="@{/}">
+    Back to Dashboard
+  </a>
+
+</header>
+
+<main class="container">
+
+  <section class="page-heading">
+
+    <div>
+      <h2>Products</h2>
+
+      <p>
+        Manage product identification,
+        weight, units and prices.
+      </p>
+    </div>
+
+    <a class="btn btn-add"
+       th:href="@{/products/new}">
+      + Add Product
+    </a>
+
+  </section>
+
+  <div class="message success-message"
+       th:if="${successMessage}"
+       th:text="${successMessage}">
+  </div>
+
+  <div class="message error-message"
+       th:if="${errorMessage}"
+       th:text="${errorMessage}">
+  </div>
+
+  <section class="search-section">
+
+    <label class="search-label"
+           for="productSearch">
+      Search Products
+    </label>
+
+    <div class="search-row">
+
+      <input id="productSearch"
+             type="search"
+             placeholder="Search by CBL code, product name, brand, category or weight"
+             autocomplete="off"
+             oninput="filterProducts()">
+
+      <button class="btn btn-clear"
+              type="button"
+              onclick="clearProductSearch()">
+        Clear
+      </button>
+
+    </div>
+
+    <p class="search-help">
+      Results are filtered immediately while you type.
+    </p>
+
+  </section>
+
+  <section class="table-container">
+
+    <table id="productTable"
+           th:if="${!#lists.isEmpty(products)}">
+
+      <thead>
+      <tr>
+        <th>CBL / SKU Code</th>
+        <th>Product</th>
+        <th>Brand</th>
+        <th>Category</th>
+        <th>Net Weight</th>
+        <th>Unit</th>
+        <th>MRP</th>
+        <th>Selling Rate</th>
+        <th>Reorder Level</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+
+      <tbody id="productTableBody">
+
+      <tr th:each="product : ${products}">
+
+        <td class="product-code"
+            th:text="${product.cblProductCode}">
+          -
+        </td>
+
+        <td class="product-name"
+            th:text="${product.productName}">
+          -
+        </td>
+
+        <td th:text="${product.brand != null
+                      && !product.brand.isBlank()
+                      ? product.brand : '-'}">
+          -
+        </td>
+
+        <td th:text="${product.category != null
+                      && !product.category.isBlank()
+                      ? product.category : '-'}">
+          -
+        </td>
+
+        <td>
+          <span class="product-weight"
+                th:text="${product.netWeight != null
+                          && !product.netWeight.isBlank()
+                          ? product.netWeight : '-'}">
+            -
+          </span>
+        </td>
+
+        <td>
+          <span class="unit"
+                th:text="${product.unit}">
+            PKT
+          </span>
+        </td>
+
+        <td class="price"
+            th:text="${'Rs. ' +
+                      #numbers.formatDecimal(
+                      product.mrp != null
+                      ? product.mrp : 0,
+                      1,
+                      2)}">
+          Rs. 0.00
+        </td>
+
+        <td class="price"
+            th:text="${'Rs. ' +
+                      #numbers.formatDecimal(
+                      product.standardSellingPrice != null
+                      ? product.standardSellingPrice : 0,
+                      1,
+                      2)}">
+          Rs. 0.00
+        </td>
+
+        <td>
+          <span class="unit"
+                th:text="${#numbers.formatDecimal(
+                          product.reorderLevel != null
+                          ? product.reorderLevel : 0,
+                          1,
+                          2) + ' ' + product.unit}">
+            0.00 PKT
+          </span>
+        </td>
+
+        <td>
+          <span class="status"
+                th:classappend="${product.status == 'ACTIVE'}
+                    ? ' status-active'
+                    : (${product.status == 'DISCONTINUED'}
+                    ? ' status-discontinued'
+                    : ' status-inactive')"
+                th:text="${product.status}">
+            ACTIVE
+          </span>
+        </td>
+
+        <td>
+          <div class="actions">
+
+            <a class="btn btn-edit"
+               th:href="@{/products/edit/{id}
+               (id=${product.id})}">
+              Edit
+            </a>
+
+            <form class="delete-form"
+                  method="post"
+                  th:action="@{/products/delete/{id}
+                  (id=${product.id})}"
+                  onsubmit="return confirm(
+                  'Are you sure you want to delete this product?');">
+
+              <button class="btn btn-delete"
+                      type="submit">
+                Delete
+              </button>
+
+            </form>
+
+          </div>
+        </td>
+
+      </tr>
+
+      </tbody>
+
+    </table>
+
+    <div class="empty-message"
+         th:if="${#lists.isEmpty(products)}">
+
+      <h3>No products added yet</h3>
+
+      <p>
+        Click “Add Product” to add the first product.
+      </p>
+
+    </div>
+
+    <div class="empty-message"
+         id="searchEmptyMessage">
+
+      <h3>No matching products found</h3>
+
+      <p>
+        Try a different code, name, brand,
+        category or weight.
+      </p>
+
+    </div>
+
+  </section>
+
+</main>
+
+<script>
+  function filterProducts() {
+    const searchInput =
+            document.getElementById("productSearch");
+
+    const keyword =
+            searchInput.value.toLowerCase().trim();
+
+    const tableBody =
+            document.getElementById("productTableBody");
+
+    const emptyMessage =
+            document.getElementById("searchEmptyMessage");
+
+    if (!tableBody) {
+      return;
+    }
+
+    const rows = tableBody.getElementsByTagName("tr");
+    let visibleRows = 0;
+
+    for (const row of rows) {
+      const rowText =
+              row.textContent.toLowerCase();
+
+      const isMatch =
+              rowText.includes(keyword);
+
+      row.style.display = isMatch ? "" : "none";
+
+      if (isMatch) {
+        visibleRows++;
+      }
+    }
+
+    emptyMessage.style.display =
+            visibleRows === 0 ? "block" : "none";
+  }
+
+  function clearProductSearch() {
+    const searchInput =
+            document.getElementById("productSearch");
+
+    searchInput.value = "";
+    filterProducts();
+    searchInput.focus();
+  }
+</script>
+
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Login - AAK Agency</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background:
+                    linear-gradient(
+                            135deg,
+                            #173454,
+                            #285884
+                    );
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 25px;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .brand-section {
+            color: white;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .brand-logo {
+            width: 75px;
+            height: 75px;
+            margin: 0 auto 15px;
+            border-radius: 50%;
+            background: white;
+            color: #213f66;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            font-weight: bold;
+            box-shadow: 0 5px 18px
+            rgba(0, 0, 0, 0.18);
+        }
+
+        .brand-section h1 {
+            font-size: 34px;
+            margin-bottom: 7px;
+        }
+
+        .brand-section p {
+            font-size: 16px;
+            color: #dce8f5;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 15px;
+            padding: 35px;
+            box-shadow: 0 12px 35px
+            rgba(0, 0, 0, 0.22);
+        }
+
+        .login-title {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .login-title h2 {
+            color: #213f66;
+            font-size: 25px;
+            margin-bottom: 7px;
+        }
+
+        .login-title p {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .message {
+            padding: 13px 15px;
+            border-radius: 7px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #842029;
+            border: 1px solid #f1aeb5;
+        }
+
+        .success-message {
+            background: #d7f0e3;
+            color: #12613d;
+            border: 1px solid #a3cfbb;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #213f66;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #c7d0da;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+
+        .password-input {
+            padding-right: 75px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #087cf0;
+            box-shadow: 0 0 0 3px
+            rgba(8, 124, 240, 0.12);
+        }
+
+        .show-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            color: #213f66;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .login-button {
+            width: 100%;
+            border: none;
+            border-radius: 8px;
+            padding: 14px;
+            background: #148b57;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .login-button:hover {
+            background: #107247;
+        }
+
+        .security-note {
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid #e4e7eb;
+            text-align: center;
+            color: #6c757d;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .footer-text {
+            color: #dce8f5;
+            text-align: center;
+            font-size: 13px;
+            margin-top: 22px;
+        }
+
+        @media (max-width: 500px) {
+            .login-card {
+                padding: 27px 22px;
+            }
+
+            .brand-section h1 {
+                font-size: 29px;
+            }
+        }
+    </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+
+<body>
+
+<div class="login-wrapper">
+
+    <section class="brand-section">
+
+        <div class="brand-logo">
+            AAK
+        </div>
+
+        <h1>AAK Agency</h1>
+
+        <p>
+            Distribution Management System
+        </p>
+
+    </section>
+
+    <section class="login-card">
+
+        <div class="login-title">
+
+            <h2>Administrator Login</h2>
+
+            <p>
+                Enter your account details to continue.
+            </p>
+
+        </div>
+
+        <div class="message error-message"
+             th:if="${param.error}">
+
+            Incorrect username or password.
+            Please try again.
+        </div>
+
+        <div class="message success-message"
+             th:if="${param.logout}">
+
+            You have logged out successfully.
+        </div>
+
+        <form th:action="@{/login}"
+              method="post">
+
+            <div class="form-group">
+
+                <label for="username">
+                    Username
+                </label>
+
+                <input id="username"
+                       name="username"
+                       type="text"
+                       class="form-control"
+                       placeholder="Enter username"
+                       autocomplete="username"
+                       autofocus
+                       required>
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <div class="input-wrapper">
+
+                    <input id="password"
+                           name="password"
+                           type="password"
+                           class="form-control password-input"
+                           placeholder="Enter password"
+                           autocomplete="current-password"
+                           required>
+
+                    <button type="button"
+                            id="showPasswordButton"
+                            class="show-password"
+                            onclick="togglePassword()">
+                        Show
+                    </button>
+
+                </div>
+            </div>
+
+            <button type="submit"
+                    class="login-button">
+                Login to System
+            </button>
+
+        </form>
+
+        <div class="security-note">
+
+            This system is restricted to authorized
+            AAK Agency users only.
+
+        </div>
+
+    </section>
+
+    <p class="footer-text">
+        © AAK Agency Distribution Management System
+    </p>
+
+</div>
+
+<script>
+    function togglePassword() {
+
+        const passwordInput =
+            document.getElementById("password");
+
+        const showPasswordButton =
+            document.getElementById(
+                "showPasswordButton"
+            );
+
+        if (passwordInput.type === "password") {
+
+            passwordInput.type = "text";
+            showPasswordButton.textContent =
+                "Hide";
+
+        } else {
+
+            passwordInput.type = "password";
+            showPasswordButton.textContent =
+                "Show";
+        }
+    }
+</script>
+
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>

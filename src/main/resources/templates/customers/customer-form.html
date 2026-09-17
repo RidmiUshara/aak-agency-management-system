@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title th:text="${pageTitle} + ' - AAK Agency'">
+    Customer Form - AAK Agency
+  </title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f4f6f9;
+      color: #222222;
+    }
+
+    .header {
+      background-color: #1e3a5f;
+      color: white;
+      padding: 20px 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header a {
+      color: white;
+      text-decoration: none;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 950px;
+      margin: 35px auto;
+    }
+
+    .page-heading {
+      margin-bottom: 22px;
+    }
+
+    .page-heading h2 {
+      color: #1e3a5f;
+      margin-bottom: 5px;
+    }
+
+    .form-card {
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      color: #1e3a5f;
+      font-weight: bold;
+      margin-bottom: 7px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid #cccccc;
+      border-radius: 6px;
+      padding: 11px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    .required {
+      color: #dc3545;
+    }
+
+    .button-group {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 25px;
+    }
+
+    .btn {
+      display: inline-block;
+      border: none;
+      border-radius: 6px;
+      padding: 12px 20px;
+      color: white;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .btn-save {
+      background-color: #198754;
+    }
+
+    .btn-cancel {
+      background-color: #6c757d;
+    }
+
+    @media (max-width: 700px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .full-width {
+        grid-column: auto;
+      }
+
+      .header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+
+<body>
+
+<header class="header">
+  <div>
+    <h1>AAK Agency</h1>
+    <p>Customer Management</p>
+  </div>
+
+  <a th:href="@{/customers}">Back to Customers</a>
+</header>
+
+<main class="container">
+
+  <section class="page-heading">
+    <h2 th:text="${pageTitle}">Customer Form</h2>
+    <p>Enter the customer information below.</p>
+  </section>
+
+  <section class="form-card">
+
+    <form method="post"
+          th:action="@{/customers/save}"
+          th:object="${customer}">
+
+      <input type="hidden"
+             th:field="*{id}">
+
+      <input type="hidden"
+             th:field="*{customerCode}">
+
+      <div class="form-grid">
+
+        <div class="form-group"
+             th:if="${customer.customerCode != null}">
+
+          <label>Customer Code</label>
+
+          <input type="text"
+                 th:value="${customer.customerCode}"
+                 readonly>
+        </div>
+
+        <div class="form-group">
+          <label>
+             Outlet ID
+          </label>
+
+          <input type="text"
+                 th:field="*{cblOutletId}"
+                 placeholder="Enter  outlet ID">
+        </div>
+
+        <div class="form-group">
+          <label>
+            Customer Name
+            <span class="required">*</span>
+          </label>
+
+          <input type="text"
+                 th:field="*{customerName}"
+                 placeholder="Enter customer or supermarket name"
+                 required>
+        </div>
+
+        <div class="form-group">
+          <label>Customer Type</label>
+
+          <select th:field="*{customerType}">
+            <option value="">Select customer type</option>
+            <option value="SUPERMARKET">Supermarket</option>
+            <option value="RETAIL_SHOP">Retail Shop</option>
+
+            <option value="OTHER">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Area</label>
+
+          <input type="text"
+                 th:field="*{area}"
+                 placeholder="Enter customer area">
+        </div>
+
+        <div class="form-group">
+          <label>Contact Person</label>
+
+          <input type="text"
+                 th:field="*{contactPerson}"
+                 placeholder="Enter contact person name">
+        </div>
+
+        <div class="form-group">
+          <label>Phone Number</label>
+
+          <input type="tel"
+                 th:field="*{phone}"
+                 placeholder="Example: 0712345678">
+        </div>
+
+        <div class="form-group">
+          <label>Credit Limit (LKR)</label>
+
+          <input type="number"
+                 th:field="*{creditLimit}"
+                 min="0"
+                 step="0.01"
+                 placeholder="0.00">
+        </div>
+
+        <div class="form-group">
+          <label>Payment Terms (Days)</label>
+
+          <input type="number"
+                 th:field="*{paymentTermsDays}"
+                 min="0"
+                 placeholder="21">
+        </div>
+
+        <div class="form-group">
+          <label>Assigned Employee</label>
+
+          <input type="text"
+                 th:field="*{assignedEmployee}"
+                 placeholder="Enter assigned employee">
+        </div>
+
+        <div class="form-group">
+          <label>Status</label>
+
+          <select th:field="*{status}">
+            <option value="">Use default active status</option>
+            <option value="ACTIVE">Active</option>
+            <option value="INACTIVE">Inactive</option>
+            <option value="ON_HOLD">On Hold</option>
+          </select>
+        </div>
+
+        <div class="form-group full-width">
+          <label>Address</label>
+
+          <textarea th:field="*{address}"
+                    placeholder="Enter customer address"></textarea>
+        </div>
+
+        <div class="form-group full-width">
+          <label>QR Code Reference</label>
+
+          <input type="text"
+                 th:field="*{qrCode}"
+                 placeholder="QR code will be added later">
+        </div>
+
+        <div class="form-group full-width">
+          <label>Notes</label>
+
+          <textarea th:field="*{notes}"
+                    placeholder="Enter any additional notes"></textarea>
+        </div>
+
+      </div>
+
+      <div class="button-group">
+
+        <a class="btn btn-cancel"
+           th:href="@{/customers}">
+          Cancel
+        </a>
+
+        <button class="btn btn-save"
+                type="submit">
+          Save Customer
+        </button>
+
+      </div>
+
+    </form>
+
+  </section>
+
+</main>
+
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>

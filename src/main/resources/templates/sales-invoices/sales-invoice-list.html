@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Sales Invoices - AAK Agency</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #222;
+        }
+
+        header {
+            background: #213f66;
+            color: white;
+            padding: 25px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 34px;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: #e4edf7;
+            font-size: 17px;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px 14px;
+            border: 1px solid rgba(255,255,255,0.35);
+            border-radius: 6px;
+        }
+
+        header a:hover {
+            background: rgba(255,255,255,0.12);
+        }
+
+        main {
+            width: 90%;
+            max-width: 1500px;
+            margin: 40px auto;
+        }
+
+        .title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .title-row h2 {
+            color: #213f66;
+            font-size: 30px;
+            margin-bottom: 6px;
+        }
+
+        .title-row p {
+            color: #606a75;
+        }
+
+        .add-button {
+            background: #148b57;
+            color: white;
+            text-decoration: none;
+            padding: 14px 22px;
+            border-radius: 7px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .add-button:hover {
+            background: #126f47;
+        }
+
+        .message {
+            padding: 15px;
+            margin-bottom: 22px;
+            border-radius: 7px;
+            font-weight: bold;
+        }
+
+        .success-message {
+            background: #d7f0e3;
+            color: #12613d;
+            border-left: 5px solid #148b57;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #842029;
+            border-left: 5px solid #dc3545;
+        }
+
+        .search-card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 22px;
+            border-radius: 10px;
+            border-top: 4px solid #213f66;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+        }
+
+        .search-card label {
+            display: block;
+            color: #213f66;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-input {
+            flex: 1;
+            border: 1px solid #cbd3dc;
+            border-radius: 7px;
+            padding: 12px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: #148b57;
+            box-shadow: 0 0 0 3px rgba(20,139,87,0.12);
+        }
+
+        .search-help {
+            color: #777;
+            font-size: 12px;
+            margin-top: 7px;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            overflow-x: auto;
+            box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1350px;
+        }
+
+        th {
+            background: #e8eef7;
+            color: #213f66;
+            padding: 17px 15px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 16px 15px;
+            border-top: 1px solid #e4e4e4;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .invoice-number,
+        .amount {
+            color: #213f66;
+            font-weight: bold;
+        }
+
+        .amount {
+            white-space: nowrap;
+        }
+
+        .customer-name {
+            min-width: 190px;
+            font-weight: bold;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .payment-paid,
+        .status-completed {
+            background: #d7f0e3;
+            color: #12613d;
+        }
+
+        .payment-partially-paid {
+            background: #fff0c2;
+            color: #805b00;
+        }
+
+        .payment-unpaid {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .status-draft {
+            background: #fff3cd;
+            color: #664d03;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .button {
+            display: inline-block;
+            border: none;
+            border-radius: 6px;
+            padding: 9px 13px;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .view-button {
+            background: #213f66;
+        }
+
+        .edit-button {
+            background: #087cf0;
+        }
+
+        .delete-button {
+            background: #dc3545;
+        }
+
+        .clear-button {
+            background: #6c757d;
+            padding: 11px 17px;
+        }
+
+        .button:hover {
+            opacity: 0.9;
+        }
+
+        .empty-message {
+            padding: 42px;
+            text-align: center;
+            color: #666;
+        }
+
+        .empty-message h3 {
+            color: #213f66;
+            margin-bottom: 7px;
+        }
+
+        #searchEmptyMessage {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            header,
+            .title-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 18px;
+            }
+
+            main {
+                width: 95%;
+                margin: 25px auto;
+            }
+
+            .search-row {
+                flex-direction: column;
+            }
+
+            .add-button,
+            .clear-button {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+
+<body>
+
+<header>
+
+    <div>
+        <h1>AAK Agency</h1>
+        <p>Sales Invoice Management</p>
+    </div>
+
+    <a th:href="@{/}">
+        Back to Dashboard
+    </a>
+
+</header>
+
+<main>
+
+    <div class="title-row">
+
+        <div>
+            <h2>Sales Invoices</h2>
+
+            <p>
+                Record and manage products supplied to shops and customers.
+            </p>
+        </div>
+
+        <a class="add-button"
+           th:href="@{/sales-invoices/new}">
+            + Add Sales Invoice
+        </a>
+
+    </div>
+
+    <div class="message success-message"
+         th:if="${successMessage}"
+         th:text="${successMessage}">
+    </div>
+
+    <div class="message error-message"
+         th:if="${errorMessage}"
+         th:text="${errorMessage}">
+    </div>
+
+    <section class="search-card">
+
+        <label for="invoiceSearch">
+            Search Sales Invoices
+        </label>
+
+        <div class="search-row">
+
+            <input class="search-input"
+                   id="invoiceSearch"
+                   type="search"
+                   placeholder="Search by invoice number, customer, area, route, sale type or status"
+                   autocomplete="off"
+                   oninput="filterInvoices()">
+
+            <button class="button clear-button"
+                    type="button"
+                    onclick="clearInvoiceSearch()">
+                Clear
+            </button>
+
+        </div>
+
+        <p class="search-help">
+            Results are filtered immediately while you type.
+        </p>
+
+    </section>
+
+    <div class="table-container">
+
+        <table th:if="${!#lists.isEmpty(invoices)}">
+
+            <thead>
+            <tr>
+                <th>Invoice No.</th>
+                <th>Date</th>
+                <th>Customer</th>
+                <th>Area</th>
+                <th>Route</th>
+                <th>Sale Type</th>
+                <th>Gross Amount</th>
+                <th>Net Amount</th>
+                <th>Payment</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+
+            <tbody id="invoiceTableBody">
+
+            <tr th:each="invoice : ${invoices}">
+
+                <td class="invoice-number"
+                    th:text="${invoice.invoiceNumber}">
+                    -
+                </td>
+
+                <td th:text="${invoice.invoiceDate}">
+                    -
+                </td>
+
+                <td class="customer-name"
+                    th:text="${invoice.customer != null
+                    ? invoice.customer.customerName : '-'}">
+                    -
+                </td>
+
+                <td th:text="${invoice.customer != null
+                    && invoice.customer.area != null
+                    && !invoice.customer.area.isBlank()
+                    ? invoice.customer.area : '-'}">
+                    -
+                </td>
+
+                <td th:text="${invoice.routeCode != null
+                    && !invoice.routeCode.isBlank()
+                    ? invoice.routeCode : '-'}">
+                    -
+                </td>
+
+                <td th:text="${invoice.saleType}">
+                    CREDIT
+                </td>
+
+                <td class="amount"
+                    th:text="${'Rs. ' +
+                    #numbers.formatDecimal(
+                    invoice.grossAmount != null
+                    ? invoice.grossAmount : 0,
+                    1,
+                    2)}">
+                    Rs. 0.00
+                </td>
+
+                <td class="amount"
+                    th:text="${'Rs. ' +
+                    #numbers.formatDecimal(
+                    invoice.netAmount != null
+                    ? invoice.netAmount : 0,
+                    1,
+                    2)}">
+                    Rs. 0.00
+                </td>
+
+                <td>
+
+                    <span class="badge payment-paid"
+                          th:if="${invoice.paymentStatus == 'PAID'}">
+                        PAID
+                    </span>
+
+                    <span class="badge payment-partially-paid"
+                          th:if="${invoice.paymentStatus == 'PARTIALLY_PAID'}">
+                        PARTIALLY PAID
+                    </span>
+
+                    <span class="badge payment-unpaid"
+                          th:if="${invoice.paymentStatus == 'UNPAID'}">
+                        UNPAID
+                    </span>
+
+                    <span class="badge payment-unpaid"
+                          th:if="${invoice.paymentStatus == null
+                          || invoice.paymentStatus.isBlank()}">
+                        UNPAID
+                    </span>
+
+                </td>
+
+                <td>
+                    <span class="badge"
+                          th:classappend="${invoice.status == 'COMPLETED'}
+                          ? ' status-completed'
+                          : ' status-draft'"
+                          th:text="${invoice.status}">
+                        DRAFT
+                    </span>
+                </td>
+
+                <td>
+                    <div class="actions">
+
+                        <a class="button view-button"
+                           th:href="@{/sales-invoices/view/{id}
+                           (id=${invoice.id})}">
+                            View
+                        </a>
+
+                        <a class="button edit-button"
+                           th:if="${invoice.status != 'COMPLETED'}"
+                           th:href="@{/sales-invoices/edit/{id}
+                           (id=${invoice.id})}">
+                            Edit
+                        </a>
+
+                        <form th:if="${invoice.status != 'COMPLETED'}"
+                              th:action="@{/sales-invoices/delete/{id}
+                              (id=${invoice.id})}"
+                              method="post"
+                              onsubmit="return confirm(
+                              'Delete this sales invoice?');">
+
+                            <button class="button delete-button"
+                                    type="submit">
+                                Delete
+                            </button>
+
+                        </form>
+
+                    </div>
+                </td>
+
+            </tr>
+
+            </tbody>
+
+        </table>
+
+        <div class="empty-message"
+             th:if="${#lists.isEmpty(invoices)}">
+
+            <h3>No sales invoices found</h3>
+
+            <p>
+                Click “Add Sales Invoice” to create the first invoice.
+            </p>
+
+        </div>
+
+        <div class="empty-message"
+             id="searchEmptyMessage">
+
+            <h3>No matching sales invoices found</h3>
+
+            <p>
+                Try a different invoice number,
+                customer name, area or route.
+            </p>
+
+        </div>
+
+    </div>
+
+</main>
+
+<script>
+    function filterInvoices() {
+        const searchInput =
+            document.getElementById("invoiceSearch");
+
+        const tableBody =
+            document.getElementById("invoiceTableBody");
+
+        const emptyMessage =
+            document.getElementById(
+                "searchEmptyMessage"
+            );
+
+        if (!tableBody) {
+            return;
+        }
+
+        const keyword =
+            searchInput.value
+                .toLowerCase()
+                .trim();
+
+        const rows =
+            tableBody.getElementsByTagName("tr");
+
+        let visibleRows = 0;
+
+        for (const row of rows) {
+            const rowText =
+                row.textContent.toLowerCase();
+
+            const isMatch =
+                rowText.includes(keyword);
+
+            row.style.display =
+                isMatch ? "" : "none";
+
+            if (isMatch) {
+                visibleRows++;
+            }
+        }
+
+        emptyMessage.style.display =
+            visibleRows === 0
+                ? "block"
+                : "none";
+    }
+
+    function clearInvoiceSearch() {
+        const searchInput =
+            document.getElementById("invoiceSearch");
+
+        searchInput.value = "";
+        filterInvoices();
+        searchInput.focus();
+    }
+</script>
+
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>

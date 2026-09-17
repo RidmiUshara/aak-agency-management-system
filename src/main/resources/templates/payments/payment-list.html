@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Payments - AAK Agency</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            color: #222222;
+        }
+
+        header {
+            background-color: #213f66;
+            color: white;
+            padding: 28px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 34px;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            font-size: 17px;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        header a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            width: 90%;
+            max-width: 1500px;
+            margin: 42px auto;
+        }
+
+        .page-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .page-heading h2 {
+            color: #213f66;
+            font-size: 30px;
+            margin-bottom: 6px;
+        }
+
+        .page-heading p {
+            color: #5f6873;
+        }
+
+        .btn {
+            display: inline-block;
+            border: none;
+            border-radius: 7px;
+            padding: 11px 16px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-green {
+            background-color: #198754;
+            color: white;
+        }
+
+        .btn-blue {
+            background-color: #213f66;
+            color: white;
+        }
+
+        .btn-grey {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-red {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .alert {
+            padding: 16px 20px;
+            margin-bottom: 22px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .alert-success {
+            background-color: #d1e7dd;
+            color: #146c43;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(
+                auto-fit,
+                minmax(220px, 1fr)
+            );
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            background-color: white;
+            border-radius: 11px;
+            padding: 22px;
+            border-top: 5px solid #213f66;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+        }
+
+        .summary-card p {
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 9px;
+        }
+
+        .summary-card strong {
+            color: #213f66;
+            font-size: 27px;
+        }
+
+        .received-card {
+            border-top-color: #198754;
+        }
+
+        .received-card strong {
+            color: #146c43;
+        }
+
+        .amount-card {
+            border-top-color: #6f42c1;
+        }
+
+        .amount-card strong {
+            color: #6f42c1;
+        }
+
+        .search-card {
+            background-color: white;
+            border-radius: 11px;
+            padding: 20px;
+            margin-bottom: 22px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+        }
+
+        .search-card h3 {
+            color: #213f66;
+            margin-bottom: 14px;
+        }
+
+        .search-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-row input {
+            flex: 1;
+            min-width: 0;
+            border: 1px solid #c9d2dc;
+            border-radius: 7px;
+            padding: 12px 14px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .search-row input:focus {
+            border-color: #213f66;
+            box-shadow: 0 0 0 3px rgba(33, 63, 102, 0.1);
+        }
+
+        .search-help {
+            color: #6c757d;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        .table-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 18px;
+        }
+
+        .table-heading h3 {
+            color: #213f66;
+            font-size: 22px;
+        }
+
+        .result-count {
+            color: #6c757d;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1250px;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: #e8eef7;
+            color: #213f66;
+            padding: 16px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 16px;
+            border-top: 1px solid #e4e4e4;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .amount {
+            color: #213f66;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .invoice-number {
+            color: #213f66;
+            font-weight: bold;
+        }
+
+        .customer-name {
+            font-weight: bold;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 7px 13px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .badge-received {
+            background-color: #d1e7dd;
+            color: #146c43;
+        }
+
+        .badge-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-cash {
+            background-color: #d1e7dd;
+            color: #146c43;
+        }
+
+        .badge-cheque {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-transfer {
+            background-color: #e5d8f7;
+            color: #563394;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .delete-form {
+            display: inline;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #666666;
+            padding: 45px 20px;
+        }
+
+        .empty-message h3 {
+            color: #213f66;
+            margin-bottom: 8px;
+        }
+
+        .no-search-results {
+            display: none;
+            text-align: center;
+            padding: 35px 20px;
+            color: #856404;
+            background-color: #fff8e1;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .no-search-results h3 {
+            margin-bottom: 7px;
+        }
+
+        @media (max-width: 700px) {
+            header,
+            .page-heading,
+            .search-row,
+            .table-heading {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            main {
+                width: 95%;
+                margin: 25px auto;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .search-row input,
+            .search-row button {
+                width: 100%;
+            }
+
+            .actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .actions .btn {
+                text-align: center;
+                width: 100%;
+            }
+        }
+    </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+
+<body>
+
+<header>
+
+    <div>
+        <h1>AAK Agency</h1>
+        <p>Payment and Credit Collection Management</p>
+    </div>
+
+    <a th:href="@{/}">
+        Back to Dashboard
+    </a>
+
+</header>
+
+<main>
+
+    <section class="page-heading">
+
+        <div>
+            <h2>Payments</h2>
+
+            <p>
+                View customer payments, balances and printable receipts.
+            </p>
+        </div>
+
+        <a class="btn btn-green"
+           th:href="@{/payments/new}">
+            + Record Payment
+        </a>
+
+    </section>
+
+    <div class="alert alert-success"
+         th:if="${successMessage}"
+         th:text="${successMessage}">
+    </div>
+
+    <div class="alert alert-error"
+         th:if="${errorMessage}"
+         th:text="${errorMessage}">
+    </div>
+
+    <section class="summary-grid">
+
+        <div class="summary-card">
+
+            <p>Total Payment Records</p>
+
+            <strong th:text="${totalPayments}">
+                0
+            </strong>
+
+        </div>
+
+        <div class="summary-card received-card">
+
+            <p>Received Payments</p>
+
+            <strong th:text="${receivedPaymentCount}">
+                0
+            </strong>
+
+        </div>
+
+        <div class="summary-card amount-card">
+
+            <p>Total Amount Collected</p>
+
+            <strong th:text="${'Rs. ' +
+                    #numbers.formatDecimal(
+                    totalCollected, 1, 2)}">
+                Rs. 0.00
+            </strong>
+
+        </div>
+
+    </section>
+
+    <section class="search-card"
+             th:if="${!#lists.isEmpty(payments)}">
+
+        <h3>Search Payments</h3>
+
+        <div class="search-row">
+
+            <input type="text"
+                   id="paymentSearch"
+                   placeholder="Search receipt, invoice, customer, area, method or reference"
+                   autocomplete="off"
+                   oninput="filterPayments()">
+
+            <button type="button"
+                    class="btn btn-grey"
+                    onclick="clearPaymentSearch()">
+                Clear
+            </button>
+
+        </div>
+
+        <p class="search-help">
+            The payment list will be filtered automatically while you type.
+        </p>
+
+    </section>
+
+    <section class="card">
+
+        <div class="table-heading"
+             th:if="${!#lists.isEmpty(payments)}">
+
+            <h3>Payment History</h3>
+
+            <span class="result-count">
+                Showing
+                <span id="visiblePaymentCount"
+                      th:text="${totalPayments}">
+                    0
+                </span>
+                payment(s)
+            </span>
+
+        </div>
+
+        <div class="table-container"
+             th:if="${!#lists.isEmpty(payments)}">
+
+            <table id="paymentTable">
+
+                <thead>
+                <tr>
+                    <th>Receipt Number</th>
+                    <th>Payment Date</th>
+                    <th>Sales Invoice</th>
+                    <th>Customer</th>
+                    <th>Area</th>
+                    <th>Amount</th>
+                    <th>Method</th>
+                    <th>Reference / Cheque</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                <tr class="payment-row"
+                    th:each="payment : ${payments}">
+
+                    <td class="invoice-number"
+                        th:text="${payment.receiptNumber}">
+                        REC-001
+                    </td>
+
+                    <td th:text="${payment.paymentDate}">
+                        2026-09-10
+                    </td>
+
+                    <td class="invoice-number"
+                        th:text="${payment.salesInvoice.invoiceNumber}">
+                        INV-001
+                    </td>
+
+                    <td class="customer-name"
+                        th:text="${payment.salesInvoice.customer.customerName}">
+                        Customer
+                    </td>
+
+                    <td th:text="${payment.salesInvoice.customer.area != null
+                                  and !payment.salesInvoice.customer.area.isBlank()
+                                  ? payment.salesInvoice.customer.area
+                                  : '-'}">
+                        Area
+                    </td>
+
+                    <td class="amount"
+                        th:text="${'Rs. ' +
+                        #numbers.formatDecimal(
+                        payment.amount, 1, 2)}">
+                        Rs. 0.00
+                    </td>
+
+                    <td>
+
+                        <span class="badge badge-cash"
+                              th:if="${payment.paymentMethod == 'CASH'}">
+                            CASH
+                        </span>
+
+                        <span class="badge badge-cheque"
+                              th:if="${payment.paymentMethod == 'CHEQUE'}">
+                            CHEQUE
+                        </span>
+
+                        <span class="badge badge-transfer"
+                              th:if="${payment.paymentMethod == 'BANK_TRANSFER'}">
+                            BANK TRANSFER
+                        </span>
+
+                        <span class="badge"
+                              th:if="${payment.paymentMethod != 'CASH'
+                                     and payment.paymentMethod != 'CHEQUE'
+                                     and payment.paymentMethod != 'BANK_TRANSFER'}"
+                              th:text="${payment.paymentMethod}">
+                            OTHER
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <span th:if="${payment.paymentMethod == 'CHEQUE'}"
+                              th:text="${payment.chequeNumber != null
+                                      and !payment.chequeNumber.isBlank()
+                                      ? payment.chequeNumber
+                                      : '-'}">
+                            -
+                        </span>
+
+                        <span th:if="${payment.paymentMethod == 'BANK_TRANSFER'}"
+                              th:text="${payment.referenceNumber != null
+                                      and !payment.referenceNumber.isBlank()
+                                      ? payment.referenceNumber
+                                      : '-'}">
+                            -
+                        </span>
+
+                        <span th:if="${payment.paymentMethod == 'CASH'}">
+                            -
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <span class="badge"
+                              th:classappend="${#strings.equalsIgnoreCase(
+                                             payment.status,
+                                             'RECEIVED')}
+                                             ? ' badge-received'
+                                             : ' badge-pending'"
+                              th:text="${payment.status}">
+                            RECEIVED
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <div class="actions">
+
+                            <a class="btn btn-blue"
+                               th:href="@{/payments/view/{id}
+                               (id=${payment.id})}">
+                                View Receipt
+                            </a>
+
+                            <form class="delete-form"
+                                  method="post"
+                                  th:action="@{/payments/delete/{id}
+                                  (id=${payment.id})}"
+                                  onsubmit="return confirm(
+                                  'Are you sure you want to delete payment receipt '
+                                  + this.dataset.receipt
+                                  + '? The invoice balance will be recalculated.'
+                                  );"
+                                  th:attr="data-receipt=${payment.receiptNumber}">
+
+                                <button type="submit"
+                                        class="btn btn-red">
+                                    Delete
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <div id="noSearchResults"
+             class="no-search-results">
+
+            <h3>No matching payments found</h3>
+
+            <p>
+                Try searching with a different receipt number,
+                invoice number, customer or payment method.
+            </p>
+
+        </div>
+
+        <div class="empty-message"
+             th:if="${#lists.isEmpty(payments)}">
+
+            <h3>No payments recorded</h3>
+
+            <p>
+                Click “Record Payment” to enter the first customer payment.
+            </p>
+
+        </div>
+
+    </section>
+
+</main>
+
+<script>
+    function filterPayments() {
+
+        const searchInput =
+            document.getElementById("paymentSearch");
+
+        const searchValue =
+            searchInput.value
+                .toLowerCase()
+                .trim();
+
+        const paymentRows =
+            document.querySelectorAll(".payment-row");
+
+        let visibleCount = 0;
+
+        paymentRows.forEach(function (row) {
+
+            const rowText =
+                row.textContent
+                    .toLowerCase()
+                    .replace(/\s+/g, " ");
+
+            const isVisible =
+                rowText.includes(searchValue);
+
+            row.style.display =
+                isVisible ? "" : "none";
+
+            if (isVisible) {
+                visibleCount++;
+            }
+        });
+
+        const countElement =
+            document.getElementById(
+                "visiblePaymentCount"
+            );
+
+        if (countElement) {
+            countElement.textContent =
+                visibleCount;
+        }
+
+        const noResultsMessage =
+            document.getElementById(
+                "noSearchResults"
+            );
+
+        if (noResultsMessage) {
+
+            noResultsMessage.style.display =
+                visibleCount === 0
+                    ? "block"
+                    : "none";
+        }
+    }
+
+    function clearPaymentSearch() {
+
+        const searchInput =
+            document.getElementById(
+                "paymentSearch"
+            );
+
+        if (!searchInput) {
+            return;
+        }
+
+        searchInput.value = "";
+
+        filterPayments();
+
+        searchInput.focus();
+    }
+</script>
+
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>

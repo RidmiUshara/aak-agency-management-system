@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customers - AAK Agency</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background-color: #f4f6f9; color: #222222; }
+    .header { background-color: #1e3a5f; color: white; padding: 20px 5%; display: flex; align-items: center; justify-content: space-between; }
+    .header a { color: white; text-decoration: none; }
+    .container { width: 90%; max-width: 1400px; margin: 35px auto; }
+    .page-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .page-heading h2 { color: #1e3a5f; }
+    .btn { display: inline-block; border: none; border-radius: 6px; padding: 11px 16px; color: white; text-decoration: none; cursor: pointer; font-size: 14px; white-space: nowrap; }
+    .btn-add { background-color: #198754; }
+    .btn-credit { background-color: #6f42c1; }
+    .btn-edit { background-color: #0d6efd; }
+    .btn-delete { background-color: #dc3545; }
+    .btn:hover { opacity: 0.9; }
+    .message { border-radius: 6px; padding: 13px; margin-bottom: 20px; }
+    .success-message { background-color: #d1e7dd; color: #0f5132; }
+    .error-message { background-color: #f8d7da; color: #842029; }
+    .table-container { background-color: white; border-radius: 10px; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08); overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background-color: #e9eef5; color: #1e3a5f; text-align: left; padding: 15px; white-space: nowrap; }
+    td { padding: 14px 15px; border-top: 1px solid #eeeeee; white-space: nowrap; vertical-align: middle; }
+    tbody tr:hover { background-color: #f8fafc; }
+    .status { display: inline-block; background-color: #d1e7dd; color: #0f5132; padding: 5px 10px; border-radius: 20px; font-size: 13px; }
+    .actions { display: flex; gap: 7px; align-items: center; }
+    .delete-form { display: inline; }
+    .empty-message { padding: 35px; text-align: center; color: #777777; }
+    @media (max-width: 700px) {
+      .header, .page-heading { align-items: flex-start; flex-direction: column; gap: 15px; }
+      .container { width: 95%; }
+    }
+  </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+<body>
+<header class="header">
+  <div>
+    <h1>AAK Agency</h1>
+    <p>Customer Management</p>
+  </div>
+  <a th:href="@{/}">Back to Dashboard</a>
+</header>
+
+<main class="container">
+  <section class="page-heading">
+    <div>
+      <h2>Customers</h2>
+      <p>Manage supermarkets and customer details.</p>
+    </div>
+    <a class="btn btn-add" th:href="@{/customers/new}">+ Add Customer</a>
+  </section>
+
+  <div class="message success-message" th:if="${successMessage}" th:text="${successMessage}"></div>
+  <div class="message error-message" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+  <section class="table-container">
+    <table th:if="${!#lists.isEmpty(customers)}">
+      <thead>
+      <tr>
+        <th>Customer Code</th>
+        <th>Customer Name</th>
+        <th>Type</th>
+        <th>Area</th>
+        <th>Phone</th>
+        <th>Credit Limit</th>
+        <th>Credit Days</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="customer : ${customers}">
+        <td th:text="${customer.customerCode}"></td>
+        <td th:text="${customer.customerName}"></td>
+        <td th:text="${customer.customerType}"></td>
+        <td th:text="${customer.area != null && !customer.area.isBlank() ? customer.area : '-'}"></td>
+        <td th:text="${customer.phone != null && !customer.phone.isBlank() ? customer.phone : '-'}"></td>
+        <td th:text="${'Rs. ' + #numbers.formatDecimal(customer.creditLimit != null ? customer.creditLimit : 0, 1, 2)}"></td>
+        <td th:text="${customer.paymentTermsDays != null ? customer.paymentTermsDays : 0}"></td>
+        <td><span class="status" th:text="${customer.status}"></span></td>
+        <td>
+          <div class="actions">
+            <a class="btn btn-credit" th:href="@{/customers/{id}/credit-history(id=${customer.id})}">Credit History</a>
+            <a class="btn btn-edit" th:href="@{/customers/edit/{id}(id=${customer.id})}">Edit</a>
+            <form class="delete-form" method="post" th:action="@{/customers/delete/{id}(id=${customer.id})}" onsubmit="return confirm('Are you sure you want to delete this customer?');">
+              <button class="btn btn-delete" type="submit">Delete</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+    <div class="empty-message" th:if="${#lists.isEmpty(customers)}">
+      <h3>No customers added yet</h3>
+      <p>Click “Add Customer” to add the first customer.</p>
+    </div>
+  </section>
+</main>
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>

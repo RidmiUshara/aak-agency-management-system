@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Reports - AAK Agency</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6f9;
+            color: #222;
+        }
+
+        header {
+            background: #213f66;
+            color: white;
+            padding: 25px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 34px;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: #e4edf7;
+            font-size: 17px;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px 14px;
+            border: 1px solid rgba(255,255,255,0.35);
+            border-radius: 6px;
+        }
+
+        main {
+            width: 90%;
+            max-width: 1500px;
+            margin: 40px auto;
+        }
+
+        .title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .page-title h2 {
+            color: #213f66;
+            font-size: 30px;
+            margin-bottom: 7px;
+        }
+
+        .page-title p {
+            color: #555;
+        }
+
+        .print-button,
+        .filter-button,
+        .clear-button {
+            display: inline-block;
+            border: none;
+            border-radius: 7px;
+            padding: 12px 19px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .print-button {
+            background: #6f42c1;
+        }
+
+        .filter-button {
+            background: #148b57;
+        }
+
+        .clear-button {
+            background: #6c757d;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #842029;
+            border-left: 5px solid #dc3545;
+            padding: 15px;
+            border-radius: 7px;
+            margin-bottom: 22px;
+            font-weight: bold;
+        }
+
+        .filter-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border-top: 5px solid #213f66;
+            box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .filter-card h3 {
+            color: #213f66;
+            margin-bottom: 18px;
+        }
+
+        .filter-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .form-group label {
+            display: block;
+            color: #213f66;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        .form-group input,
+        .table-search {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cfd7e3;
+            border-radius: 7px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .table-search:focus {
+            border-color: #148b57;
+            box-shadow: 0 0 0 3px rgba(20,139,87,0.12);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(
+                auto-fit,
+                minmax(210px, 1fr)
+            );
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border-top: 5px solid #213f66;
+            box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+        }
+
+        .summary-card label {
+            display: block;
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .summary-card strong {
+            color: #213f66;
+            font-size: 25px;
+        }
+
+        .summary-card small {
+            display: block;
+            color: #6c757d;
+            margin-top: 8px;
+        }
+
+        .purchase-summary {
+            border-top-color: #6f42c1;
+        }
+
+        .sales-summary {
+            border-top-color: #148b57;
+        }
+
+        .payment-summary {
+            border-top-color: #087cf0;
+        }
+
+        .outstanding-summary,
+        .low-summary {
+            border-top-color: #e0a800;
+        }
+
+        .out-summary {
+            border-top-color: #dc3545;
+        }
+
+        .outstanding-summary strong,
+        .low-summary strong {
+            color: #805b00;
+        }
+
+        .out-summary strong {
+            color: #842029;
+        }
+
+        .card {
+            background: white;
+            padding: 28px;
+            border-radius: 12px;
+            box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .purchase-card {
+            border-top: 5px solid #6f42c1;
+        }
+
+        .sales-card {
+            border-top: 5px solid #148b57;
+        }
+
+        .payment-card {
+            border-top: 5px solid #087cf0;
+        }
+
+        .stock-card {
+            border-top: 5px solid #e0a800;
+        }
+
+        .card-title {
+            color: #213f66;
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .card-description {
+            color: #6c757d;
+            margin-bottom: 18px;
+        }
+
+        .table-search {
+            margin-bottom: 18px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 950px;
+        }
+
+        th {
+            background: #e8eef7;
+            color: #213f66;
+            padding: 15px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 15px;
+            border-top: 1px solid #e4e4e4;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .reference,
+        .amount,
+        .product-name {
+            color: #213f66;
+            font-weight: bold;
+        }
+
+        .amount {
+            white-space: nowrap;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .completed,
+        .paid,
+        .verified,
+        .received,
+        .unit-badge {
+            background: #d7f0e3;
+            color: #12613d;
+        }
+
+        .draft,
+        .partially-paid,
+        .not-verified,
+        .low-stock {
+            background: #fff3cd;
+            color: #664d03;
+        }
+
+        .unpaid,
+        .out-of-stock {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .weight-badge {
+            background: #e8eef7;
+            color: #213f66;
+        }
+
+        .empty-message {
+            color: #666;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .search-empty {
+            display: none;
+        }
+
+        .generated-information {
+            color: #6c757d;
+            text-align: right;
+            margin-top: 20px;
+            font-size: 13px;
+        }
+
+        .print-header {
+            display: none;
+        }
+
+        @media (max-width: 850px) {
+            .filter-form {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 650px) {
+            header,
+            .title-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            main {
+                width: 95%;
+            }
+
+            .filter-form {
+                grid-template-columns: 1fr;
+            }
+
+            .print-button,
+            .filter-button,
+            .clear-button {
+                width: 100%;
+            }
+
+            .card {
+                padding: 20px;
+            }
+        }
+
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 10mm;
+            }
+
+            body {
+                background: white;
+                font-size: 9px;
+            }
+
+            header,
+            .screen-only,
+            .filter-card,
+            .table-search,
+            .search-empty {
+                display: none !important;
+            }
+
+            .print-header {
+                display: block;
+                border-bottom: 3px solid #213f66;
+                padding-bottom: 12px;
+                margin-bottom: 18px;
+            }
+
+            main {
+                width: 100%;
+                max-width: none;
+                margin: 0;
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(6, 1fr);
+                gap: 8px;
+                margin-bottom: 15px;
+            }
+
+            .summary-card {
+                box-shadow: none;
+                border: 1px solid #aaa;
+                border-top: 3px solid #213f66;
+                padding: 10px;
+            }
+
+            .summary-card strong {
+                font-size: 14px;
+            }
+
+            .card {
+                box-shadow: none;
+                border: 1px solid #aaa;
+                border-radius: 0;
+                padding: 12px;
+                margin-bottom: 15px;
+                break-inside: avoid;
+            }
+
+            .card-title {
+                font-size: 15px;
+            }
+
+            table {
+                min-width: 0;
+                font-size: 8px;
+            }
+
+            th,
+            td {
+                padding: 5px;
+                border: 1px solid #aaa;
+            }
+
+            .badge {
+                color: #111;
+                background: white;
+                border: 1px solid #999;
+                padding: 3px 5px;
+            }
+        }
+    </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+
+<body>
+
+<header class="screen-only">
+
+    <div>
+        <h1>AAK Agency</h1>
+        <p>Business Reports</p>
+    </div>
+
+    <a th:href="@{/}">
+        Back to Dashboard
+    </a>
+
+</header>
+
+<main>
+
+    <section class="print-header">
+
+        <h1>AAK Agency</h1>
+        <h2>Business Reports</h2>
+
+        <p>
+            Period:
+            <strong th:text="${fromDate != null
+            ? fromDate : 'Beginning'}">
+                Beginning
+            </strong>
+
+            to
+
+            <strong th:text="${toDate != null
+            ? toDate : 'Today'}">
+                Today
+            </strong>
+        </p>
+
+    </section>
+
+    <section class="title-row screen-only">
+
+        <div class="page-title">
+
+            <h2>Reports Summary</h2>
+
+            <p>
+                View purchase, sales, payment, credit and stock information.
+            </p>
+
+        </div>
+
+        <button class="print-button"
+                type="button"
+                onclick="window.print()">
+            Print / Save as PDF
+        </button>
+
+    </section>
+
+    <div class="error-message"
+         th:if="${errorMessage}"
+         th:text="${errorMessage}">
+    </div>
+
+    <section class="filter-card screen-only">
+
+        <h3>Filter Financial Reports by Date</h3>
+
+        <form class="filter-form"
+              method="get"
+              th:action="@{/reports}">
+
+            <div class="form-group">
+
+                <label for="fromDate">From Date</label>
+
+                <input type="date"
+                       id="fromDate"
+                       name="fromDate"
+                       th:value="${fromDate}">
+            </div>
+
+            <div class="form-group">
+
+                <label for="toDate">To Date</label>
+
+                <input type="date"
+                       id="toDate"
+                       name="toDate"
+                       th:value="${toDate}">
+            </div>
+
+            <button class="filter-button"
+                    type="submit">
+                Filter Reports
+            </button>
+
+            <a class="clear-button"
+               th:href="@{/reports}">
+                Clear Filter
+            </a>
+
+        </form>
+
+    </section>
+
+    <section class="summary-grid">
+
+        <div class="summary-card purchase-summary">
+
+            <label>Total Completed Purchases</label>
+
+            <strong th:text="${'Rs. ' +
+            #numbers.formatDecimal(
+            totalPurchases, 1, 2)}">
+                Rs. 0.00
+            </strong>
+
+            <small th:text="${completedPurchaseCount
+            + ' completed | '
+            + verifiedPurchaseCount
+            + ' verified'}">
+                0 completed
+            </small>
+
+        </div>
+
+        <div class="summary-card sales-summary">
+
+            <label>Total Completed Sales</label>
+
+            <strong th:text="${'Rs. ' +
+            #numbers.formatDecimal(
+            totalSales, 1, 2)}">
+                Rs. 0.00
+            </strong>
+
+            <small th:text="${completedSalesCount
+            + ' completed invoices'}">
+                0 completed
+            </small>
+
+        </div>
+
+        <div class="summary-card payment-summary">
+
+            <label>Total Payments Received</label>
+
+            <strong th:text="${'Rs. ' +
+            #numbers.formatDecimal(
+            totalPayments, 1, 2)}">
+                Rs. 0.00
+            </strong>
+
+            <small th:text="${receivedPaymentCount
+            + ' received payments'}">
+                0 payments
+            </small>
+
+        </div>
+
+        <div class="summary-card outstanding-summary">
+
+            <label>Outstanding Credit</label>
+
+            <strong th:text="${'Rs. ' +
+            #numbers.formatDecimal(
+            outstandingCredit, 1, 2)}">
+                Rs. 0.00
+            </strong>
+
+            <small>Balance of selected credit invoices</small>
+
+        </div>
+
+        <div class="summary-card low-summary">
+
+            <label>Low Stock Products</label>
+
+            <strong th:text="${lowStockCount}">
+                0
+            </strong>
+
+            <small>Stock from 0.01 to 10</small>
+
+        </div>
+
+        <div class="summary-card out-summary">
+
+            <label>Out of Stock Products</label>
+
+            <strong th:text="${outOfStockCount}">
+                0
+            </strong>
+
+            <small>Zero or negative stock</small>
+
+        </div>
+
+    </section>
+
+    <section class="card purchase-card">
+
+        <h3 class="card-title">Purchase Invoice Report</h3>
+
+        <p class="card-description">
+            CBL purchase invoices within the selected date range.
+        </p>
+
+        <input class="table-search screen-only"
+               type="search"
+               placeholder="Search purchase invoices"
+               oninput="filterTable(
+               this, 'purchaseReportBody',
+               'purchaseSearchEmpty')">
+
+        <div class="table-container">
+
+            <table th:if="${!#lists.isEmpty(purchaseInvoices)}">
+
+                <thead>
+                <tr>
+                    <th>Document No.</th>
+                    <th>Date</th>
+                    <th>Tax Invoice No.</th>
+                    <th>PO Number</th>
+                    <th>Territory</th>
+                    <th>Total Amount</th>
+                    <th>Original File</th>
+                    <th>Verification</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+
+                <tbody id="purchaseReportBody">
+
+                <tr th:each="invoice : ${purchaseInvoices}">
+
+                    <td class="reference"
+                        th:text="${invoice.documentNumber}">
+                        -
+                    </td>
+
+                    <td th:text="${invoice.invoiceDate}">
+                        -
+                    </td>
+
+                    <td th:text="${invoice.taxInvoiceNumber != null
+                    && !invoice.taxInvoiceNumber.isBlank()
+                    ? invoice.taxInvoiceNumber : '-'}">
+                        -
+                    </td>
+
+                    <td th:text="${invoice.poNumber != null
+                    && !invoice.poNumber.isBlank()
+                    ? invoice.poNumber : '-'}">
+                        -
+                    </td>
+
+                    <td th:text="${invoice.territory != null
+                    && !invoice.territory.isBlank()
+                    ? invoice.territory : '-'}">
+                        -
+                    </td>
+
+                    <td class="amount"
+                        th:text="${'Rs. ' +
+                        #numbers.formatDecimal(
+                        invoice.totalAmount != null
+                        ? invoice.totalAmount : 0,
+                        1, 2)}">
+                        Rs. 0.00
+                    </td>
+
+                    <td>
+                        <span class="badge verified"
+                              th:if="${invoice.hasInvoiceFile()}">
+                            ATTACHED
+                        </span>
+
+                        <span class="badge unpaid"
+                              th:unless="${invoice.hasInvoiceFile()}">
+                            MISSING
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="badge verified"
+                              th:if="${invoice.invoiceVerified}">
+                            VERIFIED
+                        </span>
+
+                        <span class="badge not-verified"
+                              th:unless="${invoice.invoiceVerified}">
+                            NOT VERIFIED
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="badge"
+                              th:classappend="${invoice.status
+                              == 'COMPLETED'}
+                              ? ' completed' : ' draft'"
+                              th:text="${invoice.status}">
+                            DRAFT
+                        </span>
+                    </td>
+
+                </tr>
+
+                </tbody>
+            </table>
+
+            <div class="empty-message"
+                 th:if="${#lists.isEmpty(purchaseInvoices)}">
+                No purchase invoices are available for this period.
+            </div>
+
+            <div class="empty-message search-empty"
+                 id="purchaseSearchEmpty">
+                No matching purchase invoices found.
+            </div>
+
+        </div>
+
+    </section>
+
+    <section class="card sales-card">
+
+        <h3 class="card-title">Sales Invoice Report</h3>
+
+        <p class="card-description">
+            Customer sales invoices within the selected date range.
+        </p>
+
+        <input class="table-search screen-only"
+               type="search"
+               placeholder="Search sales invoices"
+               oninput="filterTable(
+               this, 'salesReportBody',
+               'salesSearchEmpty')">
+
+        <div class="table-container">
+
+            <table th:if="${!#lists.isEmpty(salesInvoices)}">
+
+                <thead>
+                <tr>
+                    <th>Invoice No.</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Area</th>
+                    <th>Route</th>
+                    <th>Sale Type</th>
+                    <th>Gross Amount</th>
+                    <th>Net Amount</th>
+                    <th>Payment</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+
+                <tbody id="salesReportBody">
+
+                <tr th:each="invoice : ${salesInvoices}">
+
+                    <td class="reference"
+                        th:text="${invoice.invoiceNumber}">
+                        -
+                    </td>
+
+                    <td th:text="${invoice.invoiceDate}">
+                        -
+                    </td>
+
+                    <td class="product-name"
+                        th:text="${invoice.customer != null
+                        ? invoice.customer.customerName : '-'}">
+                        -
+                    </td>
+
+                    <td th:text="${invoice.customer != null
+                    && invoice.customer.area != null
+                    ? invoice.customer.area : '-'}">
+                        -
+                    </td>
+
+                    <td th:text="${invoice.routeCode != null
+                    && !invoice.routeCode.isBlank()
+                    ? invoice.routeCode : '-'}">
+                        -
+                    </td>
+
+                    <td th:text="${invoice.saleType}">
+                        CREDIT
+                    </td>
+
+                    <td class="amount"
+                        th:text="${'Rs. ' +
+                        #numbers.formatDecimal(
+                        invoice.grossAmount != null
+                        ? invoice.grossAmount : 0,
+                        1, 2)}">
+                        Rs. 0.00
+                    </td>
+
+                    <td class="amount"
+                        th:text="${'Rs. ' +
+                        #numbers.formatDecimal(
+                        invoice.netAmount != null
+                        ? invoice.netAmount : 0,
+                        1, 2)}">
+                        Rs. 0.00
+                    </td>
+
+                    <td>
+                        <span class="badge paid"
+                              th:if="${invoice.paymentStatus == 'PAID'}">
+                            PAID
+                        </span>
+
+                        <span class="badge partially-paid"
+                              th:if="${invoice.paymentStatus
+                              == 'PARTIALLY_PAID'}">
+                            PARTIALLY PAID
+                        </span>
+
+                        <span class="badge unpaid"
+                              th:if="${invoice.paymentStatus == 'UNPAID'
+                              || invoice.paymentStatus == null}">
+                            UNPAID
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="badge"
+                              th:classappend="${invoice.status
+                              == 'COMPLETED'}
+                              ? ' completed' : ' draft'"
+                              th:text="${invoice.status}">
+                            DRAFT
+                        </span>
+                    </td>
+
+                </tr>
+
+                </tbody>
+            </table>
+
+            <div class="empty-message"
+                 th:if="${#lists.isEmpty(salesInvoices)}">
+                No sales invoices are available for this period.
+            </div>
+
+            <div class="empty-message search-empty"
+                 id="salesSearchEmpty">
+                No matching sales invoices found.
+            </div>
+
+        </div>
+
+    </section>
+
+    <section class="card payment-card">
+
+        <h3 class="card-title">Payment Collection Report</h3>
+
+        <p class="card-description">
+            Customer payments received within the selected date range.
+        </p>
+
+        <input class="table-search screen-only"
+               type="search"
+               placeholder="Search payments"
+               oninput="filterTable(
+               this, 'paymentReportBody',
+               'paymentSearchEmpty')">
+
+        <div class="table-container">
+
+            <table th:if="${!#lists.isEmpty(payments)}">
+
+                <thead>
+                <tr>
+                    <th>Receipt No.</th>
+                    <th>Payment Date</th>
+                    <th>Sales Invoice</th>
+                    <th>Customer</th>
+                    <th>Area</th>
+                    <th>Amount</th>
+                    <th>Method</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+
+                <tbody id="paymentReportBody">
+
+                <tr th:each="payment : ${payments}">
+
+                    <td class="reference"
+                        th:text="${payment.receiptNumber}">
+                        -
+                    </td>
+
+                    <td th:text="${payment.paymentDate}">
+                        -
+                    </td>
+
+                    <td th:text="${payment.salesInvoice != null
+                    ? payment.salesInvoice.invoiceNumber : '-'}">
+                        -
+                    </td>
+
+                    <td th:text="${payment.salesInvoice != null
+                    && payment.salesInvoice.customer != null
+                    ? payment.salesInvoice.customer.customerName
+                    : '-'}">
+                        -
+                    </td>
+
+                    <td th:text="${payment.salesInvoice != null
+                    && payment.salesInvoice.customer != null
+                    && payment.salesInvoice.customer.area != null
+                    ? payment.salesInvoice.customer.area : '-'}">
+                        -
+                    </td>
+
+                    <td class="amount"
+                        th:text="${'Rs. ' +
+                        #numbers.formatDecimal(
+                        payment.amount != null
+                        ? payment.amount : 0,
+                        1, 2)}">
+                        Rs. 0.00
+                    </td>
+
+                    <td th:text="${payment.paymentMethod}">
+                        CASH
+                    </td>
+
+                    <td>
+                        <span class="badge received"
+                              th:text="${payment.status}">
+                            RECEIVED
+                        </span>
+                    </td>
+
+                </tr>
+
+                </tbody>
+            </table>
+
+            <div class="empty-message"
+                 th:if="${#lists.isEmpty(payments)}">
+                No payments are available for this period.
+            </div>
+
+            <div class="empty-message search-empty"
+                 id="paymentSearchEmpty">
+                No matching payments found.
+            </div>
+
+        </div>
+
+    </section>
+
+    <section class="card stock-card">
+
+        <h3 class="card-title">Low and Out-of-Stock Report</h3>
+
+        <p class="card-description">
+            Products requiring stock attention. Stock quantities
+            use each product’s PKT or PCS unit.
+        </p>
+
+        <input class="table-search screen-only"
+               type="search"
+               placeholder="Search low-stock products"
+               oninput="filterTable(
+               this, 'stockReportBody',
+               'stockSearchEmpty')">
+
+        <div class="table-container">
+
+            <table th:if="${!#lists.isEmpty(lowStockProducts)
+            || !#lists.isEmpty(outOfStockProducts)}">
+
+                <thead>
+                <tr>
+                    <th>CBL Code</th>
+                    <th>Product</th>
+                    <th>Brand</th>
+                    <th>Net Weight</th>
+                    <th>Current Stock</th>
+                    <th>Unit</th>
+                    <th>Stock Status</th>
+                </tr>
+                </thead>
+
+                <tbody id="stockReportBody">
+
+                <tr th:each="product : ${lowStockProducts}">
+
+                    <td class="reference"
+                        th:text="${product.cblProductCode}">
+                        -
+                    </td>
+
+                    <td class="product-name"
+                        th:text="${product.productName}">
+                        -
+                    </td>
+
+                    <td th:text="${product.brand != null
+                    && !product.brand.isBlank()
+                    ? product.brand : '-'}">
+                        -
+                    </td>
+
+                    <td>
+                        <span class="badge weight-badge"
+                              th:text="${product.netWeight != null
+                              && !product.netWeight.isBlank()
+                              ? product.netWeight : '-'}">
+                            -
+                        </span>
+                    </td>
+
+                    <td class="amount"
+                        th:text="${#numbers.formatDecimal(
+                        stockByProduct[product.id], 1, 2)}">
+                        0.00
+                    </td>
+
+                    <td>
+                        <span class="badge unit-badge"
+                              th:text="${product.unit}">
+                            PKT
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="badge low-stock">
+                            LOW STOCK
+                        </span>
+                    </td>
+
+                </tr>
+
+                <tr th:each="product : ${outOfStockProducts}">
+
+                    <td class="reference"
+                        th:text="${product.cblProductCode}">
+                        -
+                    </td>
+
+                    <td class="product-name"
+                        th:text="${product.productName}">
+                        -
+                    </td>
+
+                    <td th:text="${product.brand != null
+                    && !product.brand.isBlank()
+                    ? product.brand : '-'}">
+                        -
+                    </td>
+
+                    <td>
+                        <span class="badge weight-badge"
+                              th:text="${product.netWeight != null
+                              && !product.netWeight.isBlank()
+                              ? product.netWeight : '-'}">
+                            -
+                        </span>
+                    </td>
+
+                    <td class="amount"
+                        th:text="${#numbers.formatDecimal(
+                        stockByProduct[product.id], 1, 2)}">
+                        0.00
+                    </td>
+
+                    <td>
+                        <span class="badge unit-badge"
+                              th:text="${product.unit}">
+                            PKT
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="badge out-of-stock">
+                            OUT OF STOCK
+                        </span>
+                    </td>
+
+                </tr>
+
+                </tbody>
+            </table>
+
+            <div class="empty-message"
+                 th:if="${#lists.isEmpty(lowStockProducts)
+                 && #lists.isEmpty(outOfStockProducts)}">
+
+                All products currently have sufficient stock.
+
+            </div>
+
+            <div class="empty-message search-empty"
+                 id="stockSearchEmpty">
+
+                No matching low-stock products found.
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <p class="generated-information">
+
+        Report generated:
+        <span th:text="${#temporals.format(
+        reportGeneratedAt,
+        'yyyy-MM-dd HH:mm')}">
+            -
+        </span>
+
+    </p>
+
+</main>
+
+<script>
+    function filterTable(
+        input,
+        tableBodyId,
+        emptyMessageId) {
+
+        const tableBody =
+            document.getElementById(tableBodyId);
+
+        const emptyMessage =
+            document.getElementById(emptyMessageId);
+
+        if (!tableBody) {
+            return;
+        }
+
+        const keyword =
+            input.value.toLowerCase().trim();
+
+        const rows =
+            tableBody.getElementsByTagName("tr");
+
+        let visibleRows = 0;
+
+        for (const row of rows) {
+
+            const matches =
+                row.textContent
+                    .toLowerCase()
+                    .includes(keyword);
+
+            row.style.display =
+                matches ? "" : "none";
+
+            if (matches) {
+                visibleRows++;
+            }
+        }
+
+        emptyMessage.style.display =
+            visibleRows === 0
+                ? "block"
+                : "none";
+    }
+</script>
+
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>

@@ -1,0 +1,1677 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title th:text="${purchaseInvoice.id == null}
+            ? 'Add Purchase Invoice - AAK Agency'
+            : 'Edit Purchase Invoice - AAK Agency'">
+        Purchase Invoice - AAK Agency
+    </title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #222222;
+        }
+
+        header {
+            background: #213f66;
+            color: white;
+            padding: 25px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 34px;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: #e4edf7;
+            font-size: 17px;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 6px;
+        }
+
+        main {
+            width: 94%;
+            max-width: 1500px;
+            margin: 35px auto;
+        }
+
+        .page-title {
+            margin-bottom: 23px;
+        }
+
+        .page-title h2 {
+            color: #213f66;
+            font-size: 30px;
+            margin-bottom: 7px;
+        }
+
+        .page-title p {
+            color: #606a75;
+        }
+
+        .message {
+            padding: 15px;
+            margin-bottom: 22px;
+            border-radius: 7px;
+            font-weight: bold;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #842029;
+            border-left: 5px solid #dc3545;
+        }
+
+        .card {
+            background: white;
+            padding: 26px;
+            border-radius: 12px;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .card-title {
+            color: #213f66;
+            font-size: 21px;
+            padding-bottom: 11px;
+            margin-bottom: 21px;
+            border-bottom: 2px solid #e8eef7;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: minmax(340px, 0.9fr)
+                                   minmax(500px, 1.4fr);
+            gap: 25px;
+            align-items: start;
+        }
+
+        .upload-card {
+            border-top: 5px solid #6f42c1;
+        }
+
+        .details-card,
+        .products-card {
+            border-top: 5px solid #148b57;
+        }
+
+        .upload-area {
+            border: 2px dashed #b9c5d3;
+            background: #f8fafc;
+            padding: 22px;
+            border-radius: 9px;
+            text-align: center;
+        }
+
+        .upload-label {
+            display: inline-block;
+            background: #6f42c1;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .upload-label:hover {
+            background: #5c35a5;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-help {
+            color: #6c757d;
+            font-size: 12px;
+            line-height: 1.5;
+            margin-top: 11px;
+        }
+
+        .file-name {
+            color: #213f66;
+            font-weight: bold;
+            margin-top: 12px;
+            overflow-wrap: anywhere;
+        }
+
+        .preview-container {
+            margin-top: 18px;
+            display: none;
+        }
+
+        .preview-container.active {
+            display: block;
+        }
+
+        .invoice-image {
+            width: 100%;
+            max-height: 650px;
+            object-fit: contain;
+            border: 1px solid #d4dbe3;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .invoice-pdf {
+            width: 100%;
+            height: 650px;
+            border: 1px solid #d4dbe3;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .existing-file-link {
+            display: inline-block;
+            color: white;
+            background: #213f66;
+            padding: 10px 15px;
+            margin-top: 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .fixed-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .fixed-box {
+            background: #f1f5fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .fixed-box label {
+            display: block;
+            color: #6c757d;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .fixed-box strong {
+            color: #213f66;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 19px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            color: #213f66;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd3dc;
+            border-radius: 7px;
+            font-size: 15px;
+            background: white;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #148b57;
+            box-shadow: 0 0 0 3px rgba(20, 139, 87, 0.12);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 95px;
+        }
+
+        .help-text {
+            color: #6c757d;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        .product-search {
+            margin-bottom: 18px;
+        }
+
+        .product-entry-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 14px;
+            align-items: end;
+        }
+
+        .selected-product {
+            display: none;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+            padding: 15px;
+            background: #f1f5fa;
+            border-radius: 8px;
+        }
+
+        .selected-product.active {
+            display: grid;
+        }
+
+        .selected-item label {
+            display: block;
+            color: #6c757d;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .selected-item strong {
+            color: #213f66;
+        }
+
+        .add-product-button {
+            border: none;
+            background: #148b57;
+            color: white;
+            padding: 13px 18px;
+            border-radius: 7px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 950px;
+        }
+
+        th {
+            background: #e8eef7;
+            color: #213f66;
+            text-align: left;
+            padding: 15px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 15px;
+            border-top: 1px solid #e4e4e4;
+            vertical-align: middle;
+        }
+
+        .product-row:hover {
+            background: #f8fafc;
+        }
+
+        .product-code,
+        .amount-cell {
+            color: #213f66;
+            font-weight: bold;
+        }
+
+        .weight-badge {
+            background: #e8eef7;
+            color: #213f66;
+            padding: 5px 9px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .unit-badge {
+            background: #d7f0e3;
+            color: #12613d;
+            padding: 5px 9px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .remove-button {
+            border: none;
+            background: #dc3545;
+            color: white;
+            padding: 9px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .empty-message {
+            color: #6c757d;
+            text-align: center;
+            padding: 30px 15px;
+        }
+
+        .totals-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 24px;
+        }
+
+        .total-group {
+            background: #eef3f9;
+            padding: 16px;
+            border-radius: 9px;
+        }
+
+        .total-group label {
+            font-size: 13px;
+        }
+
+        .total-group input {
+            margin-top: 4px;
+        }
+
+        .grand-total {
+            background: #213f66;
+        }
+
+        .grand-total label {
+            color: white;
+        }
+
+        .grand-total input {
+            background: transparent;
+            color: white;
+            border-color: rgba(255, 255, 255, 0.45);
+            font-weight: bold;
+        }
+
+        .negative-total {
+            color: #dc3545;
+            margin-top: 8px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-bottom: 35px;
+        }
+
+        .button {
+            border: none;
+            border-radius: 7px;
+            padding: 13px 22px;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+            text-align: center;
+        }
+
+        .cancel-button {
+            background: #7c8792;
+            color: white;
+        }
+
+        .save-button {
+            background: #148b57;
+            color: white;
+        }
+
+        @media (max-width: 1100px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .product-entry-grid,
+            .totals-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 700px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            main {
+                width: 95%;
+            }
+
+            .form-grid,
+            .fixed-info,
+            .product-entry-grid,
+            .selected-product,
+            .totals-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full-width {
+                grid-column: auto;
+            }
+
+            .card {
+                padding: 21px;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+            }
+
+            .button {
+                width: 100%;
+            }
+        }
+    </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+
+<body>
+
+<header>
+
+    <div>
+        <h1>AAK Agency</h1>
+        <p>Purchase Invoice Management</p>
+    </div>
+
+    <a th:href="@{/purchase-invoices}">
+        Back to Purchase Invoices
+    </a>
+
+</header>
+
+<main>
+
+    <div class="page-title">
+
+        <h2 th:text="${purchaseInvoice.id == null}
+                     ? 'Add Purchase Invoice'
+                     : 'Edit Purchase Invoice'">
+            Add Purchase Invoice
+        </h2>
+
+        <p>
+            Upload the original CBL invoice, enter its details
+            and add all purchased products on the same page.
+        </p>
+
+    </div>
+
+    <div class="message error-message"
+         th:if="${errorMessage}"
+         th:text="${errorMessage}">
+    </div>
+
+    <form id="purchaseInvoiceForm"
+          th:action="@{/purchase-invoices/save}"
+          th:object="${purchaseInvoice}"
+          method="post"
+          enctype="multipart/form-data">
+
+        <input type="hidden"
+               th:field="*{id}">
+
+        <input type="hidden"
+               th:field="*{status}">
+
+        <input type="hidden"
+               name="supplierName"
+               value="CBL Foods International (Pvt) Ltd">
+
+        <input type="hidden"
+               name="placeOfSupply"
+               value="Ranala">
+
+        <div class="comparison-grid">
+
+            <section class="card upload-card">
+
+                <h3 class="card-title">
+                    Original CBL Invoice
+                </h3>
+
+                <div class="upload-area">
+
+                    <label class="upload-label"
+                           for="originalInvoiceFile">
+                        Choose Invoice Image / PDF
+                    </label>
+
+                    <input class="file-input"
+                           id="originalInvoiceFile"
+                           name="originalInvoiceFile"
+                           type="file"
+                           accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
+                           onchange="previewInvoiceFile(this)">
+
+                    <p class="upload-help">
+                        JPG, JPEG, PNG or PDF files only.
+                        Maximum file size: 10 MB.
+                    </p>
+
+                    <p class="file-name"
+                       id="selectedFileName"
+                       th:text="${purchaseInvoice.hasInvoiceFile()}
+                       ? purchaseInvoice.invoiceFileOriginalName
+                       : 'No file selected'">
+                        No file selected
+                    </p>
+
+                </div>
+
+                <div class="preview-container active"
+                     id="existingPreview"
+                     th:if="${purchaseInvoice.hasInvoiceFile()}">
+
+                    <img class="invoice-image"
+                         th:if="${#strings.startsWith(
+                         purchaseInvoice.invoiceFileContentType,
+                         'image/')}"
+                         th:src="@{/purchase-invoices/{id}/original-file
+                         (id=${purchaseInvoice.id})}"
+                         alt="Original CBL invoice">
+
+                    <iframe class="invoice-pdf"
+                            th:if="${purchaseInvoice.invoiceFileContentType
+                            == 'application/pdf'}"
+                            th:src="@{/purchase-invoices/{id}/original-file
+                            (id=${purchaseInvoice.id})}">
+                    </iframe>
+
+                    <a class="existing-file-link"
+                       target="_blank"
+                       th:href="@{/purchase-invoices/{id}/original-file
+                       (id=${purchaseInvoice.id})}">
+                        Open Original File
+                    </a>
+
+                </div>
+
+                <div class="preview-container"
+                     id="newPreview">
+
+                    <img class="invoice-image"
+                         id="newImagePreview"
+                         alt="Selected invoice preview">
+
+                    <iframe class="invoice-pdf"
+                            id="newPdfPreview">
+                    </iframe>
+
+                </div>
+
+            </section>
+
+            <section class="card details-card">
+
+                <h3 class="card-title">
+                    Invoice Information
+                </h3>
+
+                <div class="fixed-info">
+
+                    <div class="fixed-box">
+                        <label>Supplier</label>
+
+                        <strong>
+                            CBL Foods International (Pvt) Ltd
+                        </strong>
+                    </div>
+
+                    <div class="fixed-box">
+                        <label>Place of Supply</label>
+
+                        <strong>Ranala</strong>
+                    </div>
+
+                </div>
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label for="documentNumber">
+                            Document Number
+                            <span class="required">*</span>
+                        </label>
+
+                        <input id="documentNumber"
+                               type="text"
+                               th:field="*{documentNumber}"
+                               placeholder="Example: 111"
+                               required>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="invoiceDate">
+                            Invoice Date
+                            <span class="required">*</span>
+                        </label>
+
+                        <input id="invoiceDate"
+                               type="date"
+                               th:field="*{invoiceDate}"
+                               required>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="taxInvoiceNumber">
+                            Tax Invoice Number
+                        </label>
+
+                        <input id="taxInvoiceNumber"
+                               type="text"
+                               th:field="*{taxInvoiceNumber}"
+                               placeholder="Tax invoice number">
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="deliveryDate">
+                            Delivery Date
+                        </label>
+
+                        <input id="deliveryDate"
+                               type="date"
+                               th:field="*{deliveryDate}">
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="poNumber">
+                            PO Number
+                        </label>
+
+                        <input id="poNumber"
+                               type="text"
+                               th:field="*{poNumber}"
+                               placeholder="Purchase order number">
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="territory">
+                            Territory
+                        </label>
+
+                        <input id="territory"
+                               type="text"
+                               th:field="*{territory}"
+                               placeholder="Example: Makola">
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="paymentMethod">
+                            Payment Method
+                        </label>
+
+                        <select id="paymentMethod"
+                                th:field="*{paymentMethod}">
+
+                            <option value="">
+                                Select payment method
+                            </option>
+
+                            <option value="CASH">
+                                Cash
+                            </option>
+
+                            <option value="CREDIT">
+                                Credit
+                            </option>
+
+                            <option value="BANK_TRANSFER">
+                                Bank Transfer
+                            </option>
+
+                            <option value="CHEQUE">
+                                Cheque
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="form-group full-width">
+
+                        <label for="notes">
+                            Notes
+                        </label>
+
+                        <textarea id="notes"
+                                  th:field="*{notes}"
+                                  placeholder="Additional invoice notes"></textarea>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+        <section class="card products-card">
+
+            <h3 class="card-title">
+                Add Products to Purchase Invoice
+            </h3>
+
+            <div class="form-group product-search">
+
+                <label for="productSearch">
+                    Search Product
+                </label>
+
+                <input id="productSearch"
+                       type="search"
+                       placeholder="Search by CBL code, product name, brand or weight"
+                       autocomplete="off"
+                       oninput="filterProducts()">
+
+                <span class="help-text">
+                    Type any part of the product information.
+                </span>
+
+            </div>
+
+            <div class="product-entry-grid">
+
+                <div class="form-group">
+
+                    <label for="productSelector">
+                        Product
+                    </label>
+
+                    <select id="productSelector"
+                            onchange="showSelectedProduct()">
+
+                        <option value="">
+                            Select product
+                        </option>
+
+                        <option th:each="product : ${products}"
+                                th:value="${product.id}"
+                                th:text="${product.displayName
+                                + ' | '
+                                + product.cblProductCode
+                                + ' | '
+                                + product.unit}"
+                                th:attr="
+                                data-code=${product.cblProductCode},
+                                data-name=${product.productName},
+                                data-brand=${product.brand},
+                                data-weight=${product.netWeight},
+                                data-unit=${product.unit}">
+                            Product
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="quantityInput">
+                        Quantity
+                    </label>
+
+                    <input id="quantityInput"
+                           type="number"
+                           min="0.01"
+                           step="0.01"
+                           placeholder="Example: 10">
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="priceInput">
+                        Purchase Rate (LKR)
+                    </label>
+
+                    <input id="priceInput"
+                           type="number"
+                           min="0"
+                           step="0.01"
+                           placeholder="Example: 95.00">
+
+                </div>
+
+                <button class="add-product-button"
+                        type="button"
+                        onclick="addProduct()">
+                    + Add Product
+                </button>
+
+            </div>
+
+            <div class="selected-product"
+                 id="selectedProduct">
+
+                <div class="selected-item">
+                    <label>CBL / SKU Code</label>
+                    <strong id="selectedCode">-</strong>
+                </div>
+
+                <div class="selected-item">
+                    <label>Product</label>
+                    <strong id="selectedName">-</strong>
+                </div>
+
+                <div class="selected-item">
+                    <label>Net Weight</label>
+                    <strong id="selectedWeight">-</strong>
+                </div>
+
+                <div class="selected-item">
+                    <label>Unit</label>
+                    <strong id="selectedUnit">-</strong>
+                </div>
+
+            </div>
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+                    <tr>
+                        <th>CBL Code</th>
+                        <th>Product</th>
+                        <th>Net Weight</th>
+                        <th>Quantity</th>
+                        <th>Unit</th>
+                        <th>Purchase Rate</th>
+                        <th>Amount</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+
+                    <tbody id="productTableBody">
+
+                    <tr class="product-row"
+                        th:each="item : ${items}"
+                        th:attr="data-product-id=${item.product.id},
+                                 data-amount=${item.amount}">
+
+                        <td class="product-code"
+                            th:text="${item.product.cblProductCode}">
+                            -
+                        </td>
+
+                        <td th:text="${item.product.productName}">
+                            -
+                        </td>
+
+                        <td>
+                            <span class="weight-badge"
+                                  th:text="${item.product.netWeight}">
+                                -
+                            </span>
+                        </td>
+
+                        <td th:text="${#numbers.formatDecimal(
+                        item.quantity, 1, 2)}">
+                            0.00
+                        </td>
+
+                        <td>
+                            <span class="unit-badge"
+                                  th:text="${item.unit}">
+                                PKT
+                            </span>
+                        </td>
+
+                        <td th:text="${'Rs. ' +
+                        #numbers.formatDecimal(
+                        item.unitPrice, 1, 2)}">
+                            Rs. 0.00
+                        </td>
+
+                        <td class="amount-cell"
+                            th:text="${'Rs. ' +
+                            #numbers.formatDecimal(
+                            item.amount, 1, 2)}">
+                            Rs. 0.00
+                        </td>
+
+                        <td>
+                            <button class="remove-button"
+                                    type="button"
+                                    onclick="removeProduct(this)">
+                                Remove
+                            </button>
+
+                            <input type="hidden"
+                                   name="productIds"
+                                   th:value="${item.product.id}">
+
+                            <input type="hidden"
+                                   name="quantities"
+                                   th:value="${item.quantity}">
+
+                            <input type="hidden"
+                                   name="unitPrices"
+                                   th:value="${item.unitPrice}">
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+                <div class="empty-message"
+                     id="emptyProductMessage">
+                    No products added yet.
+                </div>
+
+            </div>
+
+            <div class="totals-grid">
+
+                <div class="total-group">
+
+                    <label for="subtotalDisplay">
+                        Subtotal (LKR)
+                    </label>
+
+                    <input id="subtotalDisplay"
+                           type="number"
+                           step="0.01"
+                           readonly>
+
+                </div>
+
+                <div class="total-group">
+
+                    <label for="discountAmount">
+                        Discount (LKR)
+                    </label>
+
+                    <input id="discountAmount"
+                           type="number"
+                           min="0"
+                           step="0.01"
+                           th:field="*{discountAmount}"
+                           oninput="calculateTotals()">
+
+                </div>
+
+                <div class="total-group">
+
+                    <label for="vatAmount">
+                        VAT Amount (LKR)
+                    </label>
+
+                    <input id="vatAmount"
+                           type="number"
+                           min="0"
+                           step="0.01"
+                           th:field="*{vatAmount}"
+                           oninput="calculateTotals()">
+
+                </div>
+
+                <div class="total-group grand-total">
+
+                    <label for="totalDisplay">
+                        Total Amount (LKR)
+                    </label>
+
+                    <input id="totalDisplay"
+                           type="number"
+                           step="0.01"
+                           readonly>
+
+                    <p class="negative-total"
+                       id="negativeTotalMessage">
+                        Discount cannot be greater than subtotal.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <div class="form-actions">
+
+            <a class="button cancel-button"
+               th:href="@{/purchase-invoices}">
+                Cancel
+            </a>
+
+            <button class="button save-button"
+                    type="submit"
+                    th:text="${purchaseInvoice.id == null}
+                    ? 'Save Purchase Invoice'
+                    : 'Save Invoice Changes'">
+                Save Purchase Invoice
+            </button>
+
+        </div>
+
+    </form>
+
+</main>
+
+<script>
+    let originalProductOptions = [];
+    let previewObjectUrl = null;
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            const selector =
+                document.getElementById(
+                    "productSelector"
+                );
+
+            originalProductOptions =
+                Array.from(selector.options)
+                    .slice(1)
+                    .map(option =>
+                        option.cloneNode(true)
+                    );
+
+            updateEmptyMessage();
+            calculateTotals();
+        }
+    );
+
+    function previewInvoiceFile(input) {
+
+        if (!input.files || input.files.length === 0) {
+            return;
+        }
+
+        const file = input.files[0];
+
+        if (file.size > 10 * 1024 * 1024) {
+            alert(
+                "The invoice file must be 10 MB or smaller."
+            );
+
+            input.value = "";
+            return;
+        }
+
+        const allowedTypes = [
+            "image/jpeg",
+            "image/png",
+            "application/pdf"
+        ];
+
+        if (!allowedTypes.includes(file.type)) {
+            alert(
+                "Only JPG, JPEG, PNG and PDF files are allowed."
+            );
+
+            input.value = "";
+            return;
+        }
+
+        document.getElementById(
+            "selectedFileName"
+        ).textContent = file.name;
+
+        const existingPreview =
+            document.getElementById(
+                "existingPreview"
+            );
+
+        if (existingPreview) {
+            existingPreview.style.display = "none";
+        }
+
+        if (previewObjectUrl) {
+            URL.revokeObjectURL(previewObjectUrl);
+        }
+
+        previewObjectUrl =
+            URL.createObjectURL(file);
+
+        const newPreview =
+            document.getElementById(
+                "newPreview"
+            );
+
+        const imagePreview =
+            document.getElementById(
+                "newImagePreview"
+            );
+
+        const pdfPreview =
+            document.getElementById(
+                "newPdfPreview"
+            );
+
+        if (file.type === "application/pdf") {
+
+            imagePreview.style.display = "none";
+            imagePreview.removeAttribute("src");
+
+            pdfPreview.style.display = "block";
+            pdfPreview.src = previewObjectUrl;
+
+        } else {
+
+            pdfPreview.style.display = "none";
+            pdfPreview.removeAttribute("src");
+
+            imagePreview.style.display = "block";
+            imagePreview.src = previewObjectUrl;
+        }
+
+        newPreview.classList.add("active");
+    }
+
+    function filterProducts() {
+
+        const keyword =
+            document.getElementById(
+                "productSearch"
+            ).value.toLowerCase().trim();
+
+        const selector =
+            document.getElementById(
+                "productSelector"
+            );
+
+        selector.innerHTML =
+            '<option value="">Select product</option>';
+
+        originalProductOptions.forEach(
+            function (savedOption) {
+
+                const searchText = [
+                    savedOption.dataset.code,
+                    savedOption.dataset.name,
+                    savedOption.dataset.brand,
+                    savedOption.dataset.weight,
+                    savedOption.dataset.unit
+                ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLowerCase();
+
+                if (searchText.includes(keyword)) {
+
+                    selector.appendChild(
+                        savedOption.cloneNode(true)
+                    );
+                }
+            }
+        );
+
+        hideSelectedProduct();
+    }
+
+    function showSelectedProduct() {
+
+        const selector =
+            document.getElementById(
+                "productSelector"
+            );
+
+        const selectedOption =
+            selector.options[
+                selector.selectedIndex
+                ];
+
+        if (!selectedOption || !selectedOption.value) {
+            hideSelectedProduct();
+            return;
+        }
+
+        document.getElementById(
+            "selectedCode"
+        ).textContent =
+            selectedOption.dataset.code || "-";
+
+        document.getElementById(
+            "selectedName"
+        ).textContent =
+            selectedOption.dataset.name || "-";
+
+        document.getElementById(
+            "selectedWeight"
+        ).textContent =
+            selectedOption.dataset.weight || "-";
+
+        document.getElementById(
+            "selectedUnit"
+        ).textContent =
+            selectedOption.dataset.unit || "-";
+
+        document.getElementById(
+            "selectedProduct"
+        ).classList.add("active");
+    }
+
+    function hideSelectedProduct() {
+
+        document.getElementById(
+            "selectedProduct"
+        ).classList.remove("active");
+    }
+
+    function addProduct() {
+
+        const selector =
+            document.getElementById(
+                "productSelector"
+            );
+
+        const selectedOption =
+            selector.options[
+                selector.selectedIndex
+                ];
+
+        const quantityInput =
+            document.getElementById(
+                "quantityInput"
+            );
+
+        const priceInput =
+            document.getElementById(
+                "priceInput"
+            );
+
+        if (!selectedOption || !selectedOption.value) {
+            alert("Please select a product.");
+            selector.focus();
+            return;
+        }
+
+        const productId =
+            selectedOption.value;
+
+        const quantity =
+            parseFloat(quantityInput.value);
+
+        const unitPrice =
+            parseFloat(priceInput.value);
+
+        if (!quantity || quantity <= 0) {
+            alert(
+                "Purchase quantity must be greater than zero."
+            );
+
+            quantityInput.focus();
+            return;
+        }
+
+        if (Number.isNaN(unitPrice)
+            || unitPrice < 0) {
+
+            alert(
+                "Please enter a valid purchase rate."
+            );
+
+            priceInput.focus();
+            return;
+        }
+
+        const duplicateRow =
+            document.querySelector(
+                '.product-row[data-product-id="'
+                + productId
+                + '"]'
+            );
+
+        if (duplicateRow) {
+            alert(
+                "This product is already added to the invoice."
+            );
+
+            return;
+        }
+
+        const productCode =
+            selectedOption.dataset.code || "-";
+
+        const productName =
+            selectedOption.dataset.name || "-";
+
+        const productWeight =
+            selectedOption.dataset.weight || "-";
+
+        const productUnit =
+            selectedOption.dataset.unit || "PKT";
+
+        const amount =
+            quantity * unitPrice;
+
+        const row =
+            document.createElement("tr");
+
+        row.className = "product-row";
+        row.dataset.productId = productId;
+        row.dataset.amount = amount.toFixed(2);
+
+        const codeCell =
+            appendTextCell(row, productCode);
+
+        codeCell.className = "product-code";
+
+        appendTextCell(row, productName);
+
+        const weightCell =
+            document.createElement("td");
+
+        const weightBadge =
+            document.createElement("span");
+
+        weightBadge.className = "weight-badge";
+        weightBadge.textContent = productWeight;
+
+        weightCell.appendChild(weightBadge);
+        row.appendChild(weightCell);
+
+        appendTextCell(
+            row,
+            quantity.toFixed(2)
+        );
+
+        const unitCell =
+            document.createElement("td");
+
+        const unitBadge =
+            document.createElement("span");
+
+        unitBadge.className = "unit-badge";
+        unitBadge.textContent = productUnit;
+
+        unitCell.appendChild(unitBadge);
+        row.appendChild(unitCell);
+
+        appendTextCell(
+            row,
+            "Rs. " + unitPrice.toFixed(2)
+        );
+
+        const amountCell =
+            appendTextCell(
+                row,
+                "Rs. " + amount.toFixed(2)
+            );
+
+        amountCell.className = "amount-cell";
+
+        const actionCell =
+            document.createElement("td");
+
+        const removeButton =
+            document.createElement("button");
+
+        removeButton.type = "button";
+        removeButton.className =
+            "remove-button";
+
+        removeButton.textContent = "Remove";
+
+        removeButton.addEventListener(
+            "click",
+            function () {
+                removeProduct(removeButton);
+            }
+        );
+
+        actionCell.appendChild(removeButton);
+
+        appendHiddenInput(
+            actionCell,
+            "productIds",
+            productId
+        );
+
+        appendHiddenInput(
+            actionCell,
+            "quantities",
+            quantity.toFixed(2)
+        );
+
+        appendHiddenInput(
+            actionCell,
+            "unitPrices",
+            unitPrice.toFixed(2)
+        );
+
+        row.appendChild(actionCell);
+
+        document.getElementById(
+            "productTableBody"
+        ).appendChild(row);
+
+        selector.value = "";
+        quantityInput.value = "";
+        priceInput.value = "";
+
+        hideSelectedProduct();
+        updateEmptyMessage();
+        calculateTotals();
+
+        document.getElementById(
+            "productSearch"
+        ).focus();
+    }
+
+    function appendTextCell(row, text) {
+
+        const cell =
+            document.createElement("td");
+
+        cell.textContent = text;
+        row.appendChild(cell);
+
+        return cell;
+    }
+
+    function appendHiddenInput(
+        parent,
+        name,
+        value) {
+
+        const input =
+            document.createElement("input");
+
+        input.type = "hidden";
+        input.name = name;
+        input.value = value;
+
+        parent.appendChild(input);
+    }
+
+    function removeProduct(button) {
+
+        const row =
+            button.closest(".product-row");
+
+        if (row) {
+            row.remove();
+        }
+
+        updateEmptyMessage();
+        calculateTotals();
+    }
+
+    function updateEmptyMessage() {
+
+        const rowCount =
+            document.querySelectorAll(
+                ".product-row"
+            ).length;
+
+        document.getElementById(
+            "emptyProductMessage"
+        ).style.display =
+            rowCount === 0
+                ? "block"
+                : "none";
+    }
+
+    function calculateTotals() {
+
+        const rows =
+            document.querySelectorAll(
+                ".product-row"
+            );
+
+        let subtotal = 0;
+
+        rows.forEach(function (row) {
+
+            subtotal +=
+                parseFloat(
+                    row.dataset.amount || "0"
+                );
+        });
+
+        const discount =
+            parseFloat(
+                document.getElementById(
+                    "discountAmount"
+                ).value || "0"
+            );
+
+        const vat =
+            parseFloat(
+                document.getElementById(
+                    "vatAmount"
+                ).value || "0"
+            );
+
+        const total =
+            subtotal - discount + vat;
+
+        document.getElementById(
+            "subtotalDisplay"
+        ).value = subtotal.toFixed(2);
+
+        document.getElementById(
+            "totalDisplay"
+        ).value =
+            Math.max(total, 0).toFixed(2);
+
+        document.getElementById(
+            "negativeTotalMessage"
+        ).style.display =
+            discount > subtotal
+                ? "block"
+                : "none";
+    }
+
+    document.getElementById(
+        "purchaseInvoiceForm"
+    ).addEventListener(
+        "submit",
+        function (event) {
+
+            const productCount =
+                document.querySelectorAll(
+                    ".product-row"
+                ).length;
+
+            if (productCount === 0) {
+
+                event.preventDefault();
+
+                alert(
+                    "Please add at least one product "
+                    + "before saving the invoice."
+                );
+
+                return;
+            }
+
+            const subtotal =
+                parseFloat(
+                    document.getElementById(
+                        "subtotalDisplay"
+                    ).value || "0"
+                );
+
+            const discount =
+                parseFloat(
+                    document.getElementById(
+                        "discountAmount"
+                    ).value || "0"
+                );
+
+            if (discount > subtotal) {
+
+                event.preventDefault();
+
+                alert(
+                    "Discount amount cannot be greater "
+                    + "than the invoice subtotal."
+                );
+            }
+        }
+    );
+</script>
+
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>

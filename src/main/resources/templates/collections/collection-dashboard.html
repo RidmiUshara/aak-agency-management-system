@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Collection Dashboard - AAK Agency</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            color: #222222;
+        }
+
+        header {
+            background-color: #213f66;
+            color: white;
+            padding: 25px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 34px;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            font-size: 17px;
+        }
+
+        .header-links {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-link {
+            color: white;
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            border-radius: 7px;
+            padding: 10px 15px;
+            font-weight: bold;
+        }
+
+        .header-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        main {
+            width: 90%;
+            max-width: 1500px;
+            margin: 38px auto;
+        }
+
+        .page-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .page-heading h2 {
+            color: #213f66;
+            font-size: 30px;
+            margin-bottom: 6px;
+        }
+
+        .page-heading p {
+            color: #5f6873;
+        }
+
+        .print-button {
+            border: none;
+            border-radius: 7px;
+            padding: 13px 18px;
+            background-color: #6f42c1;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .print-button:hover {
+            background-color: #5c35a3;
+        }
+
+        .period-card {
+            background-color: white;
+            padding: 22px;
+            border-radius: 12px;
+            margin-bottom: 22px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+        }
+
+        .period-card h3 {
+            color: #213f66;
+            margin-bottom: 16px;
+        }
+
+        .period-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .period-button {
+            display: inline-block;
+            border: 1px solid #213f66;
+            border-radius: 7px;
+            padding: 11px 18px;
+            color: #213f66;
+            background-color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .period-button:hover {
+            background-color: #e8eef7;
+        }
+
+        .period-button.active {
+            background-color: #213f66;
+            color: white;
+        }
+
+        .custom-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 14px;
+            align-items: end;
+            padding-top: 18px;
+            border-top: 1px solid #e3e8ef;
+        }
+
+        .form-group label {
+            display: block;
+            color: #213f66;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        .form-group input {
+            width: 100%;
+            border: 1px solid #c9d2dc;
+            border-radius: 7px;
+            padding: 12px;
+            font-size: 15px;
+        }
+
+        .apply-button {
+            border: none;
+            border-radius: 7px;
+            background-color: #198754;
+            color: white;
+            padding: 13px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .report-range {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 16px 20px;
+            margin-bottom: 22px;
+            border-radius: 9px;
+            background-color: #e8eef7;
+            color: #213f66;
+        }
+
+        .report-range strong {
+            font-size: 17px;
+        }
+
+        .report-range span {
+            font-weight: bold;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(
+                auto-fit,
+                minmax(210px, 1fr)
+            );
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            background-color: white;
+            border-radius: 11px;
+            padding: 22px;
+            border-top: 5px solid #213f66;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+        }
+
+        .summary-card p {
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 9px;
+        }
+
+        .summary-card strong {
+            color: #213f66;
+            font-size: 25px;
+        }
+
+        .summary-card small {
+            display: block;
+            color: #6c757d;
+            margin-top: 8px;
+        }
+
+        .total-card {
+            border-top-color: #6f42c1;
+        }
+
+        .total-card strong {
+            color: #6f42c1;
+        }
+
+        .cash-card {
+            border-top-color: #198754;
+        }
+
+        .cash-card strong {
+            color: #146c43;
+        }
+
+        .cheque-card {
+            border-top-color: #e0a800;
+        }
+
+        .cheque-card strong {
+            color: #946600;
+        }
+
+        .transfer-card {
+            border-top-color: #0d6efd;
+        }
+
+        .transfer-card strong {
+            color: #0d6efd;
+        }
+
+        .search-card {
+            background-color: white;
+            border-radius: 11px;
+            padding: 20px;
+            margin-bottom: 22px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+        }
+
+        .search-card h3 {
+            color: #213f66;
+            margin-bottom: 14px;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-row input {
+            flex: 1;
+            min-width: 0;
+            border: 1px solid #c9d2dc;
+            border-radius: 7px;
+            padding: 12px 14px;
+            font-size: 15px;
+        }
+
+        .clear-button {
+            border: none;
+            border-radius: 7px;
+            background-color: #6c757d;
+            color: white;
+            padding: 11px 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .table-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 26px;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        .table-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 18px;
+        }
+
+        .table-heading h3 {
+            color: #213f66;
+            font-size: 22px;
+        }
+
+        .result-count {
+            color: #6c757d;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1200px;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: #e8eef7;
+            color: #213f66;
+            padding: 15px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 15px;
+            border-top: 1px solid #e4e4e4;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .strong-text {
+            color: #213f66;
+            font-weight: bold;
+        }
+
+        .amount {
+            color: #213f66;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .badge-cash {
+            background-color: #d1e7dd;
+            color: #146c43;
+        }
+
+        .badge-cheque {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-transfer {
+            background-color: #dbeafe;
+            color: #084298;
+        }
+
+        .receipt-button {
+            display: inline-block;
+            background-color: #213f66;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            padding: 9px 13px;
+            font-size: 13px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .empty-message,
+        .no-search-results {
+            text-align: center;
+            padding: 45px 20px;
+            color: #666666;
+        }
+
+        .empty-message h3,
+        .no-search-results h3 {
+            color: #213f66;
+            margin-bottom: 8px;
+        }
+
+        .no-search-results {
+            display: none;
+            background-color: #fff8e1;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 750px) {
+            header,
+            .page-heading,
+            .report-range,
+            .search-row,
+            .table-heading {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-links {
+                flex-wrap: wrap;
+            }
+
+            main {
+                width: 95%;
+                margin: 25px auto;
+            }
+
+            .custom-form {
+                grid-template-columns: 1fr;
+            }
+
+            .custom-form button,
+            .search-row input,
+            .search-row button {
+                width: 100%;
+            }
+
+            .table-card {
+                padding: 18px;
+            }
+        }
+
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 12mm;
+            }
+
+            body {
+                background-color: white;
+            }
+
+            header,
+            .page-heading,
+            .period-card,
+            .search-card,
+            .receipt-button {
+                display: none;
+            }
+
+            main {
+                width: 100%;
+                max-width: none;
+                margin: 0;
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .summary-card,
+            .table-card {
+                box-shadow: none;
+                border: 1px solid #dddddd;
+            }
+
+            .table-card {
+                padding: 15px;
+            }
+
+            table {
+                min-width: 0;
+                font-size: 11px;
+            }
+
+            th,
+            td {
+                padding: 8px;
+            }
+        }
+    </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+
+<body>
+
+<header>
+
+    <div>
+        <h1>AAK Agency</h1>
+        <p>Collection Dashboard</p>
+    </div>
+
+    <div class="header-links">
+
+        <a class="header-link"
+           th:href="@{/payments}">
+            Payments
+        </a>
+
+        <a class="header-link"
+           th:href="@{/}">
+            Dashboard
+        </a>
+
+    </div>
+
+</header>
+
+<main>
+
+    <section class="page-heading">
+
+        <div>
+            <h2 th:text="${reportTitle}">
+                Today's Collection
+            </h2>
+
+            <p>
+                Monitor daily, weekly and monthly customer collections.
+            </p>
+        </div>
+
+        <button class="print-button"
+                type="button"
+                onclick="window.print()">
+            Print / Save as PDF
+        </button>
+
+    </section>
+
+    <section class="period-card">
+
+        <h3>Select Report Period</h3>
+
+        <div class="period-buttons">
+
+            <a class="period-button"
+               th:classappend="${selectedPeriod == 'DAILY'}
+                               ? ' active' : ''"
+               th:href="@{/collections(period='DAILY')}">
+                Today
+            </a>
+
+            <a class="period-button"
+               th:classappend="${selectedPeriod == 'WEEKLY'}
+                               ? ' active' : ''"
+               th:href="@{/collections(period='WEEKLY')}">
+                This Week
+            </a>
+
+            <a class="period-button"
+               th:classappend="${selectedPeriod == 'MONTHLY'}
+                               ? ' active' : ''"
+               th:href="@{/collections(period='MONTHLY')}">
+                This Month
+            </a>
+
+        </div>
+
+        <form class="custom-form"
+              method="get"
+              th:action="@{/collections}">
+
+            <input type="hidden"
+                   name="period"
+                   value="CUSTOM">
+
+            <div class="form-group">
+
+                <label for="fromDate">
+                    From Date
+                </label>
+
+                <input type="date"
+                       id="fromDate"
+                       name="fromDate"
+                       th:value="${fromDate}"
+                       required>
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="toDate">
+                    To Date
+                </label>
+
+                <input type="date"
+                       id="toDate"
+                       name="toDate"
+                       th:value="${toDate}"
+                       required>
+
+            </div>
+
+            <button type="submit"
+                    class="apply-button">
+                Apply Date Range
+            </button>
+
+        </form>
+
+    </section>
+
+    <section class="report-range">
+
+        <strong th:text="${reportTitle}">
+            Collection Report
+        </strong>
+
+        <span>
+            <span th:text="${fromDate}">
+                2026-09-10
+            </span>
+
+            to
+
+            <span th:text="${toDate}">
+                2026-09-10
+            </span>
+        </span>
+
+    </section>
+
+    <section class="summary-grid">
+
+        <div class="summary-card total-card">
+
+            <p>Total Collected</p>
+
+            <strong th:text="${'Rs. ' +
+                    #numbers.formatDecimal(
+                    totalCollected, 1, 2)}">
+                Rs. 0.00
+            </strong>
+
+            <small th:text="${receivedPaymentCount + ' payment(s)'}">
+                0 payment(s)
+            </small>
+
+        </div>
+
+        <div class="summary-card cash-card">
+
+            <p>Cash Collection</p>
+
+            <strong th:text="${'Rs. ' +
+                    #numbers.formatDecimal(
+                    totalCash, 1, 2)}">
+                Rs. 0.00
+            </strong>
+
+            <small th:text="${cashPaymentCount + ' cash payment(s)'}">
+                0 cash payment(s)
+            </small>
+
+        </div>
+
+        <div class="summary-card cheque-card">
+
+            <p>Cheque Collection</p>
+
+            <strong th:text="${'Rs. ' +
+                    #numbers.formatDecimal(
+                    totalCheque, 1, 2)}">
+                Rs. 0.00
+            </strong>
+
+            <small th:text="${chequePaymentCount + ' cheque payment(s)'}">
+                0 cheque payment(s)
+            </small>
+
+        </div>
+
+        <div class="summary-card transfer-card">
+
+            <p>Bank Transfer Collection</p>
+
+            <strong th:text="${'Rs. ' +
+                    #numbers.formatDecimal(
+                    totalBankTransfer, 1, 2)}">
+                Rs. 0.00
+            </strong>
+
+            <small th:text="${bankTransferPaymentCount +
+                            ' transfer payment(s)'}">
+                0 transfer payment(s)
+            </small>
+
+        </div>
+
+    </section>
+
+    <section class="search-card"
+             th:if="${!#lists.isEmpty(payments)}">
+
+        <h3>Search Collection Records</h3>
+
+        <div class="search-row">
+
+            <input type="text"
+                   id="collectionSearch"
+                   placeholder="Search receipt, invoice, customer, area, method or reference"
+                   autocomplete="off"
+                   oninput="filterCollections()">
+
+            <button type="button"
+                    class="clear-button"
+                    onclick="clearCollectionSearch()">
+                Clear
+            </button>
+
+        </div>
+
+    </section>
+
+    <section class="table-card">
+
+        <div class="table-heading"
+             th:if="${!#lists.isEmpty(payments)}">
+
+            <h3>Collection Details</h3>
+
+            <span class="result-count">
+                Showing
+                <span id="visibleCollectionCount"
+                      th:text="${receivedPaymentCount}">
+                    0
+                </span>
+                record(s)
+            </span>
+
+        </div>
+
+        <div class="table-container"
+             th:if="${!#lists.isEmpty(payments)}">
+
+            <table>
+
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Receipt No.</th>
+                    <th>Invoice No.</th>
+                    <th>Customer</th>
+                    <th>Area</th>
+                    <th>Method</th>
+                    <th>Reference / Cheque</th>
+                    <th>Bank</th>
+                    <th>Amount</th>
+                    <th>Receipt</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                <tr class="collection-row"
+                    th:each="payment : ${payments}">
+
+                    <td th:text="${payment.paymentDate}">
+                        2026-09-10
+                    </td>
+
+                    <td class="strong-text"
+                        th:text="${payment.receiptNumber}">
+                        REC-001
+                    </td>
+
+                    <td class="strong-text"
+                        th:text="${payment.salesInvoice.invoiceNumber}">
+                        INV-001
+                    </td>
+
+                    <td th:text="${payment.salesInvoice.customer.customerName}">
+                        Customer
+                    </td>
+
+                    <td th:text="${payment.salesInvoice.customer.area != null
+                                  and !payment.salesInvoice.customer.area.isBlank()
+                                  ? payment.salesInvoice.customer.area
+                                  : '-'}">
+                        Area
+                    </td>
+
+                    <td>
+
+                        <span class="badge badge-cash"
+                              th:if="${payment.paymentMethod == 'CASH'}">
+                            CASH
+                        </span>
+
+                        <span class="badge badge-cheque"
+                              th:if="${payment.paymentMethod == 'CHEQUE'}">
+                            CHEQUE
+                        </span>
+
+                        <span class="badge badge-transfer"
+                              th:if="${payment.paymentMethod == 'BANK_TRANSFER'}">
+                            BANK TRANSFER
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <span th:if="${payment.paymentMethod == 'CHEQUE'}"
+                              th:text="${payment.chequeNumber != null
+                                       and !payment.chequeNumber.isBlank()
+                                       ? payment.chequeNumber
+                                       : '-'}">
+                            -
+                        </span>
+
+                        <span th:if="${payment.paymentMethod == 'BANK_TRANSFER'}"
+                              th:text="${payment.referenceNumber != null
+                                       and !payment.referenceNumber.isBlank()
+                                       ? payment.referenceNumber
+                                       : '-'}">
+                            -
+                        </span>
+
+                        <span th:if="${payment.paymentMethod == 'CASH'}">
+                            -
+                        </span>
+
+                    </td>
+
+                    <td th:text="${payment.bankName != null
+                                  and !payment.bankName.isBlank()
+                                  ? payment.bankName
+                                  : '-'}">
+                        -
+                    </td>
+
+                    <td class="amount"
+                        th:text="${'Rs. ' +
+                        #numbers.formatDecimal(
+                        payment.amount, 1, 2)}">
+                        Rs. 0.00
+                    </td>
+
+                    <td>
+
+                        <a class="receipt-button"
+                           th:href="@{/payments/view/{id}
+                           (id=${payment.id})}">
+                            View
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <div id="noSearchResults"
+             class="no-search-results">
+
+            <h3>No matching collection records</h3>
+
+            <p>
+                Try another receipt number, customer,
+                invoice number or payment method.
+            </p>
+
+        </div>
+
+        <div class="empty-message"
+             th:if="${#lists.isEmpty(payments)}">
+
+            <h3>No collections found</h3>
+
+            <p>
+                No customer payments were recorded
+                during the selected period.
+            </p>
+
+        </div>
+
+    </section>
+
+</main>
+
+<script>
+    function filterCollections() {
+
+        const searchInput =
+            document.getElementById(
+                "collectionSearch"
+            );
+
+        const searchValue =
+            searchInput.value
+                .toLowerCase()
+                .trim();
+
+        const rows =
+            document.querySelectorAll(
+                ".collection-row"
+            );
+
+        let visibleCount = 0;
+
+        rows.forEach(function (row) {
+
+            const rowText =
+                row.textContent
+                    .toLowerCase()
+                    .replace(/\s+/g, " ");
+
+            const visible =
+                rowText.includes(searchValue);
+
+            row.style.display =
+                visible ? "" : "none";
+
+            if (visible) {
+                visibleCount++;
+            }
+        });
+
+        const countElement =
+            document.getElementById(
+                "visibleCollectionCount"
+            );
+
+        if (countElement) {
+            countCount(countElement, visibleCount);
+        }
+
+        const noResults =
+            document.getElementById(
+                "noSearchResults"
+            );
+
+        if (noResults) {
+            noResults.style.display =
+                visibleCount === 0
+                    ? "block"
+                    : "none";
+        }
+    }
+
+    function rememberCount(element, count) {
+        element.textContent = count;
+    }
+
+    function clearCollectionSearch() {
+
+        const searchInput =
+            document.getElementById(
+                "collectionSearch"
+            );
+
+        if (!searchInput) {
+            return;
+        }
+
+        searchInput.value = "";
+        filterCollections();
+        searchInput.focus();
+    }
+</script>
+
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>

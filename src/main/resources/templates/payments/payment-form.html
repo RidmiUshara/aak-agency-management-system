@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Record Payment - AAK Agency</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #222;
+        }
+
+        header {
+            background: #213f66;
+            color: white;
+            padding: 25px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 34px;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: #e4edf7;
+            font-size: 17px;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px 14px;
+            border: 1px solid rgba(255,255,255,0.35);
+            border-radius: 6px;
+        }
+
+        main {
+            width: 90%;
+            max-width: 1100px;
+            margin: 40px auto;
+        }
+
+        .page-title {
+            margin-bottom: 26px;
+        }
+
+        .page-title h2 {
+            color: #213f66;
+            font-size: 30px;
+            margin-bottom: 7px;
+        }
+
+        .page-title p {
+            color: #5f6873;
+        }
+
+        .alert {
+            padding: 16px 20px;
+            margin-bottom: 22px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .alert-error {
+            color: #842029;
+            background: #f8d7da;
+            border-left: 5px solid #dc3545;
+        }
+
+        .alert-warning {
+            color: #664d03;
+            background: #fff3cd;
+            border-left: 5px solid #e0a800;
+        }
+
+        .card {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            border-top: 5px solid #148b57;
+            box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+        }
+
+        .section-title {
+            color: #213f66;
+            font-size: 21px;
+            margin-bottom: 22px;
+            padding-bottom: 11px;
+            border-bottom: 2px solid #e8eef7;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 22px;
+        }
+
+        .form-group {
+            margin-bottom: 4px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            color: #213f66;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        .form-control {
+            width: 100%;
+            min-height: 50px;
+            padding: 12px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            background: white;
+            font-size: 16px;
+            outline: none;
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-control:focus {
+            border-color: #148b57;
+            box-shadow: 0 0 0 3px rgba(20,139,87,0.12);
+        }
+
+        .help-text {
+            display: block;
+            margin-top: 7px;
+            color: #6c757d;
+            font-size: 13px;
+        }
+
+        .invoice-summary {
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            background: #f1f5fa;
+            padding: 18px;
+            border-radius: 9px;
+            margin-top: 15px;
+        }
+
+        .summary-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dce4ed;
+        }
+
+        .summary-box label {
+            color: #6c757d;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .summary-box strong {
+            color: #213f66;
+            font-size: 16px;
+            overflow-wrap: anywhere;
+        }
+
+        .balance-summary {
+            background: #213f66;
+        }
+
+        .balance-summary label,
+        .balance-summary strong {
+            color: white;
+        }
+
+        .conditional-fields {
+            display: none;
+            grid-column: 1 / -1;
+            padding: 22px;
+            background: #f8fafc;
+            border-radius: 9px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .conditional-fields.visible {
+            display: block;
+        }
+
+        .conditional-title {
+            color: #213f66;
+            margin-bottom: 18px;
+        }
+
+        .conditional-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 22px;
+        }
+
+        .amount-warning {
+            display: none;
+            color: #842029;
+            background: #f8d7da;
+            padding: 11px;
+            border-radius: 6px;
+            margin-top: 8px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .button-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        .button {
+            display: inline-block;
+            border: none;
+            border-radius: 7px;
+            padding: 14px 22px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .save-button {
+            background: #148b57;
+            color: white;
+        }
+
+        .cancel-button {
+            background: #6c757d;
+            color: white;
+        }
+
+        .button:hover {
+            opacity: 0.9;
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 750px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            main {
+                width: 95%;
+            }
+
+            .form-grid,
+            .conditional-grid,
+            .invoice-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .full-width,
+            .conditional-fields {
+                grid-column: auto;
+            }
+
+            .button-row {
+                flex-direction: column;
+            }
+
+            .button {
+                width: 100%;
+            }
+        }
+    </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+
+<body>
+
+<header>
+
+    <div>
+        <h1>AAK Agency</h1>
+        <p>Payment and Credit Collection Management</p>
+    </div>
+
+    <a th:href="@{/payments}">
+        Back to Payments
+    </a>
+
+</header>
+
+<main>
+
+    <div class="page-title">
+
+        <h2>Record Customer Payment</h2>
+
+        <p>
+            Search and select a completed credit invoice,
+            then enter the collected payment.
+        </p>
+
+    </div>
+
+    <div class="alert alert-error"
+         th:if="${errorMessage}"
+         th:text="${errorMessage}">
+    </div>
+
+    <div class="alert alert-warning"
+         th:if="${#lists.isEmpty(creditInvoices)}">
+
+        There are no outstanding completed credit invoices.
+
+    </div>
+
+    <section class="card">
+
+        <h3 class="section-title">
+            Payment Information
+        </h3>
+
+        <form id="paymentForm"
+              th:action="@{/payments/save}"
+              th:object="${payment}"
+              method="post">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label for="receiptNumber">
+                        Receipt Number
+                        <span class="required">*</span>
+                    </label>
+
+                    <input id="receiptNumber"
+                           type="text"
+                           th:field="*{receiptNumber}"
+                           class="form-control"
+                           placeholder="Example: REC-0001"
+                           required>
+                </div>
+
+                <div class="form-group">
+
+                    <label for="paymentDate">
+                        Payment Date
+                        <span class="required">*</span>
+                    </label>
+
+                    <input id="paymentDate"
+                           type="date"
+                           th:field="*{paymentDate}"
+                           class="form-control"
+                           required>
+                </div>
+
+                <div class="form-group full-width">
+
+                    <label for="invoiceSearch">
+                        Search Credit Invoice
+                    </label>
+
+                    <input id="invoiceSearch"
+                           type="search"
+                           class="form-control"
+                           placeholder="Search by invoice number, customer, area or route"
+                           autocomplete="off"
+                           oninput="filterInvoices()">
+
+                    <span class="help-text">
+                        Only completed invoices with an outstanding
+                        credit balance are available.
+                    </span>
+
+                </div>
+
+                <div class="form-group full-width">
+
+                    <label for="salesInvoiceId">
+                        Credit Sales Invoice
+                        <span class="required">*</span>
+                    </label>
+
+                    <select id="salesInvoiceId"
+                            name="salesInvoiceId"
+                            class="form-control"
+                            required
+                            onchange="updateInvoiceSummary()">
+
+                        <option value="">
+                            Select credit sales invoice
+                        </option>
+
+                        <option th:each="invoice : ${creditInvoices}"
+                                th:value="${invoice.id}"
+                                th:selected="${selectedInvoiceId != null
+                                && selectedInvoiceId.equals(invoice.id)}"
+
+                                th:text="${invoice.invoiceNumber
+                                + ' - '
+                                + invoice.customer.customerName
+                                + ' - Balance Rs. '
+                                + #numbers.formatDecimal(
+                                balanceByInvoice[invoice.id],
+                                1,
+                                2)}"
+
+                                th:attr="
+                                data-invoice=${invoice.invoiceNumber},
+                                data-date=${invoice.invoiceDate},
+                                data-customer=${invoice.customer.customerName},
+                                data-code=${invoice.customer.customerCode},
+                                data-area=${invoice.customer.area},
+                                data-route=${invoice.routeCode},
+                                data-total=${invoice.netAmount},
+                                data-paid=${paidAmountByInvoice[invoice.id]},
+                                data-balance=${balanceByInvoice[invoice.id]}">
+                            Invoice
+                        </option>
+
+                    </select>
+
+                    <div class="invoice-summary"
+                         id="invoiceSummary">
+
+                        <div class="summary-box">
+                            <label>Customer</label>
+                            <strong id="summaryCustomer">-</strong>
+                        </div>
+
+                        <div class="summary-box">
+                            <label>Customer Code</label>
+                            <strong id="summaryCustomerCode">-</strong>
+                        </div>
+
+                        <div class="summary-box">
+                            <label>Area</label>
+                            <strong id="summaryArea">-</strong>
+                        </div>
+
+                        <div class="summary-box">
+                            <label>Invoice Number</label>
+                            <strong id="summaryInvoice">-</strong>
+                        </div>
+
+                        <div class="summary-box">
+                            <label>Invoice Date</label>
+                            <strong id="summaryDate">-</strong>
+                        </div>
+
+                        <div class="summary-box">
+                            <label>Route</label>
+                            <strong id="summaryRoute">-</strong>
+                        </div>
+
+                        <div class="summary-box">
+                            <label>Invoice Net Amount</label>
+                            <strong id="summaryTotal">
+                                Rs. 0.00
+                            </strong>
+                        </div>
+
+                        <div class="summary-box">
+                            <label>Previously Paid</label>
+                            <strong id="summaryPaid">
+                                Rs. 0.00
+                            </strong>
+                        </div>
+
+                        <div class="summary-box balance-summary">
+                            <label>Remaining Balance</label>
+                            <strong id="summaryBalance">
+                                Rs. 0.00
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="amount">
+                        Payment Amount (LKR)
+                        <span class="required">*</span>
+                    </label>
+
+                    <input id="amount"
+                           type="number"
+                           th:field="*{amount}"
+                           class="form-control"
+                           min="0.01"
+                           step="0.01"
+                           placeholder="Example: 300.00"
+                           oninput="validatePaymentAmount()"
+                           required>
+
+                    <div class="amount-warning"
+                         id="amountWarning">
+
+                        Payment cannot be greater than the
+                        remaining invoice balance.
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="paymentMethod">
+                        Payment Method
+                        <span class="required">*</span>
+                    </label>
+
+                    <select id="paymentMethod"
+                            th:field="*{paymentMethod}"
+                            class="form-control"
+                            required
+                            onchange="showPaymentFields()">
+
+                        <option value="CASH">
+                            Cash
+                        </option>
+
+                        <option value="CHEQUE">
+                            Cheque
+                        </option>
+
+                        <option value="BANK_TRANSFER">
+                            Bank Transfer
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div id="chequeFields"
+                     class="conditional-fields">
+
+                    <h4 class="conditional-title">
+                        Cheque Information
+                    </h4>
+
+                    <div class="conditional-grid">
+
+                        <div class="form-group">
+
+                            <label for="chequeNumber">
+                                Cheque Number
+                                <span class="required">*</span>
+                            </label>
+
+                            <input id="chequeNumber"
+                                   type="text"
+                                   th:field="*{chequeNumber}"
+                                   class="form-control"
+                                   placeholder="Enter cheque number">
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="chequeDate">
+                                Cheque Date
+                                <span class="required">*</span>
+                            </label>
+
+                            <input id="chequeDate"
+                                   type="date"
+                                   th:field="*{chequeDate}"
+                                   class="form-control">
+                        </div>
+
+                        <div class="form-group full-width">
+
+                            <label for="chequeBankName">
+                                Bank Name
+                                <span class="required">*</span>
+                            </label>
+
+                            <input id="chequeBankName"
+                                   type="text"
+                                   name="bankName"
+                                   th:value="${payment.bankName}"
+                                   class="form-control"
+                                   placeholder="Enter cheque bank name">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div id="bankTransferFields"
+                     class="conditional-fields">
+
+                    <h4 class="conditional-title">
+                        Bank Transfer Information
+                    </h4>
+
+                    <div class="conditional-grid">
+
+                        <div class="form-group">
+
+                            <label for="transferBankName">
+                                Bank Name
+                            </label>
+
+                            <input id="transferBankName"
+                                   type="text"
+                                   class="form-control"
+                                   placeholder="Enter bank name">
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="referenceNumber">
+                                Transaction / Reference Number
+                                <span class="required">*</span>
+                            </label>
+
+                            <input id="referenceNumber"
+                                   type="text"
+                                   th:field="*{referenceNumber}"
+                                   class="form-control"
+                                   placeholder="Enter transaction reference">
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group full-width">
+
+                    <label for="notes">Notes</label>
+
+                    <textarea id="notes"
+                              th:field="*{notes}"
+                              class="form-control"
+                              placeholder="Enter additional payment notes">
+                    </textarea>
+
+                </div>
+
+            </div>
+
+            <div class="button-row">
+
+                <a class="button cancel-button"
+                   th:href="@{/payments}">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        id="savePaymentButton"
+                        class="button save-button"
+                        th:disabled="${#lists.isEmpty(creditInvoices)}">
+                    Save Payment
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</main>
+
+<script>
+    const invoiceSelect =
+        document.getElementById("salesInvoiceId");
+
+    const invoiceSearch =
+        document.getElementById("invoiceSearch");
+
+    const amountInput =
+        document.getElementById("amount");
+
+    const paymentMethod =
+        document.getElementById("paymentMethod");
+
+    const chequeFields =
+        document.getElementById("chequeFields");
+
+    const transferFields =
+        document.getElementById(
+            "bankTransferFields"
+        );
+
+    const chequeNumber =
+        document.getElementById("chequeNumber");
+
+    const chequeDate =
+        document.getElementById("chequeDate");
+
+    const chequeBankName =
+        document.getElementById("chequeBankName");
+
+    const transferBankName =
+        document.getElementById("transferBankName");
+
+    const referenceNumber =
+        document.getElementById("referenceNumber");
+
+    let invoiceOptions = [];
+    let selectedBalance = 0;
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            invoiceOptions =
+                Array.from(invoiceSelect.options)
+                    .slice(1)
+                    .map(option =>
+                        option.cloneNode(true)
+                    );
+
+            updateInvoiceSummary();
+            showPaymentFields();
+        }
+    );
+
+    function filterInvoices() {
+        const keyword =
+            invoiceSearch.value
+                .toLowerCase()
+                .trim();
+
+        const currentValue =
+            invoiceSelect.value;
+
+        invoiceSelect.innerHTML =
+            '<option value="">'
+            + 'Select credit sales invoice'
+            + '</option>';
+
+        invoiceOptions.forEach(
+            function (savedOption) {
+
+                const searchText = [
+                    savedOption.dataset.invoice,
+                    savedOption.dataset.customer,
+                    savedOption.dataset.code,
+                    savedOption.dataset.area,
+                    savedOption.dataset.route
+                ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLowerCase();
+
+                if (searchText.includes(keyword)) {
+                    invoiceSelect.appendChild(
+                        savedOption.cloneNode(true)
+                    );
+                }
+            }
+        );
+
+        invoiceSelect.value = currentValue;
+
+        if (!invoiceSelect.value) {
+            clearInvoiceSummary();
+        }
+    }
+
+    function updateInvoiceSummary() {
+        const selectedOption =
+            invoiceSelect.options[
+                invoiceSelect.selectedIndex
+                ];
+
+        if (!selectedOption
+            || !selectedOption.value) {
+
+            clearInvoiceSummary();
+            return;
+        }
+
+        selectedBalance =
+            parseFloat(
+                selectedOption.dataset.balance || "0"
+            );
+
+        document.getElementById(
+            "summaryCustomer"
+        ).textContent =
+            selectedOption.dataset.customer || "-";
+
+        document.getElementById(
+            "summaryCustomerCode"
+        ).textContent =
+            selectedOption.dataset.code || "-";
+
+        document.getElementById(
+            "summaryArea"
+        ).textContent =
+            selectedOption.dataset.area || "-";
+
+        document.getElementById(
+            "summaryInvoice"
+        ).textContent =
+            selectedOption.dataset.invoice || "-";
+
+        document.getElementById(
+            "summaryDate"
+        ).textContent =
+            selectedOption.dataset.date || "-";
+
+        document.getElementById(
+            "summaryRoute"
+        ).textContent =
+            selectedOption.dataset.route || "-";
+
+        document.getElementById(
+            "summaryTotal"
+        ).textContent =
+            formatMoney(
+                selectedOption.dataset.total
+            );
+
+        document.getElementById(
+            "summaryPaid"
+        ).textContent =
+            formatMoney(
+                selectedOption.dataset.paid
+            );
+
+        document.getElementById(
+            "summaryBalance"
+        ).textContent =
+            formatMoney(selectedBalance);
+
+        document.getElementById(
+            "invoiceSummary"
+        ).style.display = "grid";
+
+        amountInput.max =
+            selectedBalance.toFixed(2);
+
+        validatePaymentAmount();
+    }
+
+    function clearInvoiceSummary() {
+        selectedBalance = 0;
+
+        document.getElementById(
+            "invoiceSummary"
+        ).style.display = "none";
+
+        amountInput.removeAttribute("max");
+
+        validatePaymentAmount();
+    }
+
+    function validatePaymentAmount() {
+        const paymentAmount =
+            parseFloat(amountInput.value || "0");
+
+        const warning =
+            document.getElementById("amountWarning");
+
+        const invalid =
+            paymentAmount > selectedBalance
+            && selectedBalance > 0;
+
+        warning.style.display =
+            invalid ? "block" : "none";
+
+        amountInput.setCustomValidity(
+            invalid
+                ? "Payment amount exceeds "
+                + "the remaining balance."
+                : ""
+        );
+
+        return !invalid;
+    }
+
+    function showPaymentFields() {
+        const method =
+            paymentMethod.value;
+
+        chequeFields.classList.remove("visible");
+        transferFields.classList.remove("visible");
+
+        chequeNumber.required = false;
+        chequeDate.required = false;
+        chequeBankName.required = false;
+        referenceNumber.required = false;
+
+        chequeBankName.disabled = true;
+        transferBankName.disabled = true;
+
+        if (method === "CHEQUE") {
+            chequeFields.classList.add("visible");
+
+            chequeNumber.required = true;
+            chequeDate.required = true;
+            chequeBankName.required = true;
+            chequeBankName.disabled = false;
+
+            transferBankName.value = "";
+            referenceNumber.value = "";
+        }
+
+        if (method === "BANK_TRANSFER") {
+            transferFields.classList.add("visible");
+
+            referenceNumber.required = true;
+            transferBankName.disabled = false;
+
+            chequeNumber.value = "";
+            chequeDate.value = "";
+            chequeBankName.value = "";
+        }
+
+        if (method === "CASH") {
+            chequeNumber.value = "";
+            chequeDate.value = "";
+            chequeBankName.value = "";
+            transferBankName.value = "";
+            referenceNumber.value = "";
+        }
+    }
+
+    function formatMoney(value) {
+        const number =
+            parseFloat(value || "0");
+
+        return "Rs. " +
+            number.toLocaleString(
+                "en-LK",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            );
+    }
+
+    document.getElementById(
+        "paymentForm"
+    ).addEventListener(
+        "submit",
+        function (event) {
+
+            if (!invoiceSelect.value) {
+                event.preventDefault();
+
+                alert(
+                    "Please select a credit sales invoice."
+                );
+
+                invoiceSelect.focus();
+                return;
+            }
+
+            const paymentAmount =
+                parseFloat(amountInput.value || "0");
+
+            if (!paymentAmount
+                || paymentAmount <= 0) {
+
+                event.preventDefault();
+
+                alert(
+                    "Payment amount must be greater than zero."
+                );
+
+                amountInput.focus();
+                return;
+            }
+
+            if (!validatePaymentAmount()) {
+                event.preventDefault();
+
+                alert(
+                    "Payment cannot be greater than "
+                    + "the remaining balance."
+                );
+            }
+        }
+    );
+</script>
+
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>

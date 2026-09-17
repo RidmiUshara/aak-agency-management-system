@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title th:text="'Purchase Invoice '
+            + ${invoice.documentNumber}
+            + ' - AAK Agency'">
+        Purchase Invoice
+    </title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #222;
+        }
+
+        header {
+            background: #213f66;
+            color: white;
+            padding: 25px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 34px;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: #e4edf7;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px 14px;
+            border: 1px solid rgba(255,255,255,0.35);
+            border-radius: 6px;
+        }
+
+        main {
+            width: 90%;
+            max-width: 1450px;
+            margin: 40px auto;
+        }
+
+        .heading-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .heading-row h2 {
+            color: #213f66;
+            font-size: 30px;
+            margin-bottom: 5px;
+        }
+
+        .heading-row p,
+        .section-description {
+            color: #606a75;
+        }
+
+        .heading-actions,
+        .footer-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .button {
+            display: inline-block;
+            border: none;
+            border-radius: 7px;
+            padding: 12px 18px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .button:hover {
+            opacity: 0.9;
+        }
+
+        .button:disabled {
+            background: #aab2bb;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .edit-button {
+            background: #087cf0;
+        }
+
+        .complete-button,
+        .add-button {
+            background: #148b57;
+        }
+
+        .print-button,
+        .open-file-button {
+            background: #6f42c1;
+        }
+
+        .back-button {
+            background: #6c757d;
+        }
+
+        .delete-button {
+            background: #dc3545;
+            padding: 9px 13px;
+        }
+
+        .open-file-button {
+            width: 100%;
+            margin-top: 14px;
+        }
+
+        .message,
+        .completed-message {
+            padding: 15px;
+            margin-bottom: 22px;
+            border-radius: 7px;
+            font-weight: bold;
+        }
+
+        .success-message,
+        .completed-message {
+            background: #d7f0e3;
+            color: #12613d;
+            border-left: 5px solid #198754;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #842029;
+            border-left: 5px solid #dc3545;
+        }
+
+        .comparison-heading {
+            color: #213f66;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .section-description {
+            margin-bottom: 20px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: minmax(350px, 0.9fr)
+                                   minmax(600px, 1.6fr);
+            gap: 25px;
+            align-items: start;
+            margin-bottom: 28px;
+        }
+
+        .card {
+            background: white;
+            padding: 28px;
+            border-radius: 12px;
+            box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+            margin-bottom: 28px;
+        }
+
+        .original-card {
+            border-top: 5px solid #6f42c1;
+            margin-bottom: 0;
+        }
+
+        .information-card,
+        .product-entry-card {
+            border-top: 5px solid #148b57;
+        }
+
+        .information-card {
+            margin-bottom: 0;
+        }
+
+        .card-title {
+            color: #213f66;
+            font-size: 22px;
+            margin-bottom: 20px;
+            padding-bottom: 11px;
+            border-bottom: 2px solid #e8eef7;
+        }
+
+        .invoice-file-name {
+            color: #213f66;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+            margin-bottom: 7px;
+        }
+
+        .invoice-file-meta {
+            color: #6c757d;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .invoice-preview-image {
+            display: block;
+            width: 100%;
+            max-height: 750px;
+            object-fit: contain;
+            background: #f8fafc;
+            border: 1px solid #d4dbe3;
+            border-radius: 8px;
+        }
+
+        .invoice-preview-pdf {
+            display: block;
+            width: 100%;
+            height: 750px;
+            background: white;
+            border: 1px solid #d4dbe3;
+            border-radius: 8px;
+        }
+
+        .no-file {
+            background: #f1f5fa;
+            color: #6c757d;
+            text-align: center;
+            padding: 40px 20px;
+            border: 2px dashed #c5cfda;
+            border-radius: 8px;
+        }
+
+        .no-file strong {
+            display: block;
+            color: #213f66;
+            margin-bottom: 8px;
+        }
+
+        .verification-summary {
+            margin-top: 18px;
+            padding: 16px;
+            border-radius: 8px;
+            background: #fff3cd;
+            color: #664d03;
+        }
+
+        .verification-summary.verified {
+            background: #d7f0e3;
+            color: #12613d;
+        }
+
+        .verification-summary strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .status {
+            display: inline-block;
+            background: #e1e5ea;
+            padding: 7px 13px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .status-completed,
+        .status-verified {
+            background: #d7f0e3;
+            color: #12613d;
+        }
+
+        .status-unverified {
+            background: #fff3cd;
+            color: #664d03;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px;
+        }
+
+        .detail label {
+            display: block;
+            color: #6c757d;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .detail p {
+            color: #213f66;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+
+        .totals-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .total-box {
+            background: #f1f5fa;
+            padding: 18px;
+            border-radius: 8px;
+        }
+
+        .total-box label {
+            display: block;
+            color: #6c757d;
+            font-size: 13px;
+            margin-bottom: 7px;
+        }
+
+        .total-box strong {
+            color: #213f66;
+            font-size: 18px;
+        }
+
+        .grand-total {
+            background: #213f66;
+        }
+
+        .grand-total label,
+        .grand-total strong {
+            color: white;
+        }
+
+        .verification-card {
+            border: 2px solid #c9d8e8;
+            background: #f7faff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 28px;
+        }
+
+        .verification-card h3 {
+            color: #213f66;
+            margin-bottom: 8px;
+        }
+
+        .verification-card p {
+            color: #606a75;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .verification-check {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            background: white;
+            border: 1px solid #cbd3dc;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 15px;
+        }
+
+        .verification-check input {
+            width: 20px;
+            height: 20px;
+            margin-top: 1px;
+            cursor: pointer;
+        }
+
+        .verification-check label {
+            color: #213f66;
+            font-weight: bold;
+            line-height: 1.5;
+            cursor: pointer;
+        }
+
+        .verification-warning {
+            color: #842029;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .search-group {
+            margin-bottom: 20px;
+        }
+
+        .search-group label,
+        .form-group label {
+            display: block;
+            color: #213f66;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .search-input,
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            border: 1px solid #cbd3dc;
+            border-radius: 7px;
+            padding: 12px;
+            font-size: 15px;
+            outline: none;
+            background: white;
+        }
+
+        .search-input:focus,
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #148b57;
+            box-shadow: 0 0 0 3px rgba(20,139,87,0.12);
+        }
+
+        .help-text {
+            display: block;
+            color: #777;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        .product-form-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 18px;
+            align-items: end;
+        }
+
+        .selected-product-details {
+            display: none;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-top: 18px;
+            padding: 17px;
+            background: #f1f5fa;
+            border-radius: 8px;
+        }
+
+        .selected-detail label {
+            display: block;
+            color: #6c757d;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .selected-detail strong {
+            color: #213f66;
+        }
+
+        .calculated-amount {
+            color: #148b57 !important;
+            font-size: 18px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        th {
+            background: #e8eef7;
+            color: #213f66;
+            padding: 16px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 16px;
+            border-top: 1px solid #e4e4e4;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .product-code,
+        .money,
+        .product-name {
+            font-weight: bold;
+        }
+
+        .product-code,
+        .money {
+            color: #213f66;
+            white-space: nowrap;
+        }
+
+        .weight-badge,
+        .unit-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .weight-badge {
+            background: #e8eef7;
+            color: #213f66;
+        }
+
+        .unit-badge {
+            background: #d7f0e3;
+            color: #12613d;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #666;
+            padding: 35px;
+        }
+
+        .empty-message h3 {
+            color: #213f66;
+            margin-bottom: 7px;
+        }
+
+        .bottom-navigation {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .print-only {
+            display: none;
+        }
+
+        @media (max-width: 1100px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .details-grid,
+            .totals-grid,
+            .selected-product-details {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .product-form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 650px) {
+            header,
+            .heading-row,
+            .bottom-navigation {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            main {
+                width: 95%;
+            }
+
+            .details-grid,
+            .totals-grid,
+            .selected-product-details,
+            .product-form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .heading-actions,
+            .footer-actions {
+                width: 100%;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .button {
+                width: 100%;
+            }
+
+            .card {
+                padding: 21px;
+            }
+        }
+
+        @media print {
+            @page {
+                size: A4;
+                margin: 12mm;
+            }
+
+            body {
+                background: white;
+                color: #111;
+                font-size: 11px;
+            }
+
+            header,
+            .screen-only,
+            .original-card,
+            .product-entry-card,
+            .verification-card,
+            .bottom-navigation,
+            .action-column {
+                display: none !important;
+            }
+
+            .print-only {
+                display: block;
+            }
+
+            main {
+                width: 100%;
+                max-width: none;
+                margin: 0;
+            }
+
+            .comparison-grid {
+                display: block;
+            }
+
+            .information-card,
+            .card {
+                box-shadow: none;
+                border: 1px solid #ccc;
+                border-radius: 0;
+                padding: 16px;
+                margin-bottom: 18px;
+                break-inside: avoid;
+            }
+
+            .details-grid,
+            .totals-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            table {
+                min-width: 0;
+                font-size: 9px;
+            }
+
+            th,
+            td {
+                border: 1px solid #aaa;
+                padding: 7px 5px;
+            }
+        }
+    </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+
+<body>
+
+<header class="screen-only">
+    <div>
+        <h1>AAK Agency</h1>
+        <p>Purchase Invoice Details</p>
+    </div>
+
+    <a th:href="@{/purchase-invoices}">
+        Back to Purchase Invoices
+    </a>
+</header>
+
+<main>
+
+    <section class="print-only">
+        <h1>AAK Agency</h1>
+        <p>CBL Supplier Purchase Invoice</p>
+        <hr>
+        <br>
+    </section>
+
+    <div class="heading-row screen-only">
+        <div>
+            <h2 th:text="${'Invoice ' + invoice.documentNumber}">
+                Purchase Invoice
+            </h2>
+
+            <p>
+                Original CBL invoice and entered purchase information.
+            </p>
+        </div>
+
+        <div class="heading-actions">
+            <button class="button print-button"
+                    type="button"
+                    onclick="window.print()">
+                Print / Save as PDF
+            </button>
+
+            <a class="button edit-button"
+               th:if="${invoice.status != 'COMPLETED'}"
+               th:href="@{/purchase-invoices/edit/{id}(id=${invoice.id})}">
+                Edit Invoice
+            </a>
+        </div>
+    </div>
+
+    <div class="message success-message screen-only"
+         th:if="${successMessage}"
+         th:text="${successMessage}">
+    </div>
+
+    <div class="message error-message screen-only"
+         th:if="${errorMessage}"
+         th:text="${errorMessage}">
+    </div>
+
+    <div class="completed-message screen-only"
+         th:if="${invoice.status == 'COMPLETED'}">
+        ✓ This invoice is verified and completed.
+        Purchased quantities have been added to stock.
+    </div>
+
+    <h3 class="comparison-heading screen-only">
+        Invoice Verification
+    </h3>
+
+    <p class="section-description screen-only">
+        Compare the uploaded original CBL invoice with
+        the information entered into the system.
+    </p>
+
+    <div class="comparison-grid">
+
+        <section class="card original-card screen-only">
+
+            <h3 class="card-title">
+                Original CBL Invoice
+            </h3>
+
+            <div th:if="${invoice.hasInvoiceFile()}">
+
+                <p class="invoice-file-name"
+                   th:text="${invoice.invoiceFileOriginalName}">
+                    Invoice file
+                </p>
+
+                <p class="invoice-file-meta">
+                    Uploaded:
+                    <span th:text="${invoice.invoiceFileUploadedAt != null
+                    ? invoice.invoiceFileUploadedAt : '-'}">
+                        -
+                    </span>
+                </p>
+
+                <img class="invoice-preview-image"
+                     th:if="${invoice.invoiceFileContentType != null
+                     && #strings.startsWith(
+                     invoice.invoiceFileContentType, 'image/')}"
+                     th:src="@{/purchase-invoices/{id}/original-file
+                     (id=${invoice.id})}"
+                     alt="Original CBL invoice">
+
+                <iframe class="invoice-preview-pdf"
+                        title="Original CBL invoice PDF"
+                        th:if="${invoice.invoiceFileContentType
+                        == 'application/pdf'}"
+                        th:src="@{/purchase-invoices/{id}/original-file
+                        (id=${invoice.id})}">
+                </iframe>
+
+                <a class="button open-file-button"
+                   target="_blank"
+                   th:href="@{/purchase-invoices/{id}/original-file
+                   (id=${invoice.id})}">
+                    Open Original Invoice
+                </a>
+
+            </div>
+
+            <div class="no-file"
+                 th:unless="${invoice.hasInvoiceFile()}">
+                <strong>No original invoice attached</strong>
+                Edit this draft invoice to upload an image or PDF.
+            </div>
+
+            <div class="verification-summary verified"
+                 th:if="${invoice.invoiceVerified}">
+                <strong>✓ Verified</strong>
+
+                <span th:text="${invoice.invoiceVerifiedAt != null
+                ? 'Verified at: ' + invoice.invoiceVerifiedAt
+                : 'Verification completed'}">
+                    Verification completed
+                </span>
+            </div>
+
+            <div class="verification-summary"
+                 th:unless="${invoice.invoiceVerified}">
+                <strong>Not Verified</strong>
+                Compare the original invoice with the entered details.
+            </div>
+
+        </section>
+
+        <section class="card information-card">
+
+            <h3 class="card-title">
+                Entered Invoice Information
+            </h3>
+
+            <div class="details-grid">
+
+                <div class="detail">
+                    <label>Document Number</label>
+                    <p th:text="${invoice.documentNumber}">-</p>
+                </div>
+
+                <div class="detail">
+                    <label>Invoice Date</label>
+                    <p th:text="${invoice.invoiceDate}">-</p>
+                </div>
+
+                <div class="detail">
+                    <label>Delivery Date</label>
+
+                    <p th:text="${invoice.deliveryDate != null
+                    ? invoice.deliveryDate : '-'}">
+                        -
+                    </p>
+                </div>
+
+                <div class="detail">
+                    <label>Invoice Status</label>
+
+                    <p>
+                        <span class="status"
+                              th:classappend="${invoice.status == 'COMPLETED'}
+                              ? ' status-completed' : ''"
+                              th:text="${invoice.status}">
+                            DRAFT
+                        </span>
+                    </p>
+                </div>
+
+                <div class="detail">
+                    <label>Verification</label>
+
+                    <p>
+                        <span class="status status-verified"
+                              th:if="${invoice.invoiceVerified}">
+                            VERIFIED
+                        </span>
+
+                        <span class="status status-unverified"
+                              th:unless="${invoice.invoiceVerified}">
+                            NOT VERIFIED
+                        </span>
+                    </p>
+                </div>
+
+                <div class="detail">
+                    <label>Supplier</label>
+
+                    <p th:text="${invoice.supplierName}">
+                        CBL Foods International (Pvt) Ltd
+                    </p>
+                </div>
+
+                <div class="detail">
+                    <label>Place of Supply</label>
+                    <p th:text="${invoice.placeOfSupply}">Ranala</p>
+                </div>
+
+                <div class="detail">
+                    <label>Tax Invoice Number</label>
+
+                    <p th:text="${invoice.taxInvoiceNumber != null
+                    && !invoice.taxInvoiceNumber.isBlank()
+                    ? invoice.taxInvoiceNumber : '-'}">
+                        -
+                    </p>
+                </div>
+
+                <div class="detail">
+                    <label>PO Number</label>
+
+                    <p th:text="${invoice.poNumber != null
+                    && !invoice.poNumber.isBlank()
+                    ? invoice.poNumber : '-'}">
+                        -
+                    </p>
+                </div>
+
+                <div class="detail">
+                    <label>Territory</label>
+
+                    <p th:text="${invoice.territory != null
+                    && !invoice.territory.isBlank()
+                    ? invoice.territory : '-'}">
+                        -
+                    </p>
+                </div>
+
+                <div class="detail">
+                    <label>Payment Method</label>
+
+                    <p th:text="${invoice.paymentMethod != null
+                    && !invoice.paymentMethod.isBlank()
+                    ? invoice.paymentMethod : '-'}">
+                        -
+                    </p>
+                </div>
+
+                <div class="detail">
+                    <label>Product Lines</label>
+                    <p th:text="${#lists.size(items)}">0</p>
+                </div>
+
+                <div class="detail">
+                    <label>Notes</label>
+
+                    <p th:text="${invoice.notes != null
+                    && !invoice.notes.isBlank()
+                    ? invoice.notes : '-'}">
+                        -
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="totals-grid">
+
+                <div class="total-box">
+                    <label>Subtotal</label>
+
+                    <strong th:text="${'Rs. ' +
+                    #numbers.formatDecimal(invoice.subtotal, 1, 2)}">
+                        Rs. 0.00
+                    </strong>
+                </div>
+
+                <div class="total-box">
+                    <label>Discount</label>
+
+                    <strong th:text="${'Rs. ' +
+                    #numbers.formatDecimal(
+                    invoice.discountAmount, 1, 2)}">
+                        Rs. 0.00
+                    </strong>
+                </div>
+
+                <div class="total-box">
+                    <label>VAT</label>
+
+                    <strong th:text="${'Rs. ' +
+                    #numbers.formatDecimal(invoice.vatAmount, 1, 2)}">
+                        Rs. 0.00
+                    </strong>
+                </div>
+
+                <div class="total-box grand-total">
+                    <label>Total Amount</label>
+
+                    <strong th:text="${'Rs. ' +
+                    #numbers.formatDecimal(invoice.totalAmount, 1, 2)}">
+                        Rs. 0.00
+                    </strong>
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+    <section class="verification-card screen-only"
+             th:if="${invoice.status != 'COMPLETED'}">
+
+        <h3>Final Invoice Verification</h3>
+
+        <p>
+            Check the original CBL invoice document number, dates,
+            product rows, quantities, rates, discount, VAT and total
+            against the information entered into the system.
+        </p>
+
+        <p class="verification-warning"
+           th:unless="${invoice.hasInvoiceFile()}">
+            Upload the original CBL invoice image or PDF before
+            completing this invoice.
+        </p>
+
+        <form method="post"
+              th:action="@{/purchase-invoices/{id}/complete
+              (id=${invoice.id})}"
+              onsubmit="return confirmInvoiceCompletion();">
+
+            <div class="verification-check">
+
+                <input id="verificationConfirmed"
+                       name="verificationConfirmed"
+                       type="checkbox"
+                       value="true"
+                       th:disabled="${!invoice.hasInvoiceFile()}"
+                       required>
+
+                <label for="verificationConfirmed">
+                    I have compared the uploaded original CBL invoice
+                    with all information and products entered into the
+                    system. The entered information is correct.
+                </label>
+
+            </div>
+
+            <button class="button complete-button"
+                    type="submit"
+                    th:disabled="${!invoice.hasInvoiceFile()
+                    || #lists.isEmpty(items)}">
+                Verify, Complete Invoice &amp; Update Stock
+            </button>
+
+        </form>
+
+    </section>
+
+    <section class="card product-entry-card screen-only"
+             th:if="${invoice.status != 'COMPLETED'}">
+
+        <h3 class="card-title">
+            Add Product to Purchase Invoice
+        </h3>
+
+        <form method="post"
+              th:action="@{/purchase-invoices/{id}/items/save
+              (id=${invoice.id})}"
+              onsubmit="return validateProductForm();">
+
+            <div class="search-group">
+
+                <label for="productSearch">
+                    Search Product
+                </label>
+
+                <input class="search-input"
+                       id="productSearch"
+                       type="search"
+                       placeholder="Search by code, product name, brand or weight"
+                       autocomplete="off"
+                       oninput="filterProductOptions()">
+
+                <span class="help-text">
+                    Type part of the product information.
+                </span>
+
+            </div>
+
+            <div class="product-form-grid">
+
+                <div class="form-group">
+                    <label for="productId">Product</label>
+
+                    <select id="productId"
+                            name="productId"
+                            onchange="showProductDetails()"
+                            required>
+
+                        <option value="">Select product</option>
+
+                        <option th:each="product : ${products}"
+                                th:value="${product.id}"
+                                th:text="${product.displayName
+                                + ' | ' + product.cblProductCode
+                                + ' | ' + product.unit}"
+                                th:attr="
+                                data-code=${product.cblProductCode},
+                                data-name=${product.productName},
+                                data-brand=${product.brand},
+                                data-weight=${product.netWeight},
+                                data-unit=${product.unit}">
+                            Product
+                        </option>
+
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="quantity">Quantity</label>
+
+                    <input id="quantity"
+                           name="quantity"
+                           type="number"
+                           min="0.01"
+                           step="0.01"
+                           placeholder="Example: 10"
+                           oninput="calculatePurchaseAmount()"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="unitPrice">
+                        Purchase Rate (LKR)
+                    </label>
+
+                    <input id="unitPrice"
+                           name="unitPrice"
+                           type="number"
+                           min="0"
+                           step="0.01"
+                           placeholder="Example: 95.00"
+                           oninput="calculatePurchaseAmount()"
+                           required>
+                </div>
+
+                <button class="button add-button"
+                        type="submit">
+                    + Add Product
+                </button>
+
+            </div>
+
+            <div class="selected-product-details"
+                 id="selectedProductDetails">
+
+                <div class="selected-detail">
+                    <label>CBL Code</label>
+                    <strong id="selectedCode">-</strong>
+                </div>
+
+                <div class="selected-detail">
+                    <label>Net Weight</label>
+                    <strong id="selectedWeight">-</strong>
+                </div>
+
+                <div class="selected-detail">
+                    <label>Unit</label>
+                    <strong id="selectedUnit">-</strong>
+                </div>
+
+                <div class="selected-detail">
+                    <label>Calculated Amount</label>
+
+                    <strong class="calculated-amount"
+                            id="calculatedAmount">
+                        Rs. 0.00
+                    </strong>
+                </div>
+
+            </div>
+
+        </form>
+
+    </section>
+
+    <section class="card">
+
+        <h3 class="card-title">Purchased Products</h3>
+
+        <div class="table-container">
+
+            <table th:if="${!#lists.isEmpty(items)}">
+
+                <thead>
+                <tr>
+                    <th>CBL / SKU Code</th>
+                    <th>Product</th>
+                    <th>Net Weight</th>
+                    <th>Quantity</th>
+                    <th>Unit</th>
+                    <th>Purchase Rate</th>
+                    <th>Amount</th>
+
+                    <th class="action-column"
+                        th:if="${invoice.status != 'COMPLETED'}">
+                        Action
+                    </th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                <tr th:each="item : ${items}">
+
+                    <td class="product-code"
+                        th:text="${item.product.cblProductCode}">
+                        -
+                    </td>
+
+                    <td class="product-name"
+                        th:text="${item.product.productName}">
+                        -
+                    </td>
+
+                    <td>
+                        <span class="weight-badge"
+                              th:text="${item.product.netWeight != null
+                              && !item.product.netWeight.isBlank()
+                              ? item.product.netWeight : '-'}">
+                            -
+                        </span>
+                    </td>
+
+                    <td th:text="${#numbers.formatDecimal(
+                    item.quantity, 1, 2)}">
+                        0.00
+                    </td>
+
+                    <td>
+                        <span class="unit-badge"
+                              th:text="${item.unit}">
+                            PKT
+                        </span>
+                    </td>
+
+                    <td class="money"
+                        th:text="${'Rs. ' +
+                        #numbers.formatDecimal(item.unitPrice, 1, 2)}">
+                        Rs. 0.00
+                    </td>
+
+                    <td class="money"
+                        th:text="${'Rs. ' +
+                        #numbers.formatDecimal(item.amount, 1, 2)}">
+                        Rs. 0.00
+                    </td>
+
+                    <td class="action-column"
+                        th:if="${invoice.status != 'COMPLETED'}">
+
+                        <form method="post"
+                              th:action="@{/purchase-invoices/{invoiceId}/items/delete/{itemId}
+                              (invoiceId=${invoice.id},
+                              itemId=${item.id})}"
+                              onsubmit="return confirm(
+                              'Remove this product from the invoice?');">
+
+                            <button class="button delete-button"
+                                    type="submit">
+                                Remove
+                            </button>
+
+                        </form>
+
+                    </td>
+
+                </tr>
+
+                </tbody>
+            </table>
+
+            <div class="empty-message"
+                 th:if="${#lists.isEmpty(items)}">
+
+                <h3>No products added</h3>
+                <p>This invoice currently has no product rows.</p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <div class="bottom-navigation screen-only">
+
+        <a class="button back-button"
+           th:href="@{/purchase-invoices}">
+            Back to Invoice List
+        </a>
+
+        <div class="footer-actions">
+
+            <button class="button print-button"
+                    type="button"
+                    onclick="window.print()">
+                Print / Save as PDF
+            </button>
+
+            <a class="button edit-button"
+               th:if="${invoice.status != 'COMPLETED'}"
+               th:href="@{/purchase-invoices/edit/{id}(id=${invoice.id})}">
+                Edit Invoice
+            </a>
+
+        </div>
+
+    </div>
+
+</main>
+
+<script>
+    let originalProductOptions = [];
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const productSelect =
+            document.getElementById("productId");
+
+        if (productSelect) {
+            originalProductOptions =
+                Array.from(productSelect.options)
+                    .slice(1)
+                    .map(option =>
+                        option.cloneNode(true)
+                    );
+        }
+    });
+
+    function filterProductOptions() {
+        const searchInput =
+            document.getElementById("productSearch");
+
+        const productSelect =
+            document.getElementById("productId");
+
+        if (!searchInput || !productSelect) {
+            return;
+        }
+
+        const keyword =
+            searchInput.value.toLowerCase().trim();
+
+        productSelect.innerHTML =
+            '<option value="">Select product</option>';
+
+        originalProductOptions.forEach(
+            function (savedOption) {
+
+                const searchText = [
+                    savedOption.dataset.code,
+                    savedOption.dataset.name,
+                    savedOption.dataset.brand,
+                    savedOption.dataset.weight,
+                    savedOption.dataset.unit
+                ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLowerCase();
+
+                if (searchText.includes(keyword)) {
+                    productSelect.appendChild(
+                        savedOption.cloneNode(true)
+                    );
+                }
+            }
+        );
+
+        hideProductDetails();
+    }
+
+    function showProductDetails() {
+        const productSelect =
+            document.getElementById("productId");
+
+        const selectedOption =
+            productSelect.options[
+                productSelect.selectedIndex
+                ];
+
+        if (!selectedOption || !selectedOption.value) {
+            hideProductDetails();
+            return;
+        }
+
+        document.getElementById("selectedCode").textContent =
+            selectedOption.dataset.code || "-";
+
+        document.getElementById("selectedWeight").textContent =
+            selectedOption.dataset.weight || "-";
+
+        document.getElementById("selectedUnit").textContent =
+            selectedOption.dataset.unit || "-";
+
+        document.getElementById(
+            "selectedProductDetails"
+        ).style.display = "grid";
+
+        calculatePurchaseAmount();
+    }
+
+    function hideProductDetails() {
+        const details =
+            document.getElementById(
+                "selectedProductDetails"
+            );
+
+        if (details) {
+            details.style.display = "none";
+        }
+    }
+
+    function calculatePurchaseAmount() {
+        const quantityElement =
+            document.getElementById("quantity");
+
+        const priceElement =
+            document.getElementById("unitPrice");
+
+        const amountElement =
+            document.getElementById("calculatedAmount");
+
+        if (!quantityElement
+            || !priceElement
+            || !amountElement) {
+            return;
+        }
+
+        const quantity =
+            parseFloat(quantityElement.value) || 0;
+
+        const unitPrice =
+            parseFloat(priceElement.value) || 0;
+
+        const amount = quantity * unitPrice;
+
+        amountElement.textContent =
+            "Rs. " + amount.toLocaleString(
+                "en-LK",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            );
+    }
+
+    function validateProductForm() {
+        const productId =
+            document.getElementById("productId").value;
+
+        const quantity =
+            parseFloat(
+                document.getElementById("quantity").value
+            );
+
+        const unitPrice =
+            parseFloat(
+                document.getElementById("unitPrice").value
+            );
+
+        if (!productId) {
+            alert("Please select a product.");
+            return false;
+        }
+
+        if (!quantity || quantity <= 0) {
+            alert(
+                "Purchase quantity must be greater than zero."
+            );
+
+            return false;
+        }
+
+        if (Number.isNaN(unitPrice) || unitPrice < 0) {
+            alert(
+                "Please enter a valid purchase rate."
+            );
+
+            return false;
+        }
+
+        return true;
+    }
+
+    function confirmInvoiceCompletion() {
+        const checkbox =
+            document.getElementById(
+                "verificationConfirmed"
+            );
+
+        if (!checkbox || !checkbox.checked) {
+            alert(
+                "Please compare the original invoice and confirm verification."
+            );
+
+            return false;
+        }
+
+        return confirm(
+            "The invoice will be marked as verified and completed. "
+            + "Purchased quantities will be added to stock. Continue?"
+        );
+    }
+</script>
+
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>

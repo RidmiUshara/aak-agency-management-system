@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title th:text="${salesInvoice.id == null}
+            ? 'Add Sales Invoice - AAK Agency'
+            : 'Edit Sales Invoice - AAK Agency'">
+        Sales Invoice
+    </title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #222;
+        }
+
+        header {
+            background: #213f66;
+            color: white;
+            padding: 25px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 34px;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: #e4edf7;
+            font-size: 17px;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px 14px;
+            border: 1px solid rgba(255,255,255,0.35);
+            border-radius: 6px;
+        }
+
+        main {
+            width: 92%;
+            max-width: 1500px;
+            margin: 40px auto;
+        }
+
+        .page-title {
+            margin-bottom: 25px;
+        }
+
+        .page-title h2 {
+            color: #213f66;
+            font-size: 30px;
+            margin-bottom: 7px;
+        }
+
+        .page-title p {
+            color: #606a75;
+        }
+
+        .message {
+            padding: 15px;
+            margin-bottom: 22px;
+            border-radius: 7px;
+            font-weight: bold;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #842029;
+            border-left: 5px solid #dc3545;
+        }
+
+        .warning {
+            background: #fff3cd;
+            color: #664d03;
+            border-left: 5px solid #e0a800;
+        }
+
+        .warning a {
+            color: #664d03;
+            font-weight: bold;
+        }
+
+        .card {
+            background: white;
+            padding: 28px;
+            border-radius: 12px;
+            box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+            margin-bottom: 28px;
+        }
+
+        .invoice-card {
+            border-top: 5px solid #213f66;
+        }
+
+        .product-card {
+            border-top: 5px solid #148b57;
+        }
+
+        .card-title {
+            color: #213f66;
+            font-size: 22px;
+            padding-bottom: 12px;
+            margin-bottom: 22px;
+            border-bottom: 2px solid #e8eef7;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            color: #213f66;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            border: 1px solid #c8cdd3;
+            border-radius: 7px;
+            padding: 13px;
+            font-size: 15px;
+            background: white;
+            outline: none;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #148b57;
+            box-shadow: 0 0 0 3px rgba(20,139,87,0.12);
+        }
+
+        input[readonly] {
+            background: #eef2f6;
+            color: #555;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .help-text {
+            margin-top: 6px;
+            color: #6c757d;
+            font-size: 13px;
+        }
+
+        .search-group {
+            margin-bottom: 18px;
+        }
+
+        .product-entry-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .product-details {
+            display: none;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+            margin-top: 18px;
+            background: #f1f5fa;
+            padding: 17px;
+            border-radius: 8px;
+        }
+
+        .product-detail label {
+            display: block;
+            color: #6c757d;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .product-detail strong {
+            color: #213f66;
+            overflow-wrap: anywhere;
+        }
+
+        .stock-available {
+            color: #12613d !important;
+        }
+
+        .stock-low {
+            color: #842029 !important;
+        }
+
+        .calculated-amount {
+            color: #148b57 !important;
+        }
+
+        .add-product-button {
+            border: none;
+            background: #148b57;
+            color: white;
+            padding: 13px 18px;
+            border-radius: 7px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .add-product-button:hover {
+            background: #107247;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 25px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1050px;
+        }
+
+        th {
+            background: #e8eef7;
+            color: #213f66;
+            text-align: left;
+            padding: 15px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 15px;
+            border-top: 1px solid #e4e4e4;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .product-code,
+        .amount-cell {
+            color: #213f66;
+            font-weight: bold;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .weight-badge {
+            background: #e8eef7;
+            color: #213f66;
+        }
+
+        .unit-badge {
+            background: #d7f0e3;
+            color: #12613d;
+        }
+
+        .remove-button {
+            border: none;
+            background: #dc3545;
+            color: white;
+            padding: 9px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .empty-message {
+            color: #6c757d;
+            text-align: center;
+            padding: 35px 15px;
+        }
+
+        .totals-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .total-group {
+            background: #eef3f9;
+            padding: 16px;
+            border-radius: 9px;
+        }
+
+        .total-group label {
+            font-size: 14px;
+        }
+
+        .total-group input {
+            margin-top: 5px;
+        }
+
+        .net-total {
+            background: #213f66;
+        }
+
+        .net-total label {
+            color: white;
+        }
+
+        .net-total input {
+            color: white;
+            background: transparent;
+            border-color: rgba(255,255,255,0.5);
+            font-weight: bold;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .button {
+            border: none;
+            border-radius: 7px;
+            padding: 13px 22px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .cancel-button {
+            background: #6c757d;
+            color: white;
+        }
+
+        .save-button {
+            background: #087cf0;
+            color: white;
+        }
+
+        .save-button:disabled {
+            background: #9ca3aa;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 1100px) {
+            .product-entry-grid,
+            .product-details,
+            .totals-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 750px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            main {
+                width: 95%;
+            }
+
+            .form-grid,
+            .product-entry-grid,
+            .product-details,
+            .totals-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full-width {
+                grid-column: auto;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .button {
+                width: 100%;
+            }
+        }
+    </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+
+<body>
+
+<header>
+    <div>
+        <h1>AAK Agency</h1>
+        <p>Sales Invoice Management</p>
+    </div>
+
+    <a th:href="@{/sales-invoices}">
+        Back to Sales Invoices
+    </a>
+</header>
+
+<main>
+
+    <div class="page-title">
+
+        <h2 th:text="${salesInvoice.id == null}
+                ? 'Add Sales Invoice'
+                : 'Edit Sales Invoice'">
+            Add Sales Invoice
+        </h2>
+
+        <p>
+            Enter the customer, invoice and all sold products on this page.
+        </p>
+    </div>
+
+    <div class="message error-message"
+         th:if="${errorMessage}"
+         th:text="${errorMessage}">
+    </div>
+
+    <div class="message warning"
+         th:if="${#lists.isEmpty(customers)}">
+
+        No customers are available.
+
+        <a th:href="@{/customers/new}">
+            Add a customer first.
+        </a>
+    </div>
+
+    <div class="message warning"
+         th:if="${#lists.isEmpty(products)}">
+
+        No products are available.
+
+        <a th:href="@{/products/new}">
+            Add a product first.
+        </a>
+    </div>
+
+    <form id="salesInvoiceForm"
+          th:action="@{/sales-invoices/save}"
+          th:object="${salesInvoice}"
+          method="post">
+
+        <input type="hidden" th:field="*{id}">
+        <input type="hidden" th:field="*{paymentStatus}">
+        <input type="hidden" th:field="*{status}">
+
+        <section class="card invoice-card">
+
+            <h3 class="card-title">Invoice Information</h3>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label for="invoiceNumber">
+                        Invoice Number
+                        <span class="required">*</span>
+                    </label>
+
+                    <input id="invoiceNumber"
+                           type="text"
+                           th:field="*{invoiceNumber}"
+                           placeholder="Example: 11712"
+                           required>
+                </div>
+
+                <div class="form-group">
+
+                    <label for="invoiceDate">
+                        Invoice Date
+                        <span class="required">*</span>
+                    </label>
+
+                    <input id="invoiceDate"
+                           type="date"
+                           th:field="*{invoiceDate}"
+                           required>
+                </div>
+
+                <div class="form-group full-width">
+
+                    <label for="customerSearch">
+                        Search Customer / Shop
+                    </label>
+
+                    <input id="customerSearch"
+                           type="search"
+                           placeholder="Search by customer code, name or area"
+                           autocomplete="off"
+                           oninput="filterCustomers()">
+                </div>
+
+                <div class="form-group full-width">
+
+                    <label for="customerSelector">
+                        Customer / Shop
+                        <span class="required">*</span>
+                    </label>
+
+                    <select id="customerSelector"
+                            name="customerId"
+                            onchange="setCustomerRoute()"
+                            required>
+
+                        <option value="">Select customer</option>
+
+                        <option th:each="customer : ${customers}"
+                                th:value="${customer.id}"
+                                th:selected="${salesInvoice.customer != null
+                                && salesInvoice.customer.id == customer.id}"
+                                th:text="${customer.customerCode
+                                + ' - ' + customer.customerName
+                                + ' - ' + customer.area}"
+                                th:attr="
+                                data-code=${customer.customerCode},
+                                data-name=${customer.customerName},
+                                data-area=${customer.area}">
+                            Customer
+                        </option>
+
+                    </select>
+                </div>
+
+                <div class="form-group">
+
+                    <label for="routeCode">
+                        Route / Terminal Code
+                    </label>
+
+                    <input id="routeCode"
+                           type="text"
+                           th:field="*{routeCode}"
+                           placeholder="Example: MAKOLA-AV3">
+                </div>
+
+                <div class="form-group">
+
+                    <label for="saleType">Sale Type</label>
+
+                    <select id="saleType"
+                            th:field="*{saleType}"
+                            onchange="updateDueDateRequirement()">
+
+                        <option value="CASH">Cash Sale</option>
+                        <option value="CREDIT">Credit Sale</option>
+
+                    </select>
+                </div>
+
+                <div class="form-group"
+                     id="dueDateGroup">
+
+                    <label for="dueDate">
+                        Credit Due Date
+                    </label>
+
+                    <input id="dueDate"
+                           type="date"
+                           th:field="*{dueDate}">
+
+                    <span class="help-text">
+                        Required only for credit sales.
+                    </span>
+                </div>
+
+                <div class="form-group full-width">
+
+                    <label for="notes">Notes</label>
+
+                    <textarea id="notes"
+                              th:field="*{notes}"
+                              placeholder="Enter additional invoice notes">
+                    </textarea>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="card product-card">
+
+            <h3 class="card-title">
+                Add Products to Sales Invoice
+            </h3>
+
+            <div class="search-group form-group">
+
+                <label for="productSearch">
+                    Search Product
+                </label>
+
+                <input id="productSearch"
+                       type="search"
+                       placeholder="Search by CBL code, product name, brand or weight"
+                       autocomplete="off"
+                       oninput="filterProducts()">
+
+                <span class="help-text">
+                    Product weight, unit, price and available stock
+                    will be displayed automatically.
+                </span>
+            </div>
+
+            <div class="product-entry-grid">
+
+                <div class="form-group">
+
+                    <label for="productSelector">Product</label>
+
+                    <select id="productSelector"
+                            onchange="showSelectedProduct()">
+
+                        <option value="">Select product</option>
+
+                        <option th:each="product : ${products}"
+                                th:value="${product.id}"
+                                th:text="${product.displayName
+                                + ' | ' + product.cblProductCode
+                                + ' | Stock: '
+                                + availableStockByProduct[product.id]
+                                + ' ' + product.unit}"
+                                th:attr="
+                                data-code=${product.cblProductCode},
+                                data-name=${product.productName},
+                                data-brand=${product.brand},
+                                data-weight=${product.netWeight},
+                                data-unit=${product.unit},
+                                data-price=${product.standardSellingPrice},
+                                data-stock=${availableStockByProduct[product.id]}">
+                            Product
+                        </option>
+
+                    </select>
+                </div>
+
+                <div class="form-group">
+
+                    <label for="quantityInput">Quantity</label>
+
+                    <input id="quantityInput"
+                           type="number"
+                           min="0.01"
+                           step="0.01"
+                           placeholder="Example: 6"
+                           oninput="calculateSelectedAmount()">
+                </div>
+
+                <div class="form-group">
+
+                    <label for="priceInput">
+                        Selling Rate (LKR)
+                    </label>
+
+                    <input id="priceInput"
+                           type="number"
+                           min="0"
+                           step="0.01"
+                           placeholder="Example: 90.00"
+                           oninput="calculateSelectedAmount()">
+                </div>
+
+                <button class="add-product-button"
+                        type="button"
+                        onclick="addProduct()">
+                    + Add Product
+                </button>
+
+            </div>
+
+            <div class="product-details"
+                 id="productDetails">
+
+                <div class="product-detail">
+                    <label>CBL Code</label>
+                    <strong id="selectedCode">-</strong>
+                </div>
+
+                <div class="product-detail">
+                    <label>Net Weight</label>
+                    <strong id="selectedWeight">-</strong>
+                </div>
+
+                <div class="product-detail">
+                    <label>Unit</label>
+                    <strong id="selectedUnit">-</strong>
+                </div>
+
+                <div class="product-detail">
+                    <label>Available Stock</label>
+                    <strong class="stock-available"
+                            id="selectedStock">
+                        0
+                    </strong>
+                </div>
+
+                <div class="product-detail">
+                    <label>Calculated Amount</label>
+                    <strong class="calculated-amount"
+                            id="selectedAmount">
+                        Rs. 0.00
+                    </strong>
+                </div>
+
+            </div>
+
+            <div class="table-container">
+
+                <table id="productTable">
+
+                    <thead>
+                    <tr>
+                        <th>CBL Code</th>
+                        <th>Product</th>
+                        <th>Net Weight</th>
+                        <th>Quantity</th>
+                        <th>Unit</th>
+                        <th>Selling Rate</th>
+                        <th>Amount</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+
+                    <tbody id="productTableBody">
+
+                    <tr class="product-row"
+                        th:each="item : ${items}"
+                        th:attr="
+                        data-product-id=${item.product.id},
+                        data-quantity=${item.quantity},
+                        data-amount=${item.amount}">
+
+                        <td class="product-code"
+                            th:text="${item.product.cblProductCode}">
+                            -
+                        </td>
+
+                        <td th:text="${item.product.productName}">
+                            -
+                        </td>
+
+                        <td>
+                            <span class="badge weight-badge"
+                                  th:text="${item.product.netWeight != null
+                                  && !item.product.netWeight.isBlank()
+                                  ? item.product.netWeight : '-'}">
+                                -
+                            </span>
+                        </td>
+
+                        <td th:text="${#numbers.formatDecimal(
+                        item.quantity, 1, 2)}">
+                            0.00
+                        </td>
+
+                        <td>
+                            <span class="badge unit-badge"
+                                  th:text="${item.unit}">
+                                PKT
+                            </span>
+                        </td>
+
+                        <td th:text="${'Rs. ' +
+                        #numbers.formatDecimal(item.unitPrice, 1, 2)}">
+                            Rs. 0.00
+                        </td>
+
+                        <td class="amount-cell"
+                            th:text="${'Rs. ' +
+                        #numbers.formatDecimal(item.amount, 1, 2)}">
+                            Rs. 0.00
+                        </td>
+
+                        <td>
+                            <button class="remove-button"
+                                    type="button"
+                                    onclick="removeProduct(this)">
+                                Remove
+                            </button>
+
+                            <input type="hidden"
+                                   name="productIds"
+                                   th:value="${item.product.id}">
+
+                            <input type="hidden"
+                                   name="quantities"
+                                   th:value="${item.quantity}">
+
+                            <input type="hidden"
+                                   name="unitPrices"
+                                   th:value="${item.unitPrice}">
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+                </table>
+
+                <div id="emptyProductMessage"
+                     class="empty-message">
+
+                    No products added yet. Search and select a
+                    product, then click “Add Product”.
+                </div>
+
+            </div>
+
+            <div class="totals-grid">
+
+                <div class="total-group">
+
+                    <label for="grossAmount">
+                        Gross Amount (LKR)
+                    </label>
+
+                    <input id="grossAmount"
+                           type="number"
+                           step="0.01"
+                           th:field="*{grossAmount}"
+                           readonly>
+                </div>
+
+                <div class="total-group">
+
+                    <label for="discountAmount">
+                        Discount Amount (LKR)
+                    </label>
+
+                    <input id="discountAmount"
+                           type="number"
+                           min="0"
+                           step="0.01"
+                           th:field="*{discountAmount}"
+                           oninput="calculateTotals()"
+                           placeholder="0.00">
+                </div>
+
+                <div class="total-group">
+
+                    <label for="returnAmount">
+                        Return Amount (LKR)
+                    </label>
+
+                    <input id="returnAmount"
+                           type="number"
+                           min="0"
+                           step="0.01"
+                           th:field="*{returnAmount}"
+                           oninput="calculateTotals()"
+                           placeholder="0.00">
+                </div>
+
+                <div class="total-group net-total">
+
+                    <label for="netAmount">
+                        Net Amount (LKR)
+                    </label>
+
+                    <input id="netAmount"
+                           type="number"
+                           step="0.01"
+                           th:field="*{netAmount}"
+                           readonly>
+                </div>
+
+            </div>
+
+        </section>
+
+        <div class="form-actions">
+
+            <a class="button cancel-button"
+               th:href="@{/sales-invoices}">
+                Cancel
+            </a>
+
+            <button class="button save-button"
+                    type="submit"
+                    th:disabled="${#lists.isEmpty(customers)
+                    || #lists.isEmpty(products)}">
+                Save Sales Invoice
+            </button>
+
+        </div>
+
+    </form>
+
+</main>
+
+<script>
+    const customerSelector =
+        document.getElementById("customerSelector");
+
+    const customerSearch =
+        document.getElementById("customerSearch");
+
+    const routeCode =
+        document.getElementById("routeCode");
+
+    const productSelector =
+        document.getElementById("productSelector");
+
+    const productSearch =
+        document.getElementById("productSearch");
+
+    const quantityInput =
+        document.getElementById("quantityInput");
+
+    const priceInput =
+        document.getElementById("priceInput");
+
+    const productTableBody =
+        document.getElementById("productTableBody");
+
+    const emptyProductMessage =
+        document.getElementById("emptyProductMessage");
+
+    let originalCustomerOptions = [];
+    let originalProductOptions = [];
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            originalCustomerOptions =
+                Array.from(customerSelector.options)
+                    .slice(1)
+                    .map(option =>
+                        option.cloneNode(true)
+                    );
+
+            originalProductOptions =
+                Array.from(productSelector.options)
+                    .slice(1)
+                    .map(option =>
+                        option.cloneNode(true)
+                    );
+
+            calculateTotals();
+            updateEmptyMessage();
+            updateDueDateRequirement();
+        }
+    );
+
+    function filterCustomers() {
+        const keyword =
+            customerSearch.value
+                .toLowerCase()
+                .trim();
+
+        const currentValue =
+            customerSelector.value;
+
+        customerSelector.innerHTML =
+            '<option value="">Select customer</option>';
+
+        originalCustomerOptions.forEach(
+            function (savedOption) {
+
+                const searchText = [
+                    savedOption.dataset.code,
+                    savedOption.dataset.name,
+                    savedOption.dataset.area
+                ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLowerCase();
+
+                if (searchText.includes(keyword)) {
+                    const option =
+                        savedOption.cloneNode(true);
+
+                    customerSelector.appendChild(option);
+                }
+            }
+        );
+
+        customerSelector.value = currentValue;
+    }
+
+    function setCustomerRoute() {
+        const selectedOption =
+            customerSelector.options[
+                customerSelector.selectedIndex
+                ];
+
+        if (selectedOption
+            && selectedOption.value
+            && routeCode.value.trim() === "") {
+
+            routeCode.value =
+                selectedOption.dataset.area || "";
+        }
+    }
+
+    function filterProducts() {
+        const keyword =
+            productSearch.value
+                .toLowerCase()
+                .trim();
+
+        productSelector.innerHTML =
+            '<option value="">Select product</option>';
+
+        originalProductOptions.forEach(
+            function (savedOption) {
+
+                const searchText = [
+                    savedOption.dataset.code,
+                    savedOption.dataset.name,
+                    savedOption.dataset.brand,
+                    savedOption.dataset.weight,
+                    savedOption.dataset.unit
+                ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLowerCase();
+
+                if (searchText.includes(keyword)) {
+                    productSelector.appendChild(
+                        savedOption.cloneNode(true)
+                    );
+                }
+            }
+        );
+
+        hideProductDetails();
+    }
+
+    function showSelectedProduct() {
+        const selectedOption =
+            getSelectedProductOption();
+
+        if (!selectedOption) {
+            hideProductDetails();
+            return;
+        }
+
+        const standardPrice =
+            parseFloat(
+                selectedOption.dataset.price || "0"
+            );
+
+        document.getElementById(
+            "selectedCode"
+        ).textContent =
+            selectedOption.dataset.code || "-";
+
+        document.getElementById(
+            "selectedWeight"
+        ).textContent =
+            selectedOption.dataset.weight || "-";
+
+        document.getElementById(
+            "selectedUnit"
+        ).textContent =
+            selectedOption.dataset.unit || "PKT";
+
+        document.getElementById(
+            "selectedStock"
+        ).textContent =
+            formatQuantity(
+                parseFloat(
+                    selectedOption.dataset.stock || "0"
+                )
+            )
+            + " "
+            + (selectedOption.dataset.unit || "PKT");
+
+        priceInput.value =
+            standardPrice.toFixed(2);
+
+        document.getElementById(
+            "productDetails"
+        ).style.display = "grid";
+
+        calculateSelectedAmount();
+    }
+
+    function hideProductDetails() {
+        document.getElementById(
+            "productDetails"
+        ).style.display = "none";
+    }
+
+    function calculateSelectedAmount() {
+        const quantity =
+            parseFloat(quantityInput.value) || 0;
+
+        const price =
+            parseFloat(priceInput.value) || 0;
+
+        document.getElementById(
+            "selectedAmount"
+        ).textContent =
+            formatMoney(quantity * price);
+    }
+
+    function getSelectedProductOption() {
+        const selectedOption =
+            productSelector.options[
+                productSelector.selectedIndex
+                ];
+
+        if (!selectedOption
+            || !selectedOption.value) {
+
+            return null;
+        }
+
+        return selectedOption;
+    }
+
+    function getAlreadyAddedQuantity(productId) {
+        let addedQuantity = 0;
+
+        const rows =
+            productTableBody.querySelectorAll(
+                ".product-row"
+            );
+
+        rows.forEach(function (row) {
+            if (row.dataset.productId ===
+                String(productId)) {
+
+                addedQuantity +=
+                    parseFloat(
+                        row.dataset.quantity || "0"
+                    );
+            }
+        });
+
+        return addedQuantity;
+    }
+
+    function addProduct() {
+        const selectedOption =
+            getSelectedProductOption();
+
+        if (!selectedOption) {
+            alert("Please select a product.");
+            productSelector.focus();
+            return;
+        }
+
+        const productId =
+            selectedOption.value;
+
+        const quantity =
+            parseFloat(quantityInput.value);
+
+        const unitPrice =
+            parseFloat(priceInput.value);
+
+        const availableStock =
+            parseFloat(
+                selectedOption.dataset.stock || "0"
+            );
+
+        const previouslyAdded =
+            getAlreadyAddedQuantity(productId);
+
+        if (Number.isNaN(quantity)
+            || quantity <= 0) {
+
+            alert(
+                "Product quantity must be greater than zero."
+            );
+
+            quantityInput.focus();
+            return;
+        }
+
+        if (Number.isNaN(unitPrice)
+            || unitPrice < 0) {
+
+            alert(
+                "Please enter a valid selling rate."
+            );
+
+            priceInput.focus();
+            return;
+        }
+
+        if (previouslyAdded + quantity >
+            availableStock) {
+
+            alert(
+                "Not enough stock. Available stock is "
+                + formatQuantity(availableStock)
+                + " "
+                + (selectedOption.dataset.unit || "PKT")
+                + ". Already added to this invoice: "
+                + formatQuantity(previouslyAdded)
+                + "."
+            );
+
+            quantityInput.focus();
+            return;
+        }
+
+        const amount =
+            quantity * unitPrice;
+
+        const row =
+            document.createElement("tr");
+
+        row.className = "product-row";
+        row.dataset.productId = productId;
+        row.dataset.quantity = quantity.toFixed(2);
+        row.dataset.amount = amount.toFixed(2);
+
+        appendTextCell(
+            row,
+            selectedOption.dataset.code || "-"
+        ).className = "product-code";
+
+        appendTextCell(
+            row,
+            selectedOption.dataset.name || "-"
+        );
+
+        const weightCell =
+            document.createElement("td");
+
+        const weightBadge =
+            document.createElement("span");
+
+        weightBadge.className =
+            "badge weight-badge";
+
+        weightBadge.textContent =
+            selectedOption.dataset.weight || "-";
+
+        weightCell.appendChild(weightBadge);
+        row.appendChild(weightCell);
+
+        appendTextCell(
+            row,
+            quantity.toFixed(2)
+        );
+
+        const unitCell =
+            document.createElement("td");
+
+        const unitBadge =
+            document.createElement("span");
+
+        unitBadge.className =
+            "badge unit-badge";
+
+        unitBadge.textContent =
+            selectedOption.dataset.unit || "PKT";
+
+        unitCell.appendChild(unitBadge);
+        row.appendChild(unitCell);
+
+        appendTextCell(
+            row,
+            formatMoney(unitPrice)
+        );
+
+        const amountCell =
+            appendTextCell(
+                row,
+                formatMoney(amount)
+            );
+
+        amountCell.className =
+            "amount-cell";
+
+        const actionCell =
+            document.createElement("td");
+
+        const removeButton =
+            document.createElement("button");
+
+        removeButton.type = "button";
+        removeButton.className =
+            "remove-button";
+        removeButton.textContent =
+            "Remove";
+
+        removeButton.addEventListener(
+            "click",
+            function () {
+                removeProduct(removeButton);
+            }
+        );
+
+        actionCell.appendChild(removeButton);
+
+        appendHiddenInput(
+            actionCell,
+            "productIds",
+            productId
+        );
+
+        appendHiddenInput(
+            actionCell,
+            "quantities",
+            quantity.toFixed(2)
+        );
+
+        appendHiddenInput(
+            actionCell,
+            "unitPrices",
+            unitPrice.toFixed(2)
+        );
+
+        row.appendChild(actionCell);
+        productTableBody.appendChild(row);
+
+        clearProductInputs();
+        calculateTotals();
+        updateEmptyMessage();
+    }
+
+    function appendTextCell(row, value) {
+        const cell =
+            document.createElement("td");
+
+        cell.textContent = value;
+        row.appendChild(cell);
+
+        return cell;
+    }
+
+    function appendHiddenInput(
+        parent,
+        name,
+        value) {
+
+        const input =
+            document.createElement("input");
+
+        input.type = "hidden";
+        input.name = name;
+        input.value = value;
+
+        parent.appendChild(input);
+    }
+
+    function removeProduct(button) {
+        const row =
+            button.closest("tr");
+
+        if (row) {
+            row.remove();
+        }
+
+        calculateTotals();
+        updateEmptyMessage();
+    }
+
+    function clearProductInputs() {
+        productSearch.value = "";
+        productSelector.value = "";
+        quantityInput.value = "";
+        priceInput.value = "";
+
+        filterProducts();
+        hideProductDetails();
+        productSearch.focus();
+    }
+
+    function calculateTotals() {
+        const productRows =
+            productTableBody.querySelectorAll(
+                ".product-row"
+            );
+
+        let grossAmount = 0;
+
+        productRows.forEach(
+            function (row) {
+
+                grossAmount +=
+                    parseFloat(
+                        row.dataset.amount || "0"
+                    );
+            }
+        );
+
+        const discountAmount =
+            parseFloat(
+                document.getElementById(
+                    "discountAmount"
+                ).value || "0"
+            );
+
+        const returnAmount =
+            parseFloat(
+                document.getElementById(
+                    "returnAmount"
+                ).value || "0"
+            );
+
+        const netAmount =
+            grossAmount
+            - discountAmount
+            - returnAmount;
+
+        document.getElementById(
+            "grossAmount"
+        ).value =
+            grossAmount.toFixed(2);
+
+        document.getElementById(
+            "netAmount"
+        ).value =
+            Math.max(netAmount, 0).toFixed(2);
+    }
+
+    function updateEmptyMessage() {
+        const productCount =
+            productTableBody.querySelectorAll(
+                ".product-row"
+            ).length;
+
+        emptyProductMessage.style.display =
+            productCount === 0
+                ? "block"
+                : "none";
+    }
+
+    function updateDueDateRequirement() {
+        const saleType =
+            document.getElementById(
+                "saleType"
+            ).value;
+
+        const dueDate =
+            document.getElementById(
+                "dueDate"
+            );
+
+        const dueDateGroup =
+            document.getElementById(
+                "dueDateGroup"
+            );
+
+        if (saleType === "CREDIT") {
+            dueDate.required = true;
+            dueDateGroup.style.display = "flex";
+
+        } else {
+            dueDate.required = false;
+            dueDate.value = "";
+            dueDateGroup.style.display = "none";
+        }
+    }
+
+    function formatMoney(value) {
+        return "Rs. " +
+            Number(value).toLocaleString(
+                "en-LK",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            );
+    }
+
+    function formatQuantity(value) {
+        return Number(value).toLocaleString(
+            "en-LK",
+            {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            }
+        );
+    }
+
+    document.getElementById(
+        "salesInvoiceForm"
+    ).addEventListener(
+        "submit",
+        function (event) {
+
+            const productCount =
+                productTableBody.querySelectorAll(
+                    ".product-row"
+                ).length;
+
+            if (productCount === 0) {
+                event.preventDefault();
+
+                alert(
+                    "Please add at least one product before saving the invoice."
+                );
+
+                productSearch.focus();
+                return;
+            }
+
+            const grossAmount =
+                parseFloat(
+                    document.getElementById(
+                        "grossAmount"
+                    ).value || "0"
+                );
+
+            const discountAmount =
+                parseFloat(
+                    document.getElementById(
+                        "discountAmount"
+                    ).value || "0"
+                );
+
+            const returnAmount =
+                parseFloat(
+                    document.getElementById(
+                        "returnAmount"
+                    ).value || "0"
+                );
+
+            if (discountAmount < 0
+                || returnAmount < 0) {
+
+                event.preventDefault();
+
+                alert(
+                    "Discount and return amounts cannot be negative."
+                );
+
+                return;
+            }
+
+            if (discountAmount + returnAmount >
+                grossAmount) {
+
+                event.preventDefault();
+
+                alert(
+                    "Discount and return amounts cannot "
+                    + "be greater than the gross amount."
+                );
+
+                return;
+            }
+
+            calculateTotals();
+        }
+    );
+</script>
+
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>

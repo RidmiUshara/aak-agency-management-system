@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Credit History - AAK Agency</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f4f6f9; color: #222; }
+        header { background: #213f66; color: white; padding: 25px 5%; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { font-size: 32px; margin-bottom: 5px; }
+        .header-links { display: flex; gap: 10px; flex-wrap: wrap; }
+        .header-links a { color: white; text-decoration: none; font-weight: bold; padding: 10px 14px; border: 1px solid rgba(255,255,255,.4); border-radius: 7px; }
+        main { width: 90%; max-width: 1450px; margin: 38px auto; }
+        .heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 25px; }
+        .heading h2 { color: #213f66; font-size: 30px; margin-bottom: 6px; }
+        .heading p { color: #66707b; }
+        .print-button { border: 0; border-radius: 7px; padding: 13px 18px; background: #6f42c1; color: white; font-weight: bold; cursor: pointer; }
+        .customer-card { background: white; border-left: 6px solid #198754; border-radius: 11px; padding: 22px; margin-bottom: 22px; box-shadow: 0 4px 15px rgba(0,0,0,.07); }
+        .customer-card h3 { color: #213f66; font-size: 23px; margin-bottom: 8px; }
+        .customer-card p { color: #66707b; }
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 17px; margin-bottom: 24px; }
+        .summary-card { background: white; border-radius: 11px; padding: 21px; border-top: 5px solid #213f66; box-shadow: 0 4px 15px rgba(0,0,0,.07); }
+        .summary-card p { color: #6c757d; font-size: 13px; margin-bottom: 9px; }
+        .summary-card strong { color: #213f66; font-size: 24px; }
+        .paid-card { border-top-color: #198754; }
+        .paid-card strong { color: #146c43; }
+        .outstanding-card { border-top-color: #e0a800; }
+        .outstanding-card strong { color: #946600; }
+        .overdue-card { border-top-color: #dc3545; }
+        .overdue-card strong { color: #dc3545; }
+        .panel { background: white; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 16px rgba(0,0,0,.07); }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 17px; }
+        .panel-header h3 { color: #213f66; font-size: 21px; }
+        .search { width: 100%; max-width: 430px; border: 1px solid #c9d2dc; border-radius: 7px; padding: 11px 13px; font-size: 14px; }
+        .table-container { overflow-x: auto; }
+        table { width: 100%; min-width: 1000px; border-collapse: collapse; }
+        th { background: #e8eef7; color: #213f66; padding: 14px; text-align: left; white-space: nowrap; }
+        td { padding: 14px; border-top: 1px solid #e5e9ef; vertical-align: middle; }
+        tbody tr:hover { background: #f8fafc; }
+        .strong { color: #213f66; font-weight: bold; }
+        .amount { font-weight: bold; white-space: nowrap; }
+        .outstanding { color: #946600; }
+        .badge { display: inline-block; padding: 6px 11px; border-radius: 18px; font-size: 11px; font-weight: bold; white-space: nowrap; }
+        .paid { background: #d1e7dd; color: #146c43; }
+        .unpaid { background: #fff3cd; color: #856404; }
+        .returned { background: #f8d7da; color: #842029; }
+        .overdue { background: #dc3545; color: white; }
+        .button { display: inline-block; background: #213f66; color: white; text-decoration: none; border-radius: 6px; padding: 9px 12px; font-size: 12px; font-weight: bold; white-space: nowrap; }
+        .payment-button { background: #198754; margin-left: 5px; }
+        .empty { text-align: center; padding: 35px; color: #66707b; }
+        .empty h3 { color: #213f66; margin-bottom: 7px; }
+        @media (max-width: 750px) {
+            header, .heading, .panel-header { flex-direction: column; align-items: flex-start; }
+            main { width: 95%; margin: 25px auto; }
+            .search { max-width: none; }
+        }
+        @media print {
+            @page { size: A4 landscape; margin: 12mm; }
+            body { background: white; }
+            header, .heading .print-button, .search, .button { display: none; }
+            main { width: 100%; max-width: none; margin: 0; }
+            .customer-card, .summary-card, .panel { box-shadow: none; border: 1px solid #ddd; }
+            table { min-width: 0; font-size: 10px; }
+            th, td { padding: 7px; }
+        }
+    </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+<body>
+<header>
+    <div><h1>AAK Agency</h1><p>Customer Credit Management</p></div>
+    <div class="header-links"><a th:href="@{/customers}">Customers</a><a th:href="@{/}">Dashboard</a></div>
+</header>
+
+<main>
+    <section class="heading">
+        <div><h2>Customer Credit History</h2><p>Review credit invoices, payments and the remaining balance.</p></div>
+        <button class="print-button" type="button" onclick="window.print()">Print / Save as PDF</button>
+    </section>
+
+    <section class="customer-card">
+        <h3 th:text="${customer.customerName}">Customer Name</h3>
+        <p>Area: <strong th:text="${customer.area != null and !customer.area.isBlank() ? customer.area : '-'}">-</strong></p>
+    </section>
+
+    <section class="summary-grid">
+        <div class="summary-card"><p>Total Credit Sales</p><strong th:text="${'Rs. ' + #numbers.formatDecimal(totalCreditSales, 1, 2)}">Rs. 0.00</strong></div>
+        <div class="summary-card paid-card"><p>Total Valid Payments</p><strong th:text="${'Rs. ' + #numbers.formatDecimal(totalPaid, 1, 2)}">Rs. 0.00</strong></div>
+        <div class="summary-card outstanding-card"><p>Outstanding Balance</p><strong th:text="${'Rs. ' + #numbers.formatDecimal(totalOutstanding, 1, 2)}">Rs. 0.00</strong></div>
+        <div class="summary-card overdue-card"><p>Overdue Invoices</p><strong th:text="${overdueInvoiceCount}">0</strong></div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-header"><h3>Credit Invoice History</h3><input class="search" id="invoiceSearch" type="search" placeholder="Search invoice, status or amount" oninput="filterRows('invoiceSearch', 'invoice-row')"></div>
+        <div class="table-container" th:if="${!#lists.isEmpty(creditInvoices)}">
+            <table>
+                <thead><tr><th>Invoice</th><th>Date</th><th>Due Date</th><th>Net Amount</th><th>Paid</th><th>Balance</th><th>Payment Status</th><th>Action</th></tr></thead>
+                <tbody>
+                <tr class="invoice-row" th:each="invoice : ${creditInvoices}">
+                    <td class="strong" th:text="${invoice.invoiceNumber}">INV-001</td>
+                    <td th:text="${invoice.invoiceDate}">2026-09-10</td>
+                    <td><span th:text="${invoice.dueDate != null ? invoice.dueDate : '-'}">-</span> <span class="badge overdue" th:if="${invoice.dueDate != null and invoice.dueDate.isBefore(today) and balanceByInvoice[invoice.id].compareTo(T(java.math.BigDecimal).ZERO) > 0}">OVERDUE</span></td>
+                    <td class="amount" th:text="${'Rs. ' + #numbers.formatDecimal(invoice.netAmount, 1, 2)}">Rs. 0.00</td>
+                    <td class="amount" th:text="${'Rs. ' + #numbers.formatDecimal(paidAmountByInvoice[invoice.id], 1, 2)}">Rs. 0.00</td>
+                    <td class="amount outstanding" th:text="${'Rs. ' + #numbers.formatDecimal(balanceByInvoice[invoice.id], 1, 2)}">Rs. 0.00</td>
+                    <td><span class="badge" th:classappend="${invoice.paymentStatus == 'PAID' ? ' paid' : ' unpaid'}" th:text="${invoice.paymentStatus}">UNPAID</span></td>
+                    <td><a class="button" th:href="@{/sales-invoices/view/{id}(id=${invoice.id})}">View</a><a class="button payment-button" th:if="${balanceByInvoice[invoice.id].compareTo(T(java.math.BigDecimal).ZERO) > 0}" th:href="@{/payments/new(invoiceId=${invoice.id})}">Pay</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="empty" th:if="${#lists.isEmpty(creditInvoices)}"><h3>No completed credit invoices</h3><p>This customer does not have any completed credit invoices.</p></div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-header"><h3>Payment History</h3><input class="search" id="paymentSearch" type="search" placeholder="Search receipt, invoice, method or status" oninput="filterRows('paymentSearch', 'payment-row')"></div>
+        <div class="table-container" th:if="${!#lists.isEmpty(payments)}">
+            <table>
+                <thead><tr><th>Receipt</th><th>Date</th><th>Invoice</th><th>Method</th><th>Reference</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody>
+                <tr class="payment-row" th:each="payment : ${payments}">
+                    <td class="strong" th:text="${payment.receiptNumber}">REC-001</td>
+                    <td th:text="${payment.paymentDate}">2026-09-10</td>
+                    <td class="strong" th:text="${payment.salesInvoice.invoiceNumber}">INV-001</td>
+                    <td th:text="${#strings.replace(payment.paymentMethod, '_', ' ')}">CASH</td>
+                    <td><span th:if="${payment.paymentMethod == 'CHEQUE'}" th:text="${payment.chequeNumber}">-</span><span th:if="${payment.paymentMethod == 'BANK_TRANSFER'}" th:text="${payment.referenceNumber}">-</span><span th:if="${payment.paymentMethod == 'CASH'}">-</span></td>
+                    <td class="amount" th:text="${'Rs. ' + #numbers.formatDecimal(payment.amount, 1, 2)}">Rs. 0.00</td>
+                    <td><span class="badge" th:classappend="${payment.status == 'RETURNED' ? ' returned' : ' paid'}" th:text="${payment.status}">RECEIVED</span></td>
+                    <td><a class="button" th:href="@{/payments/view/{id}(id=${payment.id})}">Receipt</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="empty" th:if="${#lists.isEmpty(payments)}"><h3>No payments found</h3><p>No payments have been recorded for this customer.</p></div>
+    </section>
+</main>
+
+<script>
+    function filterRows(inputId, rowClass) {
+        const value = document.getElementById(inputId).value.toLowerCase().trim();
+        document.querySelectorAll('.' + rowClass).forEach(function (row) {
+            row.style.display = row.textContent.toLowerCase().includes(value) ? '' : 'none';
+        });
+    }
+</script>
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>

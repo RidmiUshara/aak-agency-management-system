@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title th:text="${'Payment Receipt - ' + payment.receiptNumber}">
+    Payment Receipt - AAK Agency
+  </title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      px;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f9;
+      color: #222222;
+    }
+
+    header {
+      background-color: #213f66;
+      color: white;
+      padding: 25px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 32px;
+      margin-bottom: 5px;
+    }
+
+    header p {
+      font-size: 16px;
+    }
+
+    .header-links {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-link {
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      border-radius: 7px;
+      padding: 11px 16px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    main {
+      width: 90%;
+      max-width: 1050px;
+      margin: 40px auto;
+    }
+
+    .page-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+
+    .page-heading h2 {
+      color: #213f66;
+      font-size: 30px;
+      margin-bottom: 6px;
+    }
+
+    .page-heading p {
+      color: #626b75;
+    }
+
+    .print-button {
+      border: none;
+      border-radius: 7px;
+      padding: 13px 19px;
+      background-color: #6f42c1;
+      color: white;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .message {
+      padding: 15px 18px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    .success-message {
+      background-color: #d1e7dd;
+      color: #146c43;
+    }
+
+    .error-message {
+      background-color: #f8d7da;
+      color: #842029;
+    }
+
+    .receipt {
+      background-color: white;
+      border-radius: 14px;
+      padding: 40px;
+      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.09);
+      border-top: 7px solid #198754;
+    }
+
+    .returned-receipt {
+      border-top-color: #dc3545;
+    }
+
+    .receipt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 30px;
+      border-bottom: 2px solid #e8eef7;
+      padding-bottom: 25px;
+      margin-bottom: 28px;
+    }
+
+    .business-details h2 {
+      color: #213f66;
+      font-size: 30px;
+      margin-bottom: 7px;
+    }
+
+    .business-details p {
+      color: #626b75;
+      line-height: 1.6;
+    }
+
+    .receipt-title {
+      text-align: right;
+    }
+
+    .receipt-title h3 {
+      color: #198754;
+      font-size: 25px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .receipt-number {
+      color: #213f66;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      padding: 15px 18px;
+      margin-bottom: 28px;
+      background-color: #eef8f3;
+      border-radius: 8px;
+    }
+
+    .returned-status-row {
+      background-color: #f8d7da;
+    }
+
+    .status-row p {
+      color: #146c43;
+      font-weight: bold;
+    }
+
+    .returned-status-row p {
+      color: #842029;
+    }
+
+    .badge {
+      display: inline-block;
+      border-radius: 20px;
+      padding: 7px 14px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .badge-received {
+      background-color: #d1e7dd;
+      color: #146c43;
+    }
+
+    .badge-returned {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .badge-deposited {
+      background-color: #dbeafe;
+      color: #084298;
+    }
+
+    .badge-cleared {
+      background-color: #d1e7dd;
+      color: #146c43;
+    }
+
+    .badge-cheque-received {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .section-title {
+      color: #213f66;
+      font-size: 21px;
+      margin-bottom: 17px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e8eef7;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px 35px;
+      margin-bottom: 32px;
+    }
+
+    .detail label {
+      display: block;
+      color: #6c757d;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 7px;
+    }
+
+    .detail p {
+      color: #213f66;
+      font-size: 17px;
+      font-weight: bold;
+      overflow-wrap: anywhere;
+    }
+
+    .payment-amount-section {
+      background-color: #213f66;
+      color: white;
+      border-radius: 11px;
+      padding: 27px;
+      margin: 28px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .payment-amount-section p {
+      font-size: 16px;
+      margin-bottom: 7px;
+      color: #dce8f7;
+    }
+
+    .payment-amount-section strong {
+      font-size: 34px;
+    }
+
+    .payment-method {
+      text-align: right;
+    }
+
+    .payment-method span {
+      display: inline-block;
+      background-color: white;
+      color: #213f66;
+      border-radius: 20px;
+      padding: 9px 15px;
+      font-weight: bold;
+    }
+
+    .invoice-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin: 25px 0 30px;
+    }
+
+    .summary-box {
+      background-color: #eef3f9;
+      border-radius: 9px;
+      padding: 20px;
+    }
+
+    .summary-box p {
+      color: #6c757d;
+      font-size: 14px;
+      margin-bottom: 9px;
+    }
+
+    .summary-box strong {
+      color: #213f66;
+      font-size: 20px;
+    }
+
+    .paid-box {
+      background-color: #d1e7dd;
+    }
+
+    .paid-box strong {
+      color: #146c43;
+    }
+
+    .balance-box {
+      background-color: #fff3cd;
+    }
+
+    .balance-box strong {
+      color: #856404;
+    }
+
+    .additional-details {
+      background-color: #f8fafc;
+      border: 1px solid #e3e8ef;
+      border-radius: 9px;
+      padding: 22px;
+      margin-bottom: 30px;
+    }
+
+    .additional-details h4 {
+      color: #213f66;
+      margin-bottom: 17px;
+      font-size: 18px;
+    }
+
+    .additional-details-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .cheque-management {
+      background-color: white;
+      border-radius: 13px;
+      padding: 28px;
+      margin-top: 25px;
+      box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+      border-top: 6px solid #e0a800;
+    }
+
+    .cheque-management h3 {
+      color: #213f66;
+      margin-bottom: 7px;
+    }
+
+    .cheque-management-description {
+      color: #6c757d;
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+
+    .cheque-status-summary {
+      display: grid;
+      grid-template-columns: repeat(
+                auto-fit,
+                minmax(180px, 1fr)
+            );
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .cheque-status-box {
+      background-color: #f8fafc;
+      border: 1px solid #e3e8ef;
+      border-radius: 8px;
+      padding: 17px;
+    }
+
+    .cheque-status-box label {
+      display: block;
+      color: #6c757d;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .cheque-status-box p {
+      color: #213f66;
+      font-weight: bold;
+    }
+
+    .cheque-action-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .action-form {
+      background-color: #f8fafc;
+      border: 1px solid #e3e8ef;
+      border-radius: 9px;
+      padding: 18px;
+    }
+
+    .action-form h4 {
+      color: #213f66;
+      margin-bottom: 13px;
+    }
+
+    .action-form label {
+      display: block;
+      color: #555f69;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 7px;
+    }
+
+    .action-form input,
+    .action-form textarea {
+      width: 100%;
+      border: 1px solid #c9d2dc;
+      border-radius: 7px;
+      padding: 11px;
+      margin-bottom: 12px;
+      font-size: 14px;
+      font-family: Arial, sans-serif;
+    }
+
+    .action-form textarea {
+      min-height: 85px;
+      resize: vertical;
+    }
+
+    .action-button {
+      width: 100%;
+      border: none;
+      border-radius: 7px;
+      padding: 11px 14px;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .deposit-button {
+      background-color: #0d6efd;
+    }
+
+    .clear-button {
+      background-color: #198754;
+    }
+
+    .return-button {
+      background-color: #dc3545;
+    }
+
+    .returned-information {
+      background-color: #f8d7da;
+      color: #842029;
+      border-radius: 9px;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .returned-information h4 {
+      margin-bottom: 10px;
+    }
+
+    .notes {
+      background-color: #f8fafc;
+      border-left: 5px solid #6f42c1;
+      border-radius: 7px;
+      padding: 18px;
+      margin-bottom: 35px;
+    }
+
+    .notes label {
+      display: block;
+      color: #213f66;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .notes p {
+      color: #555f69;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .signature-section {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 70px;
+      margin-top: 60px;
+    }
+
+    .signature {
+      border-top: 1px solid #555555;
+      padding-top: 9px;
+      text-align: center;
+      color: #555555;
+      font-size: 14px;
+    }
+
+    .receipt-footer {
+      border-top: 2px solid #e8eef7;
+      margin-top: 35px;
+      padding-top: 20px;
+      text-align: center;
+      color: #6c757d;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    @media (max-width: 750px) {
+      header,
+      .page-heading,
+      .receipt-header,
+      .payment-amount-section {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .header-links {
+        flex-wrap: wrap;
+      }
+
+      .receipt-title,
+      .payment-method {
+        text-align: left;
+      }
+
+      main {
+        width: 95%;
+        margin: 25px auto;
+      }
+
+      .receipt {
+        padding: 25px 20px;
+      }
+
+      .details-grid,
+      .additional-details-grid,
+      .invoice-summary,
+      .cheque-action-buttons {
+        grid-template-columns: 1fr;
+      }
+
+      .signature-section {
+        gap: 30px;
+      }
+    }
+
+    @media print {
+      @page {
+        size: A4;
+        margin: 15mm;
+      }
+
+      body {
+        background-color: white;
+      }
+
+      header,
+      .page-heading,
+      .message,
+      .cheque-management {
+        display: none;
+      }
+
+      main {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+      }
+
+      .receipt {
+        border-radius: 0;
+        box-shadow: none;
+        border: 1px solid #dddddd;
+        border-top: 7px solid #198754;
+        padding: 28px;
+      }
+
+      .signature-section {
+        margin-top: 55px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+
+<body>
+
+<header>
+
+  <div>
+    <h1>AAK Agency</h1>
+    <p>Payment and Credit Collection Management</p>
+  </div>
+
+  <div class="header-links">
+
+    <a class="header-link"
+       th:href="@{/payments}">
+      Back to Payments
+    </a>
+
+    <a class="header-link"
+       th:href="@{/}">
+      Dashboard
+    </a>
+
+  </div>
+
+</header>
+
+<main>
+
+  <section class="page-heading">
+
+    <div>
+      <h2>Payment Receipt</h2>
+
+      <p>
+        View, manage and print this customer payment.
+      </p>
+    </div>
+
+    <button type="button"
+            class="print-button"
+            onclick="window.print()">
+      Print / Save as PDF
+    </button>
+
+  </section>
+
+  <div class="message success-message"
+       th:if="${successMessage}"
+       th:text="${successMessage}">
+  </div>
+
+  <div class="message error-message"
+       th:if="${errorMessage}"
+       th:text="${errorMessage}">
+  </div>
+
+  <article class="receipt"
+           th:classappend="${payment.status == 'RETURNED'}
+                             ? ' returned-receipt' : ''">
+
+    <section class="receipt-header">
+
+      <div class="business-details">
+
+        <h2>AAK Agency</h2>
+
+        <p>
+          CBL Product Distribution Management
+        </p>
+
+        <p>
+          Customer Payment Receipt
+        </p>
+
+      </div>
+
+      <div class="receipt-title">
+
+        <h3>Official Receipt</h3>
+
+        <p class="receipt-number"
+           th:text="${payment.receiptNumber}">
+          REC-001
+        </p>
+
+      </div>
+
+    </section>
+
+    <div class="status-row"
+         th:classappend="${payment.status == 'RETURNED'}
+                             ? ' returned-status-row' : ''">
+
+      <p th:text="${payment.status == 'RETURNED'}
+                        ? 'This cheque was returned. The invoice balance has been recalculated.'
+                        : 'Payment successfully recorded'">
+        Payment successfully recorded
+      </p>
+
+      <span class="badge"
+            th:classappend="${payment.status == 'RETURNED'}
+                                  ? ' badge-returned'
+                                  : ' badge-received'"
+            th:text="${payment.status}">
+                RECEIVED
+            </span>
+
+    </div>
+
+    <h3 class="section-title">
+      Receipt Information
+    </h3>
+
+    <section class="details-grid">
+
+      <div class="detail">
+
+        <label>Receipt Number</label>
+
+        <p th:text="${payment.receiptNumber}">
+          REC-001
+        </p>
+
+      </div>
+
+      <div class="detail">
+
+        <label>Payment Date</label>
+
+        <p th:text="${payment.paymentDate}">
+          2026-09-10
+        </p>
+
+      </div>
+
+      <div class="detail">
+
+        <label>Sales Invoice Number</label>
+
+        <p th:text="${invoice.invoiceNumber}">
+          INV-001
+        </p>
+
+      </div>
+
+      <div class="detail">
+
+        <label>Sales Invoice Date</label>
+
+        <p th:text="${invoice.invoiceDate}">
+          2026-09-10
+        </p>
+
+      </div>
+
+      <div class="detail">
+
+        <label>Customer</label>
+
+        <p th:text="${invoice.customer.customerName}">
+          Customer Name
+        </p>
+
+      </div>
+
+      <div class="detail">
+
+        <label>Customer Area</label>
+
+        <p th:text="${invoice.customer.area != null
+                            and !invoice.customer.area.isBlank()
+                            ? invoice.customer.area
+                            : '-'}">
+          Area
+        </p>
+
+      </div>
+
+    </section>
+
+    <section class="payment-amount-section">
+
+      <div>
+
+        <p>Payment Amount</p>
+
+        <strong th:text="${'Rs. ' +
+                        #numbers.formatDecimal(
+                        payment.amount, 1, 2)}">
+          Rs. 0.00
+        </strong>
+
+      </div>
+
+      <div class="payment-method">
+
+        <p>Payment Method</p>
+
+        <span th:text="${#strings.replace(
+                              payment.paymentMethod,
+                              '_',
+                              ' ')}">
+                    CASH
+                </span>
+
+      </div>
+
+    </section>
+
+    <h3 class="section-title">
+      Invoice Payment Summary
+    </h3>
+
+    <section class="invoice-summary">
+
+      <div class="summary-box">
+
+        <p>Invoice Net Amount</p>
+
+        <strong th:text="${'Rs. ' +
+                        #numbers.formatDecimal(
+                        invoice.netAmount, 1, 2)}">
+          Rs. 0.00
+        </strong>
+
+      </div>
+
+      <div class="summary-box paid-box">
+
+        <p>Total Valid Payments</p>
+
+        <strong th:text="${'Rs. ' +
+                        #numbers.formatDecimal(
+                        totalPaid, 1, 2)}">
+          Rs. 0.00
+        </strong>
+
+      </div>
+
+      <div class="summary-box balance-box">
+
+        <p>Remaining Balance</p>
+
+        <strong th:text="${'Rs. ' +
+                        #numbers.formatDecimal(
+                        remainingBalance, 1, 2)}">
+          Rs. 0.00
+        </strong>
+
+      </div>
+
+    </section>
+
+    <section class="additional-details"
+             th:if="${payment.paymentMethod == 'CHEQUE'
+                         or payment.paymentMethod == 'BANK_TRANSFER'}">
+
+      <h4>Payment Reference Information</h4>
+
+      <div class="additional-details-grid">
+
+        <div class="detail"
+             th:if="${payment.paymentMethod == 'CHEQUE'}">
+
+          <label>Cheque Number</label>
+
+          <p th:text="${payment.chequeNumber}">
+            -
+          </p>
+
+        </div>
+
+        <div class="detail"
+             th:if="${payment.paymentMethod == 'CHEQUE'}">
+
+          <label>Cheque Date</label>
+
+          <p th:text="${payment.chequeDate}">
+            -
+          </p>
+
+        </div>
+
+        <div class="detail"
+             th:if="${payment.bankName != null
+                             and !payment.bankName.isBlank()}">
+
+          <label>Bank Name</label>
+
+          <p th:text="${payment.bankName}">
+            Bank
+          </p>
+
+        </div>
+
+        <div class="detail"
+             th:if="${payment.paymentMethod == 'BANK_TRANSFER'}">
+
+          <label>Transaction / Reference Number</label>
+
+          <p th:text="${payment.referenceNumber}">
+            -
+          </p>
+
+        </div>
+
+        <div class="detail"
+             th:if="${payment.paymentMethod == 'CHEQUE'}">
+
+          <label>Cheque Status</label>
+
+          <p>
+                        <span class="badge badge-cheque-received"
+                              th:if="${payment.chequeStatus == null
+                                     or payment.chequeStatus == 'RECEIVED'}">
+                            RECEIVED
+                        </span>
+
+            <span class="badge badge-deposited"
+                  th:if="${payment.chequeStatus == 'DEPOSITED'}">
+                            DEPOSITED
+                        </span>
+
+            <span class="badge badge-cleared"
+                  th:if="${payment.chequeStatus == 'CLEARED'}">
+                            CLEARED
+                        </span>
+
+            <span class="badge badge-returned"
+                  th:if="${payment.chequeStatus == 'RETURNED'}">
+                            RETURNED
+                        </span>
+          </p>
+
+        </div>
+
+        <div class="detail"
+             th:if="${payment.chequeDepositedDate != null}">
+
+          <label>Deposited Date</label>
+
+          <p th:text="${payment.chequeDepositedDate}">
+            -
+          </p>
+
+        </div>
+
+        <div class="detail"
+             th:if="${payment.chequeClearedDate != null}">
+
+          <label>Cleared Date</label>
+
+          <p th:text="${payment.chequeClearedDate}">
+            -
+          </p>
+
+        </div>
+
+        <div class="detail"
+             th:if="${payment.chequeReturnDate != null}">
+
+          <label>Returned Date</label>
+
+          <p th:text="${payment.chequeReturnDate}">
+            -
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="notes"
+             th:if="${payment.notes != null
+                         and !payment.notes.isBlank()}">
+
+      <label>Notes</label>
+
+      <p th:text="${payment.notes}">
+        Payment notes
+      </p>
+
+    </section>
+
+    <section class="signature-section">
+
+      <div class="signature">
+        Customer Signature
+      </div>
+
+      <div class="signature">
+        Authorized Signature
+      </div>
+
+    </section>
+
+    <footer class="receipt-footer">
+
+      <p>
+        This receipt was generated by the
+        AAK Agency Distribution Management System.
+      </p>
+
+      <p>
+        Thank you for your payment.
+      </p>
+
+    </footer>
+
+  </article>
+
+  <section class="cheque-management"
+           th:if="${payment.paymentMethod == 'CHEQUE'}">
+
+    <h3>Cheque Management</h3>
+
+    <p class="cheque-management-description">
+      Update the cheque when it is deposited, cleared or returned.
+      A returned cheque will automatically restore the invoice balance.
+    </p>
+
+    <div class="cheque-status-summary">
+
+      <div class="cheque-status-box">
+
+        <label>Current Cheque Status</label>
+
+        <p th:text="${payment.chequeStatus != null
+                            ? payment.chequeStatus
+                            : 'RECEIVED'}">
+          RECEIVED
+        </p>
+
+      </div>
+
+      <div class="cheque-status-box">
+
+        <label>Cheque Number</label>
+
+        <p th:text="${payment.chequeNumber}">
+          -
+        </p>
+
+      </div>
+
+      <div class="cheque-status-box">
+
+        <label>Cheque Date</label>
+
+        <p th:text="${payment.chequeDate}">
+          -
+        </p>
+
+      </div>
+
+      <div class="cheque-status-box">
+
+        <label>Bank</label>
+
+        <p th:text="${payment.bankName}">
+          -
+        </p>
+
+      </div>
+
+    </div>
+
+    <div th:if="${payment.chequeStatus == null
+                    or payment.chequeStatus == 'RECEIVED'
+                    or payment.chequeStatus == 'DEPOSITED'}">
+
+      <div class="cheque-action-buttons">
+
+        <form class="action-form"
+              th:if="${payment.chequeStatus == null
+                              or payment.chequeStatus == 'RECEIVED'}"
+              method="post"
+              th:action="@{/payments/{id}/cheque-status
+                      (id=${payment.id})}">
+
+          <h4>Mark as Deposited</h4>
+
+          <input type="hidden"
+                 name="chequeStatus"
+                 value="DEPOSITED">
+
+          <label for="depositedDate">
+            Deposited Date
+          </label>
+
+          <input type="date"
+                 id="depositedDate"
+                 name="actionDate"
+                 th:value="${today}"
+                 required>
+
+          <button type="submit"
+                  class="action-button deposit-button"
+                  onclick="return confirm(
+                            'Mark this cheque as deposited?'
+                            );">
+            Mark as Deposited
+          </button>
+
+        </form>
+
+        <form class="action-form"
+              method="post"
+              th:action="@{/payments/{id}/cheque-status
+                      (id=${payment.id})}">
+
+          <h4>Mark as Cleared</h4>
+
+          <input type="hidden"
+                 name="chequeStatus"
+                 value="CLEARED">
+
+          <label for="clearedDate">
+            Cleared Date
+          </label>
+
+          <input type="date"
+                 id="clearedDate"
+                 name="actionDate"
+                 th:value="${today}"
+                 required>
+
+          <button type="submit"
+                  class="action-button clear-button"
+                  onclick="return confirm(
+                            'Mark this cheque as cleared?'
+                            );">
+            Mark as Cleared
+          </button>
+
+        </form>
+
+      </div>
+
+      <form class="action-form"
+            method="post"
+            th:action="@{/payments/{id}/cheque-status
+                  (id=${payment.id})}">
+
+        <h4>Mark Cheque as Returned</h4>
+
+        <input type="hidden"
+               name="chequeStatus"
+               value="RETURNED">
+
+        <label for="returnedDate">
+          Returned Date
+        </label>
+
+        <input type="date"
+               id="returnedDate"
+               name="actionDate"
+               th:value="${today}"
+               required>
+
+        <label for="returnReason">
+          Return Reason
+        </label>
+
+        <textarea id="returnReason"
+                  name="returnReason"
+                  placeholder="Example: Insufficient funds, signature mismatch or account closed"
+                  required></textarea>
+
+        <button type="submit"
+                class="action-button return-button"
+                onclick="return confirm(
+                        'Mark this cheque as returned? The invoice outstanding balance will be restored.'
+                        );">
+          Mark as Returned
+        </button>
+
+      </form>
+
+    </div>
+
+    <div class="returned-information"
+         th:if="${payment.chequeStatus == 'RETURNED'}">
+
+      <h4>Cheque Returned</h4>
+
+      <p>
+        Returned Date:
+        <strong th:text="${payment.chequeReturnDate}">
+          -
+        </strong>
+      </p>
+
+      <p>
+        Return Reason:
+        <strong th:text="${payment.chequeReturnReason}">
+          -
+        </strong>
+      </p>
+
+      <p>
+        This cheque is no longer counted as a valid payment.
+        The sales invoice outstanding balance has been recalculated.
+      </p>
+
+    </div>
+
+    <div class="returned-information"
+         th:if="${payment.chequeStatus == 'CLEARED'}"
+         style="background-color: #d1e7dd; color: #146c43;">
+
+      <h4>Cheque Cleared</h4>
+
+      <p>
+        This cheque was successfully cleared on
+        <strong th:text="${payment.chequeClearedDate}">
+          -
+        </strong>.
+      </p>
+
+    </div>
+
+  </section>
+
+</main>
+
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>
