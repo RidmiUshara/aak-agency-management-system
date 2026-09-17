@@ -2,8 +2,11 @@ package lk.aak.agency.controller;
 
 import lk.aak.agency.model.Product;
 import lk.aak.agency.service.ProductService;
+import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -88,9 +91,20 @@ public class ProductController {
 
     @PostMapping("/save")
     public String saveProduct(
-            Product product,
+            @Valid Product product,
+            BindingResult bindingResult,
             Model model,
             RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+
+            model.addAttribute(
+                    "pageTitle",
+                    product.getId() == null ? "Add New Product" : "Edit Product"
+            );
+
+            return "products/product-form";
+        }
 
         try {
 
@@ -126,6 +140,7 @@ public class ProductController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/delete/{id}")
     public String deleteProduct(
             @PathVariable Long id,

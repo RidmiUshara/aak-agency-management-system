@@ -12,6 +12,7 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -405,6 +406,7 @@ public class PurchaseInvoiceController {
                 + invoiceId;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{invoiceId}/items/delete/{itemId}")
     public String deleteInvoiceItem(
             @PathVariable Long invoiceId,
@@ -467,6 +469,7 @@ public class PurchaseInvoiceController {
                 + invoiceId;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/delete/{id}")
     public String deleteInvoice(
             @PathVariable Long id,

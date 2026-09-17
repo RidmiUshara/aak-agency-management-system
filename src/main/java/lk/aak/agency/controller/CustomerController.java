@@ -2,17 +2,24 @@ package lk.aak.agency.controller;
 
 import lk.aak.agency.model.Customer;
 import lk.aak.agency.service.CustomerService;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/customers")
 public class CustomerController {
+
+    private static final int PAGE_SIZE = 20;
 
     private final CustomerService customerService;
 
@@ -21,11 +28,16 @@ public class CustomerController {
     }
 
     @GetMapping
-    public String showCustomerList(Model model) {
-        model.addAttribute(
-                "customers",
-                customerService.getAllCustomers()
-        );
+    public String showCustomerList(
+            @RequestParam(defaultValue = "0") int page,
+            Model model) {
+
+        Page<Customer> customerPage = customerService.getCustomers(page, PAGE_SIZE);
+
+        model.addAttribute("customers", customerPage.getContent());
+        model.addAttribute("currentPage", customerPage.getNumber());
+        model.addAttribute("totalPages", customerPage.getTotalPages());
+        model.addAttribute("totalRecords", customerPage.getTotalElements());
 
         return "customers/customer-list";
     }
@@ -65,8 +77,19 @@ public class CustomerController {
 
     @PostMapping("/save")
     public String saveCustomer(
-            Customer customer,
+            @Valid Customer customer,
+            BindingResult bindingResult,
+            Model model,
             RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute(
+                    "pageTitle",
+                    customer.getId() == null ? "Add New Customer" : "Edit Customer"
+            );
+
+            return "customers/customer-form";
+        }
 
         customerService.saveCustomer(customer);
 
@@ -78,6 +101,7 @@ public class CustomerController {
         return "redirect:/customers";
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/delete/{id}")
     public String deleteCustomer(
             @PathVariable Long id,

@@ -3,12 +3,19 @@ package lk.aak.agency.config;
 import lk.aak.agency.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * Roles: ADMIN (full access, only role allowed to delete records),
+ * SALES (customers + sales invoices), INVENTORY (products + purchase
+ * invoices + stock), ACCOUNTS (payments + cheques + collections).
+ */
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final CustomUserDetailsService
@@ -59,8 +66,45 @@ public class SecurityConfig {
                                         .permitAll()
 
                                         /*
+                                         * Remaining actuator endpoints (e.g. /actuator/info)
+                                         * expose build/runtime details - admins only.
+                                         */
+                                        .requestMatchers("/actuator/**")
+                                        .hasRole("ADMIN")
+
+                                        /*
+                                         * Sales pipeline: customer records and sales invoices.
+                                         */
+                                        .requestMatchers(
+                                                "/customers/**",
+                                                "/sales-invoices/**"
+                                        )
+                                        .hasAnyRole("ADMIN", "SALES")
+
+                                        /*
+                                         * Inventory pipeline: products, purchasing and stock.
+                                         */
+                                        .requestMatchers(
+                                                "/products/**",
+                                                "/purchase-invoices/**",
+                                                "/inventory/**"
+                                        )
+                                        .hasAnyRole("ADMIN", "INVENTORY")
+
+                                        /*
+                                         * Accounts pipeline: payments, cheques and collections.
+                                         */
+                                        .requestMatchers(
+                                                "/payments/**",
+                                                "/cheques/**",
+                                                "/collections/**"
+                                        )
+                                        .hasAnyRole("ADMIN", "ACCOUNTS")
+
+                                        /*
                                          * Every other application
-                                         * page requires a login.
+                                         * page just requires a login
+                                         * (dashboard, reports, account settings).
                                          */
                                         .anyRequest()
                                         .authenticated()
