@@ -62,6 +62,14 @@
 			</artifactId>
 		</dependency>
 
+		<!-- Health checks for container orchestration and uptime monitoring -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>
+				spring-boot-starter-actuator
+			</artifactId>
+		</dependency>
+
 		<!-- MySQL database driver -->
 		<dependency>
 			<groupId>com.mysql</groupId>
