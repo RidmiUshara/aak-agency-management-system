@@ -1,8 +1,10 @@
 package lk.aak.agency.service;
 
 import lk.aak.agency.model.DeliveryTrip;
+import lk.aak.agency.model.DeliveryTripLoadItem;
 import lk.aak.agency.model.SalesInvoice;
 import lk.aak.agency.model.SalesInvoiceItem;
+import lk.aak.agency.repository.DeliveryTripLoadItemRepository;
 import lk.aak.agency.repository.DeliveryTripRepository;
 import lk.aak.agency.repository.EmployeeRepository;
 import lk.aak.agency.repository.RouteRepository;
@@ -23,6 +25,7 @@ import java.util.Optional;
 public class DeliveryTripService {
 
     private final DeliveryTripRepository deliveryTripRepository;
+    private final DeliveryTripLoadItemRepository deliveryTripLoadItemRepository;
     private final SalesInvoiceRepository salesInvoiceRepository;
     private final SalesInvoiceItemRepository salesInvoiceItemRepository;
     private final RouteRepository routeRepository;
@@ -31,6 +34,7 @@ public class DeliveryTripService {
 
     public DeliveryTripService(
             DeliveryTripRepository deliveryTripRepository,
+            DeliveryTripLoadItemRepository deliveryTripLoadItemRepository,
             SalesInvoiceRepository salesInvoiceRepository,
             SalesInvoiceItemRepository salesInvoiceItemRepository,
             RouteRepository routeRepository,
@@ -38,6 +42,7 @@ public class DeliveryTripService {
             EmployeeRepository employeeRepository) {
 
         this.deliveryTripRepository = deliveryTripRepository;
+        this.deliveryTripLoadItemRepository = deliveryTripLoadItemRepository;
         this.salesInvoiceRepository = salesInvoiceRepository;
         this.salesInvoiceItemRepository = salesInvoiceItemRepository;
         this.routeRepository = routeRepository;
@@ -191,6 +196,129 @@ public class DeliveryTripService {
         }
 
         return List.copyOf(summaryByProduct.values());
+    }
+
+    public List<DeliveryTripLoadItem> getLoadItemsForTrip(Long tripId) {
+        return deliveryTripLoadItemRepository.findByDeliveryTripIdOrderByIdAsc(tripId);
+    }
+
+    /**
+     * Confirms what was actually loaded onto the vehicle for this trip, using the planned
+     * loading summary as the baseline (adjustable per product for real-world shortages).
+     * Warehouse stock was already debited when each bill was completed, so this does not
+     * create any further stock movements - it only records the confirmed quantities and
+     * moves the trip to LOADED so it shows up in the vehicle stock view.
+     */
+    @Transactional
+    public void confirmLoading(Long tripId, Map<Long, BigDecimal> loadedQuantityByProductId) {
+
+        DeliveryTrip trip = deliveryTripRepository.findById(tripId)
+                .orElseThrow(() -> new IllegalArgumentException("Delivery trip was not found."));
+
+        if (!"PLANNED".equalsIgnoreCase(trip.getStatus())) {
+            throw new IllegalArgumentException("Only a planned trip can have its loading confirmed.");
+        }
+
+        List<LoadingSummaryRow> summary = getLoadingSummary(tripId);
+
+        if (summary.isEmpty()) {
+            throw new IllegalArgumentException("Assign at least one bill to this trip before confirming loading.");
+        }
+
+        for (LoadingSummaryRow row : summary) {
+
+            BigDecimal loadedQuantity = loadedQuantityByProductId == null
+                    ? null
+                    : loadedQuantityByProductId.get(row.getProductId());
+
+            if (loadedQuantity == null) {
+                loadedQuantity = row.getPlannedQuantity();
+            }
+
+            if (loadedQuantity.compareTo(BigDecimal.ZERO) < 0) {
+                throw new IllegalArgumentException("Loaded quantity cannot be negative.");
+            }
+
+            DeliveryTripLoadItem loadItem = new DeliveryTripLoadItem();
+            loadItem.setDeliveryTripId(tripId);
+            loadItem.setProductId(row.getProductId());
+            loadItem.setProductName(row.getProductName());
+            loadItem.setUnit(row.getUnit());
+            loadItem.setPlannedQuantity(row.getPlannedQuantity());
+            loadItem.setLoadedQuantity(loadedQuantity);
+
+            deliveryTripLoadItemRepository.save(loadItem);
+        }
+
+        trip.setStatus("LOADED");
+        deliveryTripRepository.save(trip);
+    }
+
+    /**
+     * What's currently loaded and out on the road: sums confirmed loaded quantities per
+     * vehicle/product for every trip still in LOADED status (a trip leaves this view once
+     * it is closed at end of day).
+     */
+    public List<VehicleStockRow> getVehicleStockSummary() {
+
+        Map<String, VehicleStockRow> stockByVehicleAndProduct = new LinkedHashMap<>();
+
+        for (DeliveryTrip trip : deliveryTripRepository.findByStatusOrderByTripDateAsc("LOADED")) {
+
+            for (DeliveryTripLoadItem loadItem : getLoadItemsForTrip(trip.getId())) {
+
+                String key = trip.getVehicleNumber() + "|" + loadItem.getProductId();
+
+                VehicleStockRow existingRow = stockByVehicleAndProduct.get(key);
+
+                if (existingRow == null) {
+                    stockByVehicleAndProduct.put(
+                            key,
+                            new VehicleStockRow(
+                                    trip.getVehicleNumber(),
+                                    loadItem.getProductName(),
+                                    loadItem.getUnit(),
+                                    loadItem.getLoadedQuantity()
+                            )
+                    );
+                } else {
+                    existingRow.loadedQuantity = existingRow.loadedQuantity.add(loadItem.getLoadedQuantity());
+                }
+            }
+        }
+
+        return List.copyOf(stockByVehicleAndProduct.values());
+    }
+
+    public static class VehicleStockRow {
+
+        private final String vehicleNumber;
+        private final String productName;
+        private final String unit;
+        private BigDecimal loadedQuantity;
+
+        public VehicleStockRow(String vehicleNumber, String productName, String unit, BigDecimal loadedQuantity) {
+            this.vehicleNumber = vehicleNumber;
+            this.productName = productName;
+            this.unit = unit;
+            this.loadedQuantity = loadedQuantity;
+        }
+
+        public String getVehicleNumber() {
+            return vehicleNumber;
+        }
+
+        public String getProductName() {
+            return productName;
+        }
+
+        public String getUnit() {
+            return unit;
+        }
+
+        public BigDecimal getLoadedQuantity() {
+            return loadedQuantity;
+        }
     }
 
     public static class LoadingSummaryRow {

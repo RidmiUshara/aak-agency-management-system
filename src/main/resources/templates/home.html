@@ -881,6 +881,11 @@
         Delivery Trips
       </a>
 
+      <a th:href="@{/delivery-trips/vehicle-stock}">
+        <span class="nav-icon">VS</span>
+        Vehicle Stock
+      </a>
+
       <a th:if="${loggedInRole == 'ADMIN'}" th:href="@{/users}">
         <span class="nav-icon">US</span>
         Manage Users

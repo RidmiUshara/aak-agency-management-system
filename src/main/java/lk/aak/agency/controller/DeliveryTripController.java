@@ -1,5 +1,6 @@
 package lk.aak.agency.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lk.aak.agency.model.DeliveryTrip;
 import lk.aak.agency.service.DeliveryTripService;
@@ -15,6 +16,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/delivery-trips")
@@ -109,8 +114,43 @@ public class DeliveryTripController {
         model.addAttribute("assignedInvoices", deliveryTripService.getInvoicesForTrip(id));
         model.addAttribute("unassignedInvoices", deliveryTripService.getUnassignedCompletedInvoices());
         model.addAttribute("loadingSummary", deliveryTripService.getLoadingSummary(id));
+        model.addAttribute("loadItems", deliveryTripService.getLoadItemsForTrip(id));
 
         return "delivery-trips/trip-view";
+    }
+
+    @PostMapping("/{tripId}/confirm-loading")
+    public String confirmLoading(
+            @PathVariable Long tripId,
+            HttpServletRequest request,
+            RedirectAttributes redirectAttributes) {
+
+        Map<Long, BigDecimal> loadedQuantityByProductId = new HashMap<>();
+
+        for (Map.Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
+
+            if (entry.getKey().startsWith("loadedQuantity_")) {
+
+                Long productId = Long.valueOf(entry.getKey().substring("loadedQuantity_".length()));
+                String value = entry.getValue()[0];
+
+                if (value != null && !value.isBlank()) {
+                    loadedQuantityByProductId.put(productId, new BigDecimal(value));
+                }
+            }
+        }
+
+        deliveryTripService.confirmLoading(tripId, loadedQuantityByProductId);
+
+        redirectAttributes.addFlashAttribute("successMessage", "Loading confirmed - trip marked as Loaded.");
+        return "redirect:/delivery-trips/view/" + tripId;
+    }
+
+    @GetMapping("/vehicle-stock")
+    public String showVehicleStock(Model model) {
+
+        model.addAttribute("vehicleStockRows", deliveryTripService.getVehicleStockSummary());
+        return "delivery-trips/vehicle-stock";
     }
 
     @PostMapping("/{tripId}/assign-invoice")

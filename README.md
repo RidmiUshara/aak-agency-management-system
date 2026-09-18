@@ -46,6 +46,8 @@ sign-up. New staff (office, reps, drivers) must be added there before they can l
   computed product loading summary and per-bill delivery status tracking). A trip's route is optional -
   when the vehicle isn't following one of the saved routes that day, the trip can instead carry a free-text
   "area covered" note
+- Vehicle loading confirmation (planned vs actually-loaded quantities per product) that moves a trip to
+  Loaded, plus a live Vehicle Stock view of what's currently loaded on each vehicle and not yet closed off
 - Product management with CBL/SKU codes, weights, units and prices
 - Purchase invoice management with original CBL invoice image/PDF upload and verification view
 - Inventory tracking with stock movement history, low/out-of-stock alerts, manual stock adjustments
@@ -74,7 +76,7 @@ update:
 |---|---|---|
 | 1. Foundation | Login, roles, shops, QR identification, products, employees, vehicles | Done |
 | 2. Inventory | Supplier receipts, stock movements/adjustments | Done - includes a dedicated "Set Opening Stock" entry for initializing a product's starting balance |
-| 3. Distribution | Bills, vehicle loading, vehicle stock, delivery tracking (completed/partial/unsuccessful) | Partial - routes, delivery trip planning, bill assignment and a computed loading summary are done; actual warehouse-to-vehicle stock transfer is not wired up yet |
+| 3. Distribution | Bills, vehicle loading, vehicle stock, delivery tracking (completed/partial/unsuccessful) | Done - trips can be loaded (confirming actual vs planned quantities) and closed, with a live "what's on each vehicle right now" view |
 | 4. Financial control | Credit blocking rules, daily cash/cheque handover reconciliation, CBL supplier balance | Partial - payments/cheques/collections exist, no formal handover reconciliation report or supplier balance view |
 | 5. Completion | Shop and CBL returns, employee attendance/advances/salary, final reports | Not started |
 
