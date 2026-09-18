@@ -118,6 +118,87 @@ public class CustomerCreditController {
         return "customers/customer-credit-history";
     }
 
+    /**
+     * Agency-wide "Outstanding and overdue amounts by shop and bill" report - the
+     * proposal's own wording for the Credit Follow-up report the owner needs.
+     */
+    @GetMapping("/credit-followup")
+    public String showCreditFollowUp(Model model) {
+
+        LocalDate today = LocalDate.now(SRI_LANKA_TIME_ZONE);
+
+        List<CreditFollowUpRow> rows = new java.util.ArrayList<>();
+        BigDecimal totalOutstanding = BigDecimal.ZERO;
+        BigDecimal totalOverdue = BigDecimal.ZERO;
+
+        for (Customer customer : customerRepository.findAll()) {
+
+            List<SalesInvoice> creditInvoices = salesInvoiceRepository
+                    .findByCustomerIdOrderByInvoiceDateDesc(customer.getId())
+                    .stream()
+                    .filter(invoice -> "COMPLETED".equalsIgnoreCase(invoice.getStatus()))
+                    .filter(invoice -> "CREDIT".equalsIgnoreCase(invoice.getSaleType()))
+                    .toList();
+
+            BigDecimal customerOutstanding = BigDecimal.ZERO;
+            BigDecimal customerOverdue = BigDecimal.ZERO;
+            LocalDate oldestOverdueDueDate = null;
+
+            for (SalesInvoice invoice : creditInvoices) {
+
+                BigDecimal netAmount = zeroIfNull(invoice.getNetAmount());
+                BigDecimal paidAmount = paymentService.getPaidAmount(invoice.getId());
+                BigDecimal balance = netAmount.subtract(paidAmount);
+
+                if (balance.compareTo(BigDecimal.ZERO) <= 0) {
+                    continue;
+                }
+
+                customerOutstanding = customerOutstanding.add(balance);
+
+                if (invoice.getDueDate() != null && invoice.getDueDate().isBefore(today)) {
+
+                    customerOverdue = customerOverdue.add(balance);
+
+                    if (oldestOverdueDueDate == null || invoice.getDueDate().isBefore(oldestOverdueDueDate)) {
+                        oldestOverdueDueDate = invoice.getDueDate();
+                    }
+                }
+            }
+
+            if (customerOutstanding.compareTo(BigDecimal.ZERO) > 0) {
+
+                long daysOverdue = oldestOverdueDueDate == null
+                        ? 0
+                        : java.time.temporal.ChronoUnit.DAYS.between(oldestOverdueDueDate, today);
+
+                rows.add(new CreditFollowUpRow(
+                        customer, customerOutstanding, customerOverdue, oldestOverdueDueDate, daysOverdue
+                ));
+
+                totalOutstanding = totalOutstanding.add(customerOutstanding);
+                totalOverdue = totalOverdue.add(customerOverdue);
+            }
+        }
+
+        rows.sort((a, b) -> b.daysOverdue().compareTo(a.daysOverdue()));
+
+        model.addAttribute("rows", rows);
+        model.addAttribute("totalOutstanding", totalOutstanding);
+        model.addAttribute("totalOverdue", totalOverdue);
+        model.addAttribute("today", today);
+
+        return "customers/credit-followup";
+    }
+
+    public record CreditFollowUpRow(
+            Customer customer,
+            BigDecimal totalOutstanding,
+            BigDecimal overdueAmount,
+            LocalDate oldestOverdueDueDate,
+            Long daysOverdue) {
+    }
+
     private BigDecimal zeroIfNull(BigDecimal value) {
         return value == null ? BigDecimal.ZERO : value;
     }

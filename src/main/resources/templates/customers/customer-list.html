@@ -52,7 +52,10 @@
       <h2>Customers</h2>
       <p>Manage supermarkets and customer details.</p>
     </div>
-    <a class="btn btn-add" th:href="@{/customers/new}">+ Add Customer</a>
+    <div style="display: flex; gap: 10px;">
+      <a class="btn btn-add" th:href="@{/customers/credit-followup}" style="background-color:#6f42c1;">Credit Follow-up</a>
+      <a class="btn btn-add" th:href="@{/customers/new}">+ Add Customer</a>
+    </div>
   </section>
 
   <div class="message success-message" th:if="${successMessage}" th:text="${successMessage}"></div>

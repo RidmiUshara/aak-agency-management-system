@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Credit Follow-up - AAK Agency</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background-color: #f4f6f9; color: #222222; }
+    .header { background-color: #1e3a5f; color: white; padding: 20px 5%; display: flex; align-items: center; justify-content: space-between; }
+    .header a { color: white; text-decoration: none; }
+    .container { width: 92%; max-width: 1200px; margin: 35px auto; display: flex; flex-direction: column; gap: 20px; }
+    .card { background-color: white; border-radius: 10px; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08); padding: 24px; }
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .summary-card { background: #f8fafc; border-radius: 8px; padding: 18px; border-left: 4px solid #1e3a5f; }
+    .summary-card label { display: block; color: #6c757d; font-size: 12px; text-transform: uppercase; font-weight: bold; margin-bottom: 6px; }
+    .summary-card strong { font-size: 24px; color: #1e3a5f; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background-color: #e9eef5; color: #1e3a5f; text-align: left; padding: 12px; white-space: nowrap; }
+    td { padding: 12px; border-top: 1px solid #eeeeee; white-space: nowrap; }
+    .badge { display: inline-block; padding: 5px 10px; border-radius: 20px; font-size: 13px; }
+    .badge-overdue { background-color: #f8d7da; color: #842029; }
+    .badge-current { background-color: #d1e7dd; color: #0f5132; }
+    .empty-message { padding: 25px; text-align: center; color: #777777; }
+    a.link { color: #0d6efd; }
+  </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+<body>
+<header class="header">
+  <div>
+    <h1>AAK Agency</h1>
+    <p>Credit Follow-up</p>
+  </div>
+  <a th:href="@{/customers}">Back to Customers</a>
+</header>
+
+<main class="container">
+
+  <section class="card">
+    <div class="summary-grid">
+      <div class="summary-card">
+        <label>Total Outstanding</label>
+        <strong th:text="${'Rs. ' + #numbers.formatDecimal(totalOutstanding, 1, 2)}"></strong>
+      </div>
+      <div class="summary-card" style="border-left-color:#dc3545;">
+        <label>Total Overdue</label>
+        <strong th:text="${'Rs. ' + #numbers.formatDecimal(totalOverdue, 1, 2)}"></strong>
+      </div>
+      <div class="summary-card">
+        <label>Shops with a Balance</label>
+        <strong th:text="${#lists.size(rows)}"></strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3 style="color:#1e3a5f; margin-bottom: 14px;">Outstanding &amp; Overdue by Shop</h3>
+    <table th:if="${!#lists.isEmpty(rows)}">
+      <thead>
+      <tr>
+        <th>Shop</th>
+        <th>Credit Limit</th>
+        <th>Total Outstanding</th>
+        <th>Overdue Amount</th>
+        <th>Oldest Due Date</th>
+        <th>Days Overdue</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="row : ${rows}">
+        <td th:text="${row.customer.customerName}"></td>
+        <td th:text="${'Rs. ' + #numbers.formatDecimal(row.customer.creditLimit, 1, 2)}"></td>
+        <td th:text="${'Rs. ' + #numbers.formatDecimal(row.totalOutstanding, 1, 2)}"></td>
+        <td th:text="${'Rs. ' + #numbers.formatDecimal(row.overdueAmount, 1, 2)}"></td>
+        <td th:text="${row.oldestOverdueDueDate != null ? row.oldestOverdueDueDate : '-'}"></td>
+        <td th:text="${row.daysOverdue > 0 ? row.daysOverdue : '-'}"></td>
+        <td>
+          <span class="badge badge-overdue" th:if="${row.daysOverdue > 0}">OVERDUE</span>
+          <span class="badge badge-current" th:if="${row.daysOverdue == 0}">CURRENT</span>
+        </td>
+        <td>
+          <a class="link" th:href="@{/customers/{id}/credit-history(id=${row.customer.id})}">View History</a>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <div class="empty-message" th:if="${#lists.isEmpty(rows)}">
+      No shops currently have an outstanding credit balance.
+    </div>
+  </section>
+
+</main>
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>
