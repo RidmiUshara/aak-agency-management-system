@@ -12,7 +12,7 @@ permissions:
 env:
   AWS_REGION: ap-southeast-1
   ECR_REPOSITORY: aak-dev-app
-  DEPLOY_REPOSITORY: https://raw.githubusercontent.com/RidmiUshara/aak-agency-management-system/main/deploy
+  DEPLOY_REPOSITORY: https://raw.githubusercontent.com/lakal96/aak-agency-management-system/main/deploy
 
 jobs:
   build-and-deploy:
