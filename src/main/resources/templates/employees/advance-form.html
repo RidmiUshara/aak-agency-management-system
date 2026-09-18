@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Give Advance - AAK Agency</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background-color: #f4f6f9; color: #222222; }
+    .header { background-color: #1e3a5f; color: white; padding: 20px 5%; display: flex; align-items: center; justify-content: space-between; }
+    .header a { color: white; text-decoration: none; }
+    .container { width: 90%; max-width: 700px; margin: 35px auto; }
+    .page-heading { margin-bottom: 25px; }
+    .page-heading h2 { color: #1e3a5f; }
+    .form-card { background-color: white; border-radius: 10px; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08); padding: 30px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 7px; font-weight: bold; color: #1e3a5f; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 11px; border: 1px solid #ccd4de; border-radius: 6px; font-size: 14px; font-family: inherit; }
+    .form-actions { display: flex; gap: 12px; margin-top: 25px; }
+    .btn { display: inline-block; border: none; border-radius: 6px; padding: 12px 20px; color: white; text-decoration: none; cursor: pointer; font-size: 14px; }
+    .btn-save { background-color: #198754; }
+    .btn-cancel { background-color: #6c757d; }
+  </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+<body>
+<header class="header">
+  <div>
+    <h1>AAK Agency</h1>
+    <p>Employee Advances</p>
+  </div>
+  <a th:href="@{/advances}">Back to Advances</a>
+</header>
+
+<main class="container">
+  <section class="page-heading">
+    <h2>Give Advance</h2>
+  </section>
+
+  <section class="form-card">
+    <form method="post" th:action="@{/advances/save}">
+
+      <div class="form-group">
+        <label for="employeeId">Employee</label>
+        <select id="employeeId" name="employeeId" required>
+          <option value="">Select employee</option>
+          <option th:each="employee : ${employees}" th:value="${employee.id}" th:text="${employee.fullName}"></option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="amount">Amount</label>
+        <input id="amount" type="number" name="amount" step="0.01" min="0.01" required>
+      </div>
+
+      <div class="form-group">
+        <label for="advanceDate">Date</label>
+        <input id="advanceDate" type="date" name="advanceDate" required>
+      </div>
+
+      <div class="form-group">
+        <label for="notes">Notes</label>
+        <textarea id="notes" name="notes" rows="3" placeholder="Optional notes"></textarea>
+      </div>
+
+      <div class="form-actions">
+        <a class="btn btn-cancel" th:href="@{/advances}">Cancel</a>
+        <button class="btn btn-save" type="submit">Save Advance</button>
+      </div>
+    </form>
+  </section>
+</main>
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>

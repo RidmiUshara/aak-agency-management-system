@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Record Salary Payment - AAK Agency</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background-color: #f4f6f9; color: #222222; }
+    .header { background-color: #1e3a5f; color: white; padding: 20px 5%; display: flex; align-items: center; justify-content: space-between; }
+    .header a { color: white; text-decoration: none; }
+    .container { width: 90%; max-width: 700px; margin: 35px auto; }
+    .page-heading { margin-bottom: 25px; }
+    .page-heading h2 { color: #1e3a5f; }
+    .form-card { background-color: white; border-radius: 10px; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08); padding: 30px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 7px; font-weight: bold; color: #1e3a5f; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 11px; border: 1px solid #ccd4de; border-radius: 6px; font-size: 14px; font-family: inherit; }
+    .form-actions { display: flex; gap: 12px; margin-top: 25px; }
+    .btn { display: inline-block; border: none; border-radius: 6px; padding: 12px 20px; color: white; text-decoration: none; cursor: pointer; font-size: 14px; }
+    .btn-save { background-color: #198754; }
+    .btn-cancel { background-color: #6c757d; }
+    .advance-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #eeeeee; }
+    .message { border-radius: 6px; padding: 13px; margin-bottom: 20px; }
+    .error-message { background-color: #f8d7da; color: #842029; }
+  </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+<body>
+<header class="header">
+  <div>
+    <h1>AAK Agency</h1>
+    <p>Salary Payments</p>
+  </div>
+  <a th:href="@{/salary}">Back to Salary Payments</a>
+</header>
+
+<main class="container">
+  <section class="page-heading">
+    <h2>Record Salary Payment</h2>
+  </section>
+
+  <div class="message error-message" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+  <section class="form-card">
+    <form method="get" th:action="@{/salary/new}">
+      <div class="form-group">
+        <label for="employeeId">Employee</label>
+        <select id="employeeId" name="employeeId" onchange="this.form.submit()" required>
+          <option value="">Select employee</option>
+          <option th:each="employee : ${employees}" th:value="${employee.id}"
+                  th:selected="${selectedEmployeeId != null and selectedEmployeeId == employee.id}"
+                  th:text="${employee.fullName}"></option>
+        </select>
+      </div>
+    </form>
+
+    <form th:if="${selectedEmployeeId != null}" method="post" th:action="@{/salary/save}">
+      <input type="hidden" name="employeeId" th:value="${selectedEmployeeId}">
+
+      <div class="form-group">
+        <label for="payPeriodMonth">Pay Period Month</label>
+        <input id="payPeriodMonth" type="month" name="payPeriodMonth" required>
+      </div>
+
+      <div class="form-group">
+        <label for="grossSalary">Gross Salary</label>
+        <input id="grossSalary" type="number" name="grossSalary" step="0.01" min="0.01" required>
+      </div>
+
+      <div class="form-group" th:if="${!#lists.isEmpty(unsettledAdvances)}">
+        <label>Outstanding Advances to Deduct</label>
+        <div class="advance-row" th:each="advance : ${unsettledAdvances}">
+          <input type="checkbox" name="advanceIdsToSettle" th:value="${advance.id}"
+                 th:id="${'advance-' + advance.id}">
+          <label th:for="${'advance-' + advance.id}" style="font-weight: normal; margin: 0;"
+                 th:text="${advance.advanceDate + ' - Rs. ' + #numbers.formatDecimal(advance.amount, 1, 2) + (advance.notes != null ? ' (' + advance.notes + ')' : '')}"></label>
+        </div>
+      </div>
+      <p th:if="${#lists.isEmpty(unsettledAdvances)}" style="color: #6c757d; margin-bottom: 20px;">
+        No outstanding advances for this employee.
+      </p>
+
+      <div class="form-group">
+        <label for="paymentDate">Payment Date</label>
+        <input id="paymentDate" type="date" name="paymentDate" required>
+      </div>
+
+      <div class="form-group">
+        <label for="notes">Notes</label>
+        <textarea id="notes" name="notes" rows="3" placeholder="Optional notes"></textarea>
+      </div>
+
+      <div class="form-actions">
+        <a class="btn btn-cancel" th:href="@{/salary}">Cancel</a>
+        <button class="btn btn-save" type="submit">Save Salary Payment</button>
+      </div>
+    </form>
+  </section>
+</main>
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>

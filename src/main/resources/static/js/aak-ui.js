@@ -68,6 +68,9 @@
     { href: "/delivery-trips/vehicle-stock", label: "Vehicle Stock", icon: "📦" },
     { href: "/shop-returns", label: "Shop Returns", icon: "↩️" },
     { href: "/supplier-returns", label: "CBL Returns", icon: "↩️" },
+    { href: "/attendance", label: "Attendance", icon: "📅" },
+    { href: "/advances", label: "Advances", icon: "💵" },
+    { href: "/salary", label: "Salary", icon: "💰" },
     { href: "/users", label: "Manage Users", icon: "🔑" },
     { href: "/account/change-password", label: "Change Password", icon: "🔒" },
     { href: "/logout", label: "Logout", icon: "🚪" }

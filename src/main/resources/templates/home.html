@@ -906,6 +906,21 @@
         CBL Returns
       </a>
 
+      <a th:href="@{/attendance}">
+        <span class="nav-icon">AT</span>
+        Attendance
+      </a>
+
+      <a th:href="@{/advances}">
+        <span class="nav-icon">AD</span>
+        Advances
+      </a>
+
+      <a th:href="@{/salary}">
+        <span class="nav-icon">SL</span>
+        Salary
+      </a>
+
       <a th:if="${loggedInRole == 'ADMIN'}" th:href="@{/users}">
         <span class="nav-icon">US</span>
         Manage Users

@@ -45,6 +45,10 @@ public class Employee {
     @Column(name = "system_username")
     private String systemUsername;
 
+    // The user/enrollment ID assigned to this employee on the fingerprint attendance device.
+    @Column(name = "biometric_device_user_id")
+    private String biometricDeviceUserId;
+
     @Column(columnDefinition = "TEXT")
     private String notes;
 
@@ -140,6 +144,14 @@ public class Employee {
 
     public void setSystemUsername(String systemUsername) {
         this.systemUsername = systemUsername;
+    }
+
+    public String getBiometricDeviceUserId() {
+        return biometricDeviceUserId;
+    }
+
+    public void setBiometricDeviceUserId(String biometricDeviceUserId) {
+        this.biometricDeviceUserId = biometricDeviceUserId;
     }
 
     public String getNotes() {

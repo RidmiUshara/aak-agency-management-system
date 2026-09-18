@@ -111,7 +111,10 @@ public class SecurityConfig {
                                                 "/routes/**",
                                                 "/delivery-trips/**",
                                                 "/shop-returns/**",
-                                                "/supplier-returns/**"
+                                                "/supplier-returns/**",
+                                                "/attendance/**",
+                                                "/advances/**",
+                                                "/salary/**"
                                         )
                                         .hasAnyRole("ADMIN", "OFFICE")
 

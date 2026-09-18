@@ -11,4 +11,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     Optional<Employee> findTopByOrderByIdDesc();
 
     java.util.List<Employee> findByDesignationAndStatus(String designation, String status);
+
+    Optional<Employee> findByBiometricDeviceUserId(String biometricDeviceUserId);
 }
