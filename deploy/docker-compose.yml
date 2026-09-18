@@ -1,0 +1,60 @@
+services:
+
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-aak_agency_db}
+      MYSQL_USER: ${MYSQL_USER:-aak_app}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - internal
+
+  app:
+    image: ${APP_IMAGE}:${APP_IMAGE_TAG:-latest}
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-aak_agency_db}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Colombo
+      DB_USERNAME: ${MYSQL_USER:-aak_app}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      DDL_AUTO: ${DDL_AUTO:-update}
+      APP_ADMIN_USERNAME: ${APP_ADMIN_USERNAME:-admin}
+      APP_ADMIN_PASSWORD: ${APP_ADMIN_PASSWORD}
+      APP_ADMIN_FULL_NAME: ${APP_ADMIN_FULL_NAME:-AAK Agency Administrator}
+    volumes:
+      - uploads_data:/app/uploads
+    networks:
+      - internal
+    expose:
+      - "8080"
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/aak-agency.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - internal
+
+networks:
+  internal:
+
+volumes:
+  mysql_data:
+  uploads_data:
