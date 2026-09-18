@@ -5,6 +5,7 @@ import lk.aak.agency.repository.EmployeeRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,14 @@ public class EmployeeService {
 
     public List<Employee> getActiveHelpers() {
         return employeeRepository.findByDesignationAndStatus("HELPER", "ACTIVE");
+    }
+
+    public List<Employee> getActiveFieldCollectors() {
+        List<Employee> fieldCollectors = new ArrayList<>(
+                employeeRepository.findByDesignationAndStatus("SALES_REP", "ACTIVE")
+        );
+        fieldCollectors.addAll(getActiveDrivers());
+        return fieldCollectors;
     }
 
     public Optional<Employee> getEmployeeById(Long id) {

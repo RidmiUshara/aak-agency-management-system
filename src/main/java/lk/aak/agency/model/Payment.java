@@ -114,6 +114,20 @@ public class Payment {
     )
     private String notes;
 
+    // Field staff (sales rep/driver) who physically collected this cash/cheque from the shop. Null = collected directly by office.
+    @Column(name = "collected_by_employee_id")
+    private Long collectedByEmployeeId;
+
+    @Column(name = "collected_by_name")
+    private String collectedByName;
+
+    // PENDING / HANDED_OVER when there is a collector, NOT_APPLICABLE when the office collected it directly.
+    @Column(name = "handover_status", length = 30)
+    private String handoverStatus;
+
+    @Column(name = "handover_date")
+    private LocalDate handoverDate;
+
     @Column(
             name = "created_at",
             nullable = false,
@@ -181,6 +195,13 @@ public class Payment {
 
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
+        }
+
+        if (collectedByEmployeeId == null) {
+            handoverStatus = "NOT_APPLICABLE";
+
+        } else if (handoverStatus == null || handoverStatus.isBlank()) {
+            handoverStatus = "PENDING";
         }
     }
 
@@ -365,5 +386,37 @@ public class Payment {
             LocalDateTime createdAt) {
 
         this.createdAt = createdAt;
+    }
+
+    public Long getCollectedByEmployeeId() {
+        return collectedByEmployeeId;
+    }
+
+    public void setCollectedByEmployeeId(Long collectedByEmployeeId) {
+        this.collectedByEmployeeId = collectedByEmployeeId;
+    }
+
+    public String getCollectedByName() {
+        return collectedByName;
+    }
+
+    public void setCollectedByName(String collectedByName) {
+        this.collectedByName = collectedByName;
+    }
+
+    public String getHandoverStatus() {
+        return handoverStatus;
+    }
+
+    public void setHandoverStatus(String handoverStatus) {
+        this.handoverStatus = handoverStatus;
+    }
+
+    public LocalDate getHandoverDate() {
+        return handoverDate;
+    }
+
+    public void setHandoverDate(LocalDate handoverDate) {
+        this.handoverDate = handoverDate;
     }
 }

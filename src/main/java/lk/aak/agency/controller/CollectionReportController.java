@@ -2,12 +2,15 @@ package lk.aak.agency.controller;
 
 import lk.aak.agency.model.Payment;
 import lk.aak.agency.repository.PaymentRepository;
+import lk.aak.agency.service.PaymentService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
@@ -24,12 +27,15 @@ public class CollectionReportController {
             ZoneId.of("Asia/Colombo");
 
     private final PaymentRepository paymentRepository;
+    private final PaymentService paymentService;
 
     public CollectionReportController(
-            PaymentRepository paymentRepository) {
+            PaymentRepository paymentRepository,
+            PaymentService paymentService) {
 
         this.paymentRepository =
                 paymentRepository;
+        this.paymentService = paymentService;
     }
 
     @GetMapping
@@ -195,6 +201,53 @@ public class CollectionReportController {
         );
 
         return "collections/collection-dashboard";
+    }
+
+    @GetMapping("/handover")
+    public String showHandoverReconciliation(
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate date,
+
+            Model model) {
+
+        LocalDate selectedDate =
+                date != null ? date : LocalDate.now(SRI_LANKA_TIME_ZONE);
+
+        model.addAttribute("selectedDate", selectedDate);
+        model.addAttribute(
+                "handoverRows",
+                paymentService.getHandoverSummaryForDate(selectedDate)
+        );
+
+        return "collections/handover-reconciliation";
+    }
+
+    @PostMapping("/handover/mark-handed-over")
+    public String markHandedOver(
+            @RequestParam Long collectorEmployeeId,
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate date,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            paymentService.markHandedOver(collectorEmployeeId, date);
+
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "Marked as handed over."
+            );
+
+        } catch (IllegalArgumentException exception) {
+
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    exception.getMessage()
+            );
+        }
+
+        return "redirect:/collections/handover?date=" + date;
     }
 
     private String normalizePeriod(

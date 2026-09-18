@@ -55,11 +55,11 @@
 
   var MORE_LINKS = [
     { href: "/products", label: "Products", icon: "📦" },
-    { href: "/purchase-invoices", label: "Purchase Invoices", icon: "📥" },
-    { href: "/inventory", label: "Inventory", icon: "📊" },
+    { href: "/purchase-invoices", label: "Purchase Invoices", icon: "📥" },    { href: "/purchase-invoices/supplier-balance", label: "Supplier Balance", icon: "🏦" },    { href: "/inventory", label: "Inventory", icon: "📊" },
     { href: "/inventory/adjustments", label: "Stock Adjustments", icon: "🛠️" },
     { href: "/cheques", label: "Cheques", icon: "🏦" },
     { href: "/collections", label: "Collections", icon: "📬" },
+    { href: "/collections/handover", label: "Daily Handover", icon: "🧾" },
     { href: "/reports", label: "Reports", icon: "📈" },
     { href: "/employees", label: "Employees", icon: "🧑‍💼" },
     { href: "/vehicles", label: "Vehicles", icon: "🚚" },

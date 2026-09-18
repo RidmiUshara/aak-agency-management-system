@@ -93,6 +93,15 @@ Each shop you sell to is a "Customer" record.
 - Completing a purchase invoice automatically adds the received quantities to warehouse
   stock - you do not need to also do a separate stock adjustment for it.
 
+### 7.1 Supplier Balance (what AAK owes CBL)
+
+**Menu: Supplier Balance**
+
+Shows every completed purchase invoice that hasn't been fully paid to CBL yet, with a running
+total of what's currently owed. Use the small form next to each invoice to record a payment
+made to CBL (cash, cheque or bank transfer) - this reduces that invoice's outstanding balance
+and the overall total owed.
+
 ## 8. Inventory
 
 **Menu: Inventory**
@@ -130,6 +139,10 @@ adjustment for a first-time balance.
 - Cash invoices are automatically marked Paid on completion. Credit invoices stay Outstanding
   until a payment is recorded against them (see Section 10).
 - Every invoice has a printable view for handing a physical copy to the shop.
+- **Credit limit protection**: if completing a credit bill would push the shop's outstanding
+  balance above their approved credit limit, the system blocks it and tells you the shop's
+  credit limit, current outstanding, and how much credit is still available - reduce the bill
+  or collect an outstanding payment first.
 
 ## 10. Payments & Cheques
 
@@ -137,6 +150,9 @@ adjustment for a first-time balance.
 
 - Record any money received from a shop (cash, cheque, or bank transfer) against their
   outstanding invoices.
+- If a sales rep or driver collected the money out in the field (rather than the shop paying
+  at the office directly), select them under **Collected By** on the payment form - this is
+  what feeds the Daily Handover page (Section 11.1).
 - Cheques have their own status tracking (received → banked → cleared/bounced) via the
   **Cheque Dashboard**, so you always know which cheques are still pending clearance.
 
@@ -146,6 +162,16 @@ adjustment for a first-time balance.
 
 The Collection Dashboard gives a daily/weekly/monthly view of money collected, useful for
 end-of-day reconciliation and for seeing collection trends over time.
+
+### 11.1 Daily Handover Reconciliation
+
+**Menu: Daily Handover**
+
+Pick a date to see every sales rep/driver who collected cash or cheques out in the field that
+day, with their totals, so the office can confirm everyone has physically handed in what they
+collected. Once confirmed, click **Mark as Handed Over** for that collector - this is a
+separate step from just recording the payment, so the office always has a clear "still
+pending handover" list at any point in the day.
 
 ## 12. Employees & Vehicles
 

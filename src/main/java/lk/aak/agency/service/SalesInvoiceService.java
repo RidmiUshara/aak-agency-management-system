@@ -356,6 +356,13 @@ public class SalesInvoiceService {
         recalculateInvoiceTotals(invoiceId);
 
         /*
+         * A credit sale is only ever a real commitment once it is completed
+         * (a draft can be built up freely), so the credit limit is enforced
+         * here rather than at draft-save time.
+         */
+        validateCustomerCreditLimit(invoice);
+
+        /*
          * Several invoice rows may contain the same product.
          * Therefore quantities are grouped by product before
          * checking the available stock.

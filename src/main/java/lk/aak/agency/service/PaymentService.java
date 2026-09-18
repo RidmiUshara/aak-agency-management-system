@@ -2,6 +2,7 @@ package lk.aak.agency.service;
 
 import lk.aak.agency.model.Payment;
 import lk.aak.agency.model.SalesInvoice;
+import lk.aak.agency.repository.EmployeeRepository;
 import lk.aak.agency.repository.PaymentRepository;
 import lk.aak.agency.repository.SalesInvoiceRepository;
 import org.springframework.stereotype.Service;
@@ -9,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -32,14 +35,17 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final SalesInvoiceRepository salesInvoiceRepository;
+    private final EmployeeRepository employeeRepository;
 
     public PaymentService(
             PaymentRepository paymentRepository,
-            SalesInvoiceRepository salesInvoiceRepository) {
+            SalesInvoiceRepository salesInvoiceRepository,
+            EmployeeRepository employeeRepository) {
 
         this.paymentRepository = paymentRepository;
         this.salesInvoiceRepository =
                 salesInvoiceRepository;
+        this.employeeRepository = employeeRepository;
     }
 
     public List<Payment> getAllPayments() {
@@ -161,6 +167,24 @@ public class PaymentService {
             payment.setChequeReturnReason(null);
         }
 
+        if (payment.getCollectedByEmployeeId() == null) {
+
+            payment.setCollectedByName(null);
+
+        } else {
+
+            payment.setCollectedByName(
+                    employeeRepository
+                            .findById(payment.getCollectedByEmployeeId())
+                            .map(employee -> employee.getFullName())
+                            .orElseThrow(() ->
+                                    new IllegalArgumentException(
+                                            "Selected collector was not found."
+                                    )
+                            )
+            );
+        }
+
         Payment savedPayment =
                 paymentRepository.save(payment);
 
@@ -175,6 +199,97 @@ public class PaymentService {
         );
 
         return savedPayment;
+    }
+
+    /**
+     * Groups a day's field-collected cash/cheque payments by collector, for the office to
+     * reconcile what was actually handed in against what was collected out in the field.
+     */
+    public List<HandoverSummaryRow> getHandoverSummaryForDate(LocalDate date) {
+
+        Map<Long, HandoverSummaryRow> summaryByCollector = new LinkedHashMap<>();
+
+        for (Payment payment
+                : paymentRepository.findByPaymentDateOrderByPaymentDateDesc(date)) {
+
+            if (payment.getCollectedByEmployeeId() == null) {
+                continue;
+            }
+
+            HandoverSummaryRow row = summaryByCollector.computeIfAbsent(
+                    payment.getCollectedByEmployeeId(),
+                    id -> new HandoverSummaryRow(id, payment.getCollectedByName())
+            );
+
+            BigDecimal amount = zeroIfNull(payment.getAmount());
+
+            if ("CHEQUE".equalsIgnoreCase(payment.getPaymentMethod())) {
+                row.chequeTotal = row.chequeTotal.add(amount);
+            } else {
+                row.cashTotal = row.cashTotal.add(amount);
+            }
+
+            if (!"HANDED_OVER".equalsIgnoreCase(payment.getHandoverStatus())) {
+                row.allHandedOver = false;
+            }
+        }
+
+        return List.copyOf(summaryByCollector.values());
+    }
+
+    @Transactional
+    public void markHandedOver(Long collectedByEmployeeId, LocalDate date) {
+
+        List<Payment> payments =
+                paymentRepository.findByCollectedByEmployeeIdAndPaymentDate(
+                        collectedByEmployeeId, date
+                );
+
+        if (payments.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "No collections were found for this collector on this date."
+            );
+        }
+
+        for (Payment payment : payments) {
+            payment.setHandoverStatus("HANDED_OVER");
+            payment.setHandoverDate(LocalDate.now());
+            paymentRepository.save(payment);
+        }
+    }
+
+    public static class HandoverSummaryRow {
+
+        private final Long collectorEmployeeId;
+        private final String collectorName;
+        private BigDecimal cashTotal = BigDecimal.ZERO;
+        private BigDecimal chequeTotal = BigDecimal.ZERO;
+        private boolean allHandedOver = true;
+
+        public HandoverSummaryRow(Long collectorEmployeeId, String collectorName) {
+            this.collectorEmployeeId = collectorEmployeeId;
+            this.collectorName = collectorName;
+        }
+
+        public Long getCollectorEmployeeId() {
+            return collectorEmployeeId;
+        }
+
+        public String getCollectorName() {
+            return collectorName;
+        }
+
+        public BigDecimal getCashTotal() {
+            return cashTotal;
+        }
+
+        public BigDecimal getChequeTotal() {
+            return chequeTotal;
+        }
+
+        public boolean isAllHandedOver() {
+            return allHandedOver;
+        }
     }
 
     @Transactional

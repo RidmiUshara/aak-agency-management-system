@@ -56,6 +56,12 @@ sign-up. New staff (office, reps, drivers) must be added there before they can l
 - Sales invoice management for cash and credit sales
 - Automatic inventory updates from completed purchase and sales invoices
 - Payment recording for cash, cheque and bank-transfer collections
+- Customer credit limit enforcement - a credit sale is blocked from being completed if it would push a
+  shop's outstanding balance over their approved credit limit
+- Daily Handover Reconciliation - cash/cheques collected in the field by sales reps and drivers,
+  grouped by collector and date, with a "Mark as Handed Over" action once they hand it in to the office
+- CBL Supplier Balance - tracks how much is currently owed to CBL per completed purchase invoice, with
+  a running total and a way to record payments made to CBL against a specific invoice
 - Outstanding-credit and overdue-invoice tracking, cheque status management
 - Daily, weekly and monthly collection reporting
 - Purchase, sales, payment and outstanding-credit reports
@@ -77,7 +83,7 @@ update:
 | 1. Foundation | Login, roles, shops, QR identification, products, employees, vehicles | Done |
 | 2. Inventory | Supplier receipts, stock movements/adjustments | Done - includes a dedicated "Set Opening Stock" entry for initializing a product's starting balance |
 | 3. Distribution | Bills, vehicle loading, vehicle stock, delivery tracking (completed/partial/unsuccessful) | Done - trips can be loaded (confirming actual vs planned quantities) and closed, with a live "what's on each vehicle right now" view |
-| 4. Financial control | Credit blocking rules, daily cash/cheque handover reconciliation, CBL supplier balance | Partial - payments/cheques/collections exist, no formal handover reconciliation report or supplier balance view |
+| 4. Financial control | Credit blocking rules, daily cash/cheque handover reconciliation, CBL supplier balance | Done - completing a credit sale now enforces the customer's credit limit, a Daily Handover page reconciles field-collected cash/cheques per collector, and a Supplier Balance page tracks what's owed to CBL per purchase invoice |
 | 5. Completion | Shop and CBL returns, employee attendance/advances/salary, final reports | Not started |
 
 When picking up new work, check this table first so effort lines up with the agreed stage order.

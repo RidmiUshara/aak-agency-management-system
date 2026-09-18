@@ -3,6 +3,7 @@ package lk.aak.agency.controller;
 import lk.aak.agency.model.Payment;
 import lk.aak.agency.model.SalesInvoice;
 import lk.aak.agency.repository.SalesInvoiceRepository;
+import lk.aak.agency.service.EmployeeService;
 import lk.aak.agency.service.PaymentService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,14 +28,17 @@ public class PaymentController {
 
     private final PaymentService paymentService;
     private final SalesInvoiceRepository salesInvoiceRepository;
+    private final EmployeeService employeeService;
 
     public PaymentController(
             PaymentService paymentService,
-            SalesInvoiceRepository salesInvoiceRepository) {
+            SalesInvoiceRepository salesInvoiceRepository,
+            EmployeeService employeeService) {
 
         this.paymentService = paymentService;
         this.salesInvoiceRepository =
                 salesInvoiceRepository;
+        this.employeeService = employeeService;
     }
 
     @GetMapping
@@ -172,6 +176,11 @@ public class PaymentController {
         model.addAttribute(
                 "balanceByInvoice",
                 balanceByInvoice
+        );
+
+        model.addAttribute(
+                "fieldCollectors",
+                employeeService.getActiveFieldCollectors()
         );
 
         return "payments/payment-form";

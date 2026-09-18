@@ -663,6 +663,23 @@
 
                 <div class="form-group full-width">
 
+                    <label for="collectedByEmployeeId">
+                        Collected By (if collected in the field)
+                    </label>
+
+                    <select id="collectedByEmployeeId"
+                            th:field="*{collectedByEmployeeId}"
+                            class="form-control">
+                        <option value="">Collected directly at the office</option>
+                        <option th:each="collector : ${fieldCollectors}"
+                                th:value="${collector.id}"
+                                th:text="${collector.fullName}"></option>
+                    </select>
+
+                </div>
+
+                <div class="form-group full-width">
+
                     <label for="notes">Notes</label>
 
                     <textarea id="notes"

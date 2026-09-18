@@ -3,9 +3,11 @@ package lk.aak.agency.controller;
 import lk.aak.agency.model.Product;
 import lk.aak.agency.model.PurchaseInvoice;
 import lk.aak.agency.model.PurchaseInvoiceItem;
+import lk.aak.agency.model.SupplierPayment;
 import lk.aak.agency.repository.ProductRepository;
 import lk.aak.agency.service.PurchaseInvoiceFileService;
 import lk.aak.agency.service.PurchaseInvoiceService;
+import lk.aak.agency.service.SupplierPaymentService;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ContentDisposition;
@@ -38,15 +40,18 @@ public class PurchaseInvoiceController {
     private final PurchaseInvoiceService purchaseInvoiceService;
     private final ProductRepository productRepository;
     private final PurchaseInvoiceFileService purchaseInvoiceFileService;
+    private final SupplierPaymentService supplierPaymentService;
 
     public PurchaseInvoiceController(
             PurchaseInvoiceService purchaseInvoiceService,
             ProductRepository productRepository,
-            PurchaseInvoiceFileService purchaseInvoiceFileService) {
+            PurchaseInvoiceFileService purchaseInvoiceFileService,
+            SupplierPaymentService supplierPaymentService) {
 
         this.purchaseInvoiceService = purchaseInvoiceService;
         this.productRepository = productRepository;
         this.purchaseInvoiceFileService = purchaseInvoiceFileService;
+        this.supplierPaymentService = supplierPaymentService;
     }
 
     @GetMapping
@@ -521,6 +526,54 @@ public class PurchaseInvoiceController {
 
             return "redirect:/purchase-invoices/view/" + id;
         }
+    }
+
+    @GetMapping("/supplier-balance")
+    public String showSupplierBalance(Model model) {
+
+        model.addAttribute(
+                "summary",
+                supplierPaymentService.getSupplierBalanceSummary()
+        );
+
+        return "purchase-invoices/supplier-balance";
+    }
+
+    @PostMapping("/supplier-balance/pay")
+    public String recordSupplierPayment(
+            @RequestParam Long purchaseInvoiceId,
+            @RequestParam BigDecimal amount,
+            @RequestParam LocalDate paymentDate,
+            @RequestParam String paymentMethod,
+            @RequestParam(required = false) String referenceNumber,
+            @RequestParam(required = false) String notes,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            SupplierPayment payment = new SupplierPayment();
+            payment.setPurchaseInvoiceId(purchaseInvoiceId);
+            payment.setAmount(amount);
+            payment.setPaymentDate(paymentDate);
+            payment.setPaymentMethod(paymentMethod);
+            payment.setReferenceNumber(referenceNumber);
+            payment.setNotes(notes);
+
+            supplierPaymentService.recordPayment(payment);
+
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "Payment to CBL recorded successfully."
+            );
+
+        } catch (IllegalArgumentException exception) {
+
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    exception.getMessage()
+            );
+        }
+
+        return "redirect:/purchase-invoices/supplier-balance";
     }
 
     private void validateProductLists(

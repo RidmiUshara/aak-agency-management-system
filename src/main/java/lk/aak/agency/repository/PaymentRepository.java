@@ -36,6 +36,11 @@ public interface PaymentRepository
             LocalDate paymentDate
     );
 
+    List<Payment> findByCollectedByEmployeeIdAndPaymentDate(
+            Long collectedByEmployeeId,
+            LocalDate paymentDate
+    );
+
     @Query("""
             SELECT COALESCE(SUM(p.amount), 0)
             FROM Payment p
