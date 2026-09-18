@@ -976,7 +976,7 @@
 
           <p class="user-name"
              th:text="${loggedInName}">
-            Administrator
+            Owner
           </p>
 
           <p class="user-role"
@@ -1009,8 +1009,10 @@
 
         <div>
 
-          <h2 th:text="${'Welcome, ' + loggedInName}">
-            Welcome, Administrator
+          <h2 id="welcomeHeading"
+              th:attr="data-name=${loggedInName}"
+              th:text="${'Welcome, ' + loggedInName}">
+            Welcome, Owner
           </h2>
 
           <p>
@@ -1676,6 +1678,24 @@
                     day: "numeric"
                   }
           );
+
+  const welcomeHeading =
+          document.getElementById("welcomeHeading");
+
+  if (welcomeHeading) {
+
+    const hour = today.getHours();
+
+    const timeGreeting =
+            hour < 12 ? "Good morning"
+                    : hour < 17 ? "Good afternoon"
+                    : "Good evening";
+
+    welcomeHeading.textContent =
+            timeGreeting + ", "
+            + welcomeHeading.dataset.name
+            + "!";
+  }
 </script>
 
   <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>

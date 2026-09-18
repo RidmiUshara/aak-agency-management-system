@@ -32,7 +32,7 @@ services:
       DDL_AUTO: ${DDL_AUTO:-update}
       APP_ADMIN_USERNAME: ${APP_ADMIN_USERNAME:-admin}
       APP_ADMIN_PASSWORD: ${APP_ADMIN_PASSWORD}
-      APP_ADMIN_FULL_NAME: ${APP_ADMIN_FULL_NAME:-AAK Agency Administrator}
+      APP_ADMIN_FULL_NAME: ${APP_ADMIN_FULL_NAME:-AAK Agency Owner}
     volumes:
       - uploads_data:/app/uploads
     networks:

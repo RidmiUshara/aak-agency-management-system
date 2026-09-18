@@ -38,7 +38,7 @@ public class AdminAccountInitializer
             @Value("${APP_ADMIN_PASSWORD:}")
             String adminPassword,
 
-            @Value("${APP_ADMIN_FULL_NAME:AAK Agency Administrator}")
+            @Value("${APP_ADMIN_FULL_NAME:AAK Agency Owner}")
             String adminFullName) {
 
         this.systemUserRepository =
@@ -125,7 +125,7 @@ public class AdminAccountInitializer
         adminUser.setFullName(
                 adminFullName == null
                         || adminFullName.isBlank()
-                        ? "AAK Agency Administrator"
+                        ? "AAK Agency Owner"
                         : adminFullName.trim()
         );
 

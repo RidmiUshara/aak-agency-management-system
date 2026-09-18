@@ -195,6 +195,23 @@
             margin-top: 22px;
         }
 
+        .role-chips {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .role-chip {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            color: #dce8f5;
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 12px;
+        }
+
         @media (max-width: 500px) {
             .login-card {
                 padding: 27px 22px;
@@ -221,7 +238,7 @@
         <h1>AAK Agency</h1>
 
         <p>
-            Distribution Management System
+            Inventory &bull; Sales &bull; Credit &bull; Deliveries &bull; Returns &bull; Employees
         </p>
 
     </section>
@@ -230,10 +247,10 @@
 
         <div class="login-title">
 
-            <h2>Administrator Login</h2>
+            <h2>Welcome Back</h2>
 
             <p>
-                Enter your account details to continue.
+                Sign in with your AAK Agency account to continue.
             </p>
 
         </div>
@@ -307,11 +324,17 @@
         <div class="security-note">
 
             This system is restricted to authorized
-            AAK Agency users only.
+            AAK Agency staff only.
 
         </div>
 
     </section>
+
+    <div class="role-chips">
+        <span class="role-chip">Owner</span>
+        <span class="role-chip">Office</span>
+        <span class="role-chip">Sales Rep</span>
+    </div>
 
     <p class="footer-text">
         © AAK Agency Distribution Management System

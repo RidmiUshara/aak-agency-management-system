@@ -82,7 +82,7 @@ jobs:
           DDL_AUTO=update
           APP_ADMIN_USERNAME=admin
           APP_ADMIN_PASSWORD=dev-admin-change-me
-          APP_ADMIN_FULL_NAME=AAK Agency Administrator
+          APP_ADMIN_FULL_NAME=AAK Agency Owner
           ENV
           fi
           sed -i "s#REPLACE_WITH_ECR_IMAGE#$registry/$ECR_REPOSITORY#" /opt/aak-agency/.env
