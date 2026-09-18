@@ -861,6 +861,11 @@
         Reports
       </a>
 
+      <a th:if="${loggedInRole == 'ADMIN'}" th:href="@{/users}">
+        <span class="nav-icon">US</span>
+        Manage Users
+      </a>
+
     </nav>
 
     <div class="sidebar-footer">

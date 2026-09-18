@@ -10,9 +10,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
- * Roles: ADMIN (full access, only role allowed to delete records),
- * SALES (customers + sales invoices), INVENTORY (products + purchase
- * invoices + stock), ACCOUNTS (payments + cheques + collections).
+ * Roles (per the AAK Agency business proposal's "Access by role" table):
+ * - ADMIN: the Owner/Distributor. Full access; only role allowed to delete
+ *   records or manage other users' logins.
+ * - OFFICE: daily operational staff. Stock, bills, purchasing, payments,
+ *   cheques and collections - everything except user management and deletes.
+ * - SALES_REP: sales representatives. Shops (customers) and bills (sales
+ *   invoices) only - no purchasing, payments or inventory access.
+ * - DRIVER: reserved for drivers/cash collectors. No module access yet -
+ *   the proposal treats this as "optional later access", office enters on
+ *   their behalf for now.
  */
 @Configuration
 @EnableMethodSecurity
@@ -73,33 +80,34 @@ public class SecurityConfig {
                                         .hasRole("ADMIN")
 
                                         /*
-                                         * Sales pipeline: customer records and sales invoices.
+                                         * User account management is an Owner-only function.
+                                         */
+                                        .requestMatchers("/users/**")
+                                        .hasRole("ADMIN")
+
+                                        /*
+                                         * Sales reps only see shops (customers) and bills
+                                         * (sales invoices) - no purchasing/financial access.
                                          */
                                         .requestMatchers(
                                                 "/customers/**",
                                                 "/sales-invoices/**"
                                         )
-                                        .hasAnyRole("ADMIN", "SALES")
+                                        .hasAnyRole("ADMIN", "OFFICE", "SALES_REP")
 
                                         /*
-                                         * Inventory pipeline: products, purchasing and stock.
+                                         * Office-only operational pipeline: purchasing,
+                                         * products, stock and payments/collections.
                                          */
                                         .requestMatchers(
                                                 "/products/**",
                                                 "/purchase-invoices/**",
-                                                "/inventory/**"
-                                        )
-                                        .hasAnyRole("ADMIN", "INVENTORY")
-
-                                        /*
-                                         * Accounts pipeline: payments, cheques and collections.
-                                         */
-                                        .requestMatchers(
+                                                "/inventory/**",
                                                 "/payments/**",
                                                 "/cheques/**",
                                                 "/collections/**"
                                         )
-                                        .hasAnyRole("ADMIN", "ACCOUNTS")
+                                        .hasAnyRole("ADMIN", "OFFICE")
 
                                         /*
                                          * Every other application

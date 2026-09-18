@@ -26,29 +26,41 @@ class RoleBasedAccessControlTest {
     }
 
     @Test
-    void salesRole_canViewCustomers() throws Exception {
-        mockMvc.perform(get("/customers").with(user("sales1").roles("SALES")))
+    void salesRepRole_canViewCustomers() throws Exception {
+        mockMvc.perform(get("/customers").with(user("sales1").roles("SALES_REP")))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void salesRole_isForbiddenFromPayments() throws Exception {
-        mockMvc.perform(get("/payments").with(user("sales1").roles("SALES")))
+    void salesRepRole_isForbiddenFromPayments() throws Exception {
+        mockMvc.perform(get("/payments").with(user("sales1").roles("SALES_REP")))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void accountsRole_canViewPayments() throws Exception {
-        mockMvc.perform(get("/payments").with(user("accounts1").roles("ACCOUNTS")))
+    void officeRole_canViewPayments() throws Exception {
+        mockMvc.perform(get("/payments").with(user("office1").roles("OFFICE")))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void salesRole_cannotDeleteCustomer_evenThoughModuleIsAllowed() throws Exception {
+    void salesRepRole_cannotDeleteCustomer_evenThoughModuleIsAllowed() throws Exception {
         mockMvc.perform(post("/customers/delete/1")
-                        .with(user("sales1").roles("SALES"))
+                        .with(user("sales1").roles("SALES_REP"))
                         .with(csrf()))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void officeRole_isForbiddenFromUserManagement() throws Exception {
+        mockMvc.perform(get("/users").with(user("office1").roles("OFFICE")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void adminRole_canManageUsers() throws Exception {
+        mockMvc.perform(get("/users").with(user("admin1").roles("ADMIN")))
+                .andExpect(status().isOk());
     }
 
     @Test

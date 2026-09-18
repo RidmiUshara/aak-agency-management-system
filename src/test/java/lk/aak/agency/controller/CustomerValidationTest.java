@@ -22,7 +22,7 @@ class CustomerValidationTest {
     @Test
     void saveCustomer_rejectsBlankName_andReturnsToForm() throws Exception {
         mockMvc.perform(post("/customers/save")
-                        .with(user("sales1").roles("SALES"))
+                        .with(user("sales1").roles("SALES_REP"))
                         .with(csrf())
                         .param("customerName", ""))
                 .andExpect(status().isOk())
@@ -32,7 +32,7 @@ class CustomerValidationTest {
     @Test
     void saveCustomer_acceptsValidName_andRedirects() throws Exception {
         mockMvc.perform(post("/customers/save")
-                        .with(user("sales1").roles("SALES"))
+                        .with(user("sales1").roles("SALES_REP"))
                         .with(csrf())
                         .param("customerName", "Valid Test Customer"))
                 .andExpect(status().is3xxRedirection());
