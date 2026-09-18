@@ -178,7 +178,13 @@
     }
 
     buildThemeToggle();
-    buildBottomNav();
+
+    // The bottom nav links to protected pages - don't show it on the public login page.
+    var isLoginPage = (window.location.pathname.replace(/\/$/, "") || "/") === "/login";
+
+    if (!isLoginPage) {
+      buildBottomNav();
+    }
 
     var path = window.location.pathname.replace(/\/$/, "") || "/";
     document.querySelectorAll(".navigation a[href]").forEach(function (link) {

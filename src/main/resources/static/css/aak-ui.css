@@ -570,6 +570,10 @@ label,
   display: none;
 }
 
+.aak-bottom-nav-more-sheet {
+  display: none;
+}
+
 @media (max-width: 900px) {
   body.aak-has-bottom-nav {
     padding-bottom: calc(var(--aak-bottom-nav-height) + 12px);
