@@ -60,7 +60,7 @@ jobs:
           set -e
           mkdir -p /opt/aak-agency/nginx
           if ! command -v docker >/dev/null 2>&1; then
-            dnf install -y docker curl
+            dnf install -y docker
             systemctl enable --now docker
             mkdir -p /usr/local/lib/docker/cli-plugins
             curl -fsSL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 \
