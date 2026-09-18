@@ -49,10 +49,21 @@
       <div><span class="label">Date</span><span class="value" th:text="${supplierReturn.returnDate}"></span></div>
       <div><span class="label">Purchase Invoice</span><span class="value" th:text="${supplierReturn.purchaseInvoiceDocumentNumber != null ? supplierReturn.purchaseInvoiceDocumentNumber : 'Not linked'}"></span></div>
       <div><span class="label">Reason</span><span class="value" th:text="${supplierReturn.reason != null ? supplierReturn.reason : '-'}"></span></div>
+      <div><span class="label">Status</span><span class="value" th:text="${supplierReturn.status}"></span></div>
+    </div>
+
+    <div th:if="${isAdmin and supplierReturn.status == 'PENDING'}" style="display: flex; gap: 10px; margin-top: 16px;">
+      <form method="post" th:action="@{/supplier-returns/{id}/approve(id=${supplierReturn.id})}">
+        <button class="btn btn-add" type="submit">Approve Return</button>
+      </form>
+      <form method="post" th:action="@{/supplier-returns/{id}/reject(id=${supplierReturn.id})}"
+            onsubmit="return confirm('Reject this return?');">
+        <button class="btn" style="background-color:#dc3545;" type="submit">Reject Return</button>
+      </form>
     </div>
   </section>
 
-  <section class="card">
+  <section class="card" th:if="${supplierReturn.status == 'PENDING'}">
     <h3>Add Returned Item</h3>
     <form class="add-form" method="post" th:action="@{/supplier-returns/{id}/items/save(id=${supplierReturn.id})}">
       <select name="productId" required>
@@ -88,7 +99,7 @@
       </tbody>
     </table>
     <div class="empty-message" th:if="${#lists.isEmpty(items)}">
-      No items added yet - each item added here removes stock from the warehouse automatically.
+      No items added yet - stock is only removed from the warehouse once this return is approved.
     </div>
   </section>
 

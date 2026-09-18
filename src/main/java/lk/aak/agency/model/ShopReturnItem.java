@@ -31,6 +31,10 @@ public class ShopReturnItem {
     @Column(name = "amount", precision = 15, scale = 2)
     private BigDecimal amount;
 
+    // SALEABLE / DAMAGED / EXPIRED - only SALEABLE items go back into sellable warehouse stock on approval.
+    @Column(name = "category", nullable = false, length = 20)
+    private String category;
+
     public ShopReturnItem() {
     }
 
@@ -44,6 +48,10 @@ public class ShopReturnItem {
 
         if (unitPrice == null) {
             unitPrice = BigDecimal.ZERO;
+        }
+
+        if (category == null || category.isBlank()) {
+            category = "SALEABLE";
         }
 
         amount = quantity.multiply(unitPrice);
@@ -103,5 +111,13 @@ public class ShopReturnItem {
 
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 }

@@ -6,6 +6,8 @@ import lk.aak.agency.repository.ProductRepository;
 import lk.aak.agency.service.CustomerService;
 import lk.aak.agency.service.ShopReturnService;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -74,6 +76,7 @@ public class ShopReturnController {
     public String view(
             @PathVariable Long id,
             Model model,
+            Authentication authentication,
             RedirectAttributes redirectAttributes) {
 
         ShopReturn shopReturn = shopReturnService.getReturnById(id).orElse(null);
@@ -89,6 +92,11 @@ public class ShopReturnController {
                 "products",
                 productRepository.findAll(Sort.by(Sort.Direction.ASC, "productName"))
         );
+        model.addAttribute(
+                "isAdmin",
+                authentication.getAuthorities().stream()
+                        .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"))
+        );
 
         return "shop-returns/shop-return-view";
     }
@@ -99,11 +107,49 @@ public class ShopReturnController {
             @RequestParam Long productId,
             @RequestParam BigDecimal quantity,
             @RequestParam(required = false) BigDecimal unitPrice,
+            @RequestParam(required = false) String category,
             RedirectAttributes redirectAttributes) {
 
         try {
-            shopReturnService.addItem(id, productId, quantity, unitPrice);
-            redirectAttributes.addFlashAttribute("successMessage", "Item added and stock restocked.");
+            shopReturnService.addItem(id, productId, quantity, unitPrice, category);
+            redirectAttributes.addFlashAttribute("successMessage", "Item added to the return.");
+
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());
+        }
+
+        return "redirect:/shop-returns/view/" + id;
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/{id}/approve")
+    public String approve(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            shopReturnService.approveReturn(id);
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "Return approved - saleable items were restocked to the warehouse."
+            );
+
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());
+        }
+
+        return "redirect:/shop-returns/view/" + id;
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/{id}/reject")
+    public String reject(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            shopReturnService.rejectReturn(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Return rejected.");
 
         } catch (IllegalArgumentException exception) {
             redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());

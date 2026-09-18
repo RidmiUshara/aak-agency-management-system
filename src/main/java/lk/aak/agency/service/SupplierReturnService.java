@@ -79,6 +79,10 @@ public class SupplierReturnService {
         SupplierReturn supplierReturn = supplierReturnRepository.findById(supplierReturnId)
                 .orElseThrow(() -> new IllegalArgumentException("Supplier return was not found."));
 
+        if (!"PENDING".equalsIgnoreCase(supplierReturn.getStatus())) {
+            throw new IllegalArgumentException("Items can only be added to a pending return.");
+        }
+
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Selected product was not found."));
 
@@ -102,21 +106,69 @@ public class SupplierReturnService {
         item.setUnit(product.getUnit());
         item.setUnitPrice(unitPrice == null ? BigDecimal.ZERO : unitPrice);
 
-        SupplierReturnItem savedItem = supplierReturnItemRepository.save(item);
-        supplierReturnItemRepository.flush();
+        return supplierReturnItemRepository.save(item);
+    }
 
-        StockMovement stockMovement = new StockMovement();
-        stockMovement.setProduct(product);
-        stockMovement.setMovementType("SUPPLIER_RETURN");
-        stockMovement.setQuantityChange(quantity.negate());
-        stockMovement.setStockUnit(product.getUnit());
-        stockMovement.setReferenceType("SUPPLIER_RETURN_ITEM");
-        stockMovement.setReferenceItemId(savedItem.getId());
-        stockMovement.setReferenceNumber("SUPR-" + supplierReturn.getId());
-        stockMovement.setNotes("Stock returned to CBL - removed from warehouse.");
+    /**
+     * Owner/office approval - stock is only actually deducted here, re-checked against
+     * current availability (which may have changed since items were added).
+     */
+    @Transactional
+    public void approveReturn(Long supplierReturnId) {
 
-        stockMovementRepository.save(stockMovement);
+        SupplierReturn supplierReturn = supplierReturnRepository.findById(supplierReturnId)
+                .orElseThrow(() -> new IllegalArgumentException("Supplier return was not found."));
 
-        return savedItem;
+        if (!"PENDING".equalsIgnoreCase(supplierReturn.getStatus())) {
+            throw new IllegalArgumentException("Only a pending return can be approved.");
+        }
+
+        List<SupplierReturnItem> items = getItemsForReturn(supplierReturnId);
+
+        if (items.isEmpty()) {
+            throw new IllegalArgumentException("Add at least one item before approving this return.");
+        }
+
+        for (SupplierReturnItem item : items) {
+
+            BigDecimal currentStock = inventoryService.getCurrentStock(item.getProduct().getId());
+
+            if (currentStock.compareTo(item.getQuantity()) < 0) {
+                throw new IllegalArgumentException(
+                        "Cannot approve - " + item.getProduct().getDisplayName()
+                                + " no longer has enough warehouse stock. Available: "
+                                + currentStock.stripTrailingZeros().toPlainString() + "."
+                );
+            }
+
+            StockMovement stockMovement = new StockMovement();
+            stockMovement.setProduct(item.getProduct());
+            stockMovement.setMovementType("SUPPLIER_RETURN");
+            stockMovement.setQuantityChange(item.getQuantity().negate());
+            stockMovement.setStockUnit(item.getUnit());
+            stockMovement.setReferenceType("SUPPLIER_RETURN_ITEM");
+            stockMovement.setReferenceItemId(item.getId());
+            stockMovement.setReferenceNumber("SUPR-" + supplierReturn.getId());
+            stockMovement.setNotes("Stock returned to CBL - removed from warehouse.");
+
+            stockMovementRepository.save(stockMovement);
+        }
+
+        supplierReturn.setStatus("APPROVED");
+        supplierReturnRepository.save(supplierReturn);
+    }
+
+    @Transactional
+    public void rejectReturn(Long supplierReturnId) {
+
+        SupplierReturn supplierReturn = supplierReturnRepository.findById(supplierReturnId)
+                .orElseThrow(() -> new IllegalArgumentException("Supplier return was not found."));
+
+        if (!"PENDING".equalsIgnoreCase(supplierReturn.getStatus())) {
+            throw new IllegalArgumentException("Only a pending return can be rejected.");
+        }
+
+        supplierReturn.setStatus("REJECTED");
+        supplierReturnRepository.save(supplierReturn);
     }
 }

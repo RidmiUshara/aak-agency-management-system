@@ -23,6 +23,10 @@
     th { background-color: #e9eef5; color: #1e3a5f; text-align: left; padding: 15px; white-space: nowrap; }
     td { padding: 14px 15px; border-top: 1px solid #eeeeee; white-space: nowrap; }
     .empty-message { padding: 35px; text-align: center; color: #777777; }
+    .status { display: inline-block; padding: 5px 10px; border-radius: 20px; font-size: 13px; }
+    .status-pending { background-color: #fff3cd; color: #664d03; }
+    .status-approved { background-color: #d1e7dd; color: #0f5132; }
+    .status-rejected { background-color: #f8d7da; color: #842029; }
   </style>
   <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
 </head>
@@ -54,6 +58,7 @@
         <th>Date</th>
         <th>Shop</th>
         <th>Reason</th>
+        <th>Status</th>
         <th>Actions</th>
       </tr>
       </thead>
@@ -62,6 +67,10 @@
         <td th:text="${shopReturn.returnDate}"></td>
         <td th:text="${shopReturn.customerName}"></td>
         <td th:text="${shopReturn.reason != null ? shopReturn.reason : '-'}"></td>
+        <td>
+          <span class="status" th:classappend="'status-' + ${#strings.toLowerCase(shopReturn.status)}"
+                th:text="${shopReturn.status}"></span>
+        </td>
         <td>
           <a class="btn btn-view" th:href="@{/shop-returns/view/{id}(id=${shopReturn.id})}">View</a>
         </td>

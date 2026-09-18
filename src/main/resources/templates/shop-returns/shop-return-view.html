@@ -49,10 +49,21 @@
       <div><span class="label">Date</span><span class="value" th:text="${shopReturn.returnDate}"></span></div>
       <div><span class="label">Shop</span><span class="value" th:text="${shopReturn.customerName}"></span></div>
       <div><span class="label">Reason</span><span class="value" th:text="${shopReturn.reason != null ? shopReturn.reason : '-'}"></span></div>
+      <div><span class="label">Status</span><span class="value" th:text="${shopReturn.status}"></span></div>
+    </div>
+
+    <div th:if="${isAdmin and shopReturn.status == 'PENDING'}" style="display: flex; gap: 10px; margin-top: 16px;">
+      <form method="post" th:action="@{/shop-returns/{id}/approve(id=${shopReturn.id})}">
+        <button class="btn btn-add" type="submit">Approve Return</button>
+      </form>
+      <form method="post" th:action="@{/shop-returns/{id}/reject(id=${shopReturn.id})}"
+            onsubmit="return confirm('Reject this return?');">
+        <button class="btn" style="background-color:#dc3545;" type="submit">Reject Return</button>
+      </form>
     </div>
   </section>
 
-  <section class="card">
+  <section class="card" th:if="${shopReturn.status == 'PENDING'}">
     <h3>Add Returned Item</h3>
     <form class="add-form" method="post" th:action="@{/shop-returns/{id}/items/save(id=${shopReturn.id})}">
       <select name="productId" required>
@@ -61,6 +72,11 @@
       </select>
       <input type="number" name="quantity" step="0.01" min="0.01" placeholder="Quantity" required>
       <input type="number" name="unitPrice" step="0.01" min="0" placeholder="Unit price (optional)">
+      <select name="category" required>
+        <option value="SALEABLE">Saleable (restock on approval)</option>
+        <option value="DAMAGED">Damaged (write-off)</option>
+        <option value="EXPIRED">Expired (write-off)</option>
+      </select>
       <button class="btn btn-add" type="submit">+ Add Item</button>
     </form>
   </section>
@@ -75,6 +91,7 @@
         <th>Unit</th>
         <th>Unit Price</th>
         <th>Amount</th>
+        <th>Category</th>
       </tr>
       </thead>
       <tbody>
@@ -84,11 +101,12 @@
         <td th:text="${item.unit}"></td>
         <td th:text="${'Rs. ' + #numbers.formatDecimal(item.unitPrice, 1, 2)}"></td>
         <td th:text="${'Rs. ' + #numbers.formatDecimal(item.amount, 1, 2)}"></td>
+        <td th:text="${item.category}"></td>
       </tr>
       </tbody>
     </table>
     <div class="empty-message" th:if="${#lists.isEmpty(items)}">
-      No items added yet - each item added here restocks the warehouse automatically.
+      No items added yet - saleable items restock the warehouse only once this return is approved.
     </div>
   </section>
 

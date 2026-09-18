@@ -37,6 +37,10 @@ public class SupplierReturn {
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
+    // PENDING / APPROVED / REJECTED - stock is only deducted once an owner/office approval is recorded.
+    @Column(name = "status", nullable = false, length = 20)
+    private String status;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -48,6 +52,10 @@ public class SupplierReturn {
 
         if (returnDate == null) {
             returnDate = LocalDate.now();
+        }
+
+        if (status == null || status.isBlank()) {
+            status = "PENDING";
         }
 
         if (createdAt == null) {
@@ -109,6 +117,14 @@ public class SupplierReturn {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public LocalDateTime getCreatedAt() {

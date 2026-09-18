@@ -64,10 +64,15 @@ public class ShopReturnService {
     }
 
     @Transactional
-    public ShopReturnItem addItem(Long shopReturnId, Long productId, BigDecimal quantity, BigDecimal unitPrice) {
+    public ShopReturnItem addItem(
+            Long shopReturnId, Long productId, BigDecimal quantity, BigDecimal unitPrice, String category) {
 
         ShopReturn shopReturn = shopReturnRepository.findById(shopReturnId)
                 .orElseThrow(() -> new IllegalArgumentException("Shop return was not found."));
+
+        if (!"PENDING".equalsIgnoreCase(shopReturn.getStatus())) {
+            throw new IllegalArgumentException("Items can only be added to a pending return.");
+        }
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Selected product was not found."));
@@ -76,30 +81,79 @@ public class ShopReturnService {
             throw new IllegalArgumentException("Return quantity must be greater than zero.");
         }
 
+        String normalizedCategory = category == null ? "SALEABLE" : category.trim().toUpperCase();
+
+        if (!java.util.Set.of("SALEABLE", "DAMAGED", "EXPIRED").contains(normalizedCategory)) {
+            throw new IllegalArgumentException("Selected return category is invalid.");
+        }
+
         ShopReturnItem item = new ShopReturnItem();
         item.setShopReturnId(shopReturn.getId());
         item.setProduct(product);
         item.setQuantity(quantity);
         item.setUnit(product.getUnit());
         item.setUnitPrice(unitPrice == null ? BigDecimal.ZERO : unitPrice);
+        item.setCategory(normalizedCategory);
 
-        ShopReturnItem savedItem = shopReturnItemRepository.save(item);
-        shopReturnItemRepository.flush();
+        return shopReturnItemRepository.save(item);
+    }
 
-        StockMovement stockMovement = new StockMovement();
-        stockMovement.setProduct(product);
-        stockMovement.setMovementType("SHOP_RETURN");
-        stockMovement.setQuantityChange(quantity);
-        stockMovement.setStockUnit(product.getUnit());
-        stockMovement.setReferenceType("SHOP_RETURN_ITEM");
-        stockMovement.setReferenceItemId(savedItem.getId());
-        stockMovement.setReferenceNumber("SR-" + shopReturn.getId());
-        stockMovement.setNotes(
-                "Shop return from " + shopReturn.getCustomerName() + " - restocked to warehouse."
-        );
+    /**
+     * Owner/office approval - only now does stock actually move, and only saleable items go
+     * back into sellable warehouse stock. Damaged/expired items stay recorded but written off.
+     */
+    @Transactional
+    public void approveReturn(Long shopReturnId) {
 
-        stockMovementRepository.save(stockMovement);
+        ShopReturn shopReturn = shopReturnRepository.findById(shopReturnId)
+                .orElseThrow(() -> new IllegalArgumentException("Shop return was not found."));
 
-        return savedItem;
+        if (!"PENDING".equalsIgnoreCase(shopReturn.getStatus())) {
+            throw new IllegalArgumentException("Only a pending return can be approved.");
+        }
+
+        List<ShopReturnItem> items = getItemsForReturn(shopReturnId);
+
+        if (items.isEmpty()) {
+            throw new IllegalArgumentException("Add at least one item before approving this return.");
+        }
+
+        for (ShopReturnItem item : items) {
+
+            if (!"SALEABLE".equalsIgnoreCase(item.getCategory())) {
+                continue;
+            }
+
+            StockMovement stockMovement = new StockMovement();
+            stockMovement.setProduct(item.getProduct());
+            stockMovement.setMovementType("SHOP_RETURN");
+            stockMovement.setQuantityChange(item.getQuantity());
+            stockMovement.setStockUnit(item.getUnit());
+            stockMovement.setReferenceType("SHOP_RETURN_ITEM");
+            stockMovement.setReferenceItemId(item.getId());
+            stockMovement.setReferenceNumber("SR-" + shopReturn.getId());
+            stockMovement.setNotes(
+                    "Shop return from " + shopReturn.getCustomerName() + " - restocked to warehouse."
+            );
+
+            stockMovementRepository.save(stockMovement);
+        }
+
+        shopReturn.setStatus("APPROVED");
+        shopReturnRepository.save(shopReturn);
+    }
+
+    @Transactional
+    public void rejectReturn(Long shopReturnId) {
+
+        ShopReturn shopReturn = shopReturnRepository.findById(shopReturnId)
+                .orElseThrow(() -> new IllegalArgumentException("Shop return was not found."));
+
+        if (!"PENDING".equalsIgnoreCase(shopReturn.getStatus())) {
+            throw new IllegalArgumentException("Only a pending return can be rejected.");
+        }
+
+        shopReturn.setStatus("REJECTED");
+        shopReturnRepository.save(shopReturn);
     }
 }
