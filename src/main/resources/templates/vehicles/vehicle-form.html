@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vehicle Form - AAK Agency</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background-color: #f4f6f9; color: #222222; }
+    .header { background-color: #1e3a5f; color: white; padding: 20px 5%; display: flex; align-items: center; justify-content: space-between; }
+    .header a { color: white; text-decoration: none; }
+    .container { width: 90%; max-width: 700px; margin: 35px auto; }
+    .page-heading { margin-bottom: 25px; }
+    .page-heading h2 { color: #1e3a5f; }
+    .form-card { background-color: white; border-radius: 10px; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08); padding: 30px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 7px; font-weight: bold; color: #1e3a5f; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 11px; border: 1px solid #ccd4de; border-radius: 6px; font-size: 14px; font-family: inherit; }
+    .form-actions { display: flex; gap: 12px; margin-top: 25px; }
+    .btn { display: inline-block; border: none; border-radius: 6px; padding: 12px 20px; color: white; text-decoration: none; cursor: pointer; font-size: 14px; }
+    .btn-save { background-color: #198754; }
+    .btn-cancel { background-color: #6c757d; }
+  </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+<body>
+<header class="header">
+  <div>
+    <h1>AAK Agency</h1>
+    <p>Vehicle Management</p>
+  </div>
+  <a th:href="@{/vehicles}">Back to Vehicles</a>
+</header>
+
+<main class="container">
+  <section class="page-heading">
+    <h2 th:text="${pageTitle}">Vehicle Form</h2>
+  </section>
+
+  <section class="form-card">
+    <form method="post" th:action="@{/vehicles/save}" th:object="${vehicle}">
+      <input type="hidden" th:field="*{id}">
+
+      <div class="form-group">
+        <label for="vehicleNumber">Vehicle Number</label>
+        <input id="vehicleNumber" type="text" th:field="*{vehicleNumber}" placeholder="Example: NA-1234" required>
+        <span class="field-error" th:if="${#fields.hasErrors('vehicleNumber')}" th:errors="*{vehicleNumber}"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="vehicleType">Vehicle Type</label>
+        <input id="vehicleType" type="text" th:field="*{vehicleType}" placeholder="Example: Lorry, Three-wheeler">
+      </div>
+
+      <div class="form-group">
+        <label for="capacityNotes">Capacity Notes</label>
+        <input id="capacityNotes" type="text" th:field="*{capacityNotes}" placeholder="Example: 2 tons">
+      </div>
+
+      <div class="form-group">
+        <label for="assignedDriverId">Assigned Driver</label>
+        <select id="assignedDriverId" th:field="*{assignedDriverId}">
+          <option value="">Unassigned</option>
+          <option th:each="driver : ${drivers}" th:value="${driver.id}" th:text="${driver.fullName}"></option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select id="status" th:field="*{status}">
+          <option value="ACTIVE">Active</option>
+          <option value="MAINTENANCE">Maintenance</option>
+          <option value="INACTIVE">Inactive</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="notes">Notes</label>
+        <textarea id="notes" th:field="*{notes}" rows="3" placeholder="Optional notes"></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-save" type="submit">Save Vehicle</button>
+        <a class="btn btn-cancel" th:href="@{/vehicles}">Cancel</a>
+      </div>
+    </form>
+  </section>
+</main>
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>
