@@ -48,12 +48,18 @@
       </div>
 
       <div class="form-group">
-        <label for="routeId">Route</label>
-        <select id="routeId" th:field="*{routeId}" required>
-          <option value="">Select route</option>
+        <label for="routeId">Route (optional)</label>
+        <select id="routeId" th:field="*{routeId}">
+          <option value="">No fixed route today - see area covered below</option>
           <option th:each="route : ${routes}" th:value="${route.id}" th:text="${route.routeName}"></option>
         </select>
         <span class="field-error" th:if="${#fields.hasErrors('routeId')}" th:errors="*{routeId}"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="areaCovered">Area Covered Today (optional)</label>
+        <input id="areaCovered" type="text" th:field="*{areaCovered}" placeholder="e.g. Kandy town + Peradeniya (no fixed route)">
+        <span class="field-error" th:if="${#fields.hasErrors('areaCovered')}" th:errors="*{areaCovered}"></span>
       </div>
 
       <div class="form-group">

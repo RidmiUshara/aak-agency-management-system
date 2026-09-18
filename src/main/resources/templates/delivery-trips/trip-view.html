@@ -50,7 +50,7 @@
     <h3>Trip Details</h3>
     <div class="trip-meta">
       <div><span class="label">Date</span><span class="value" th:text="${trip.tripDate}"></span></div>
-      <div><span class="label">Route</span><span class="value" th:text="${trip.routeName}"></span></div>
+      <div><span class="label">Route</span><span class="value" th:text="${trip.routeName != null ? trip.routeName : (trip.areaCovered != null ? trip.areaCovered : 'Not fixed')}"></span></div>
       <div><span class="label">Vehicle</span><span class="value" th:text="${trip.vehicleNumber}"></span></div>
       <div><span class="label">Driver</span><span class="value" th:text="${trip.driverName != null ? trip.driverName : '-'}"></span></div>
       <div><span class="label">Helper</span><span class="value" th:text="${trip.helperName != null ? trip.helperName : '-'}"></span></div>

@@ -75,7 +75,7 @@
       <tbody>
       <tr th:each="trip : ${trips}">
         <td th:text="${trip.tripDate}"></td>
-        <td th:text="${trip.routeName}"></td>
+        <td th:text="${trip.routeName != null ? trip.routeName : (trip.areaCovered != null ? trip.areaCovered : '-')}"></td>
         <td th:text="${trip.vehicleNumber}"></td>
         <td th:text="${trip.driverName != null ? trip.driverName : '-'}"></td>
         <td th:text="${trip.helperName != null ? trip.helperName : '-'}"></td>

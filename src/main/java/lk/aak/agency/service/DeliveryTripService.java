@@ -55,13 +55,15 @@ public class DeliveryTripService {
 
     public DeliveryTrip saveTrip(DeliveryTrip trip) {
 
-        routeRepository.findById(trip.getRouteId())
-                .ifPresentOrElse(
-                        route -> trip.setRouteName(route.getRouteName()),
-                        () -> {
-                            throw new IllegalArgumentException("Selected route was not found.");
-                        }
-                );
+        if (trip.getRouteId() != null) {
+            trip.setRouteName(
+                    routeRepository.findById(trip.getRouteId())
+                            .map(route -> route.getRouteName())
+                            .orElseThrow(() -> new IllegalArgumentException("Selected route was not found."))
+            );
+        } else {
+            trip.setRouteName(null);
+        }
 
         vehicleRepository.findById(trip.getVehicleId())
                 .ifPresentOrElse(

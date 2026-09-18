@@ -17,12 +17,14 @@ public class DeliveryTrip {
     @Column(name = "trip_date", nullable = false)
     private LocalDate tripDate;
 
-    @NotNull(message = "Route is required.")
-    @Column(name = "route_id", nullable = false)
+    @Column(name = "route_id")
     private Long routeId;
 
     @Column(name = "route_name")
     private String routeName;
+
+    @Column(name = "area_covered")
+    private String areaCovered;
 
     @NotNull(message = "Vehicle is required.")
     @Column(name = "vehicle_id", nullable = false)
@@ -89,6 +91,14 @@ public class DeliveryTrip {
 
     public void setRouteName(String routeName) {
         this.routeName = routeName;
+    }
+
+    public String getAreaCovered() {
+        return areaCovered;
+    }
+
+    public void setAreaCovered(String areaCovered) {
+        this.areaCovered = areaCovered;
     }
 
     public Long getVehicleId() {

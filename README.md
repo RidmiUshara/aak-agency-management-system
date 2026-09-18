@@ -43,7 +43,9 @@ sign-up. New staff (office, reps, drivers) must be added there before they can l
 - Employee records for drivers, helpers, sales reps and office staff
 - Vehicle registry with driver assignment
 - Delivery routes, and delivery trip planning (assign completed bills to a date/route/vehicle, with a
-  computed product loading summary and per-bill delivery status tracking)
+  computed product loading summary and per-bill delivery status tracking). A trip's route is optional -
+  when the vehicle isn't following one of the saved routes that day, the trip can instead carry a free-text
+  "area covered" note
 - Product management with CBL/SKU codes, weights, units and prices
 - Purchase invoice management with original CBL invoice image/PDF upload and verification view
 - Sales invoice management for cash and credit sales
