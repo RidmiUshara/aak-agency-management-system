@@ -61,6 +61,20 @@ jobs:
           mkdir -p /opt/aak-agency/nginx
           curl -fsSL "$DEPLOY_REPOSITORY/docker-compose.yml" -o /opt/aak-agency/docker-compose.yml
           curl -fsSL "$DEPLOY_REPOSITORY/nginx/aak-agency.conf" -o /opt/aak-agency/nginx/aak-agency.conf
+          if [ ! -f /opt/aak-agency/.env ]; then
+            cat > /opt/aak-agency/.env <<'ENV'
+          APP_IMAGE=REPLACE_WITH_ECR_IMAGE
+          APP_IMAGE_TAG=latest
+          MYSQL_ROOT_PASSWORD=dev-root-change-me
+          MYSQL_DATABASE=aak_agency_db
+          MYSQL_USER=aak_app
+          MYSQL_PASSWORD=dev-app-change-me
+          DDL_AUTO=update
+          APP_ADMIN_USERNAME=admin
+          APP_ADMIN_PASSWORD=dev-admin-change-me
+          APP_ADMIN_FULL_NAME=AAK Agency Administrator
+          ENV
+          fi
           sed -i "s#REPLACE_WITH_ECR_IMAGE#$registry/$ECR_REPOSITORY#" /opt/aak-agency/.env
           aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$registry"
           docker compose -f /opt/aak-agency/docker-compose.yml pull app
