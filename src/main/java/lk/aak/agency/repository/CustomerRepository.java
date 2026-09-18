@@ -12,4 +12,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     boolean existsByCustomerCode(String customerCode);
 
     Optional<Customer> findTopByOrderByIdDesc();
+
+    Optional<Customer> findByQrCode(String qrCode);
 }

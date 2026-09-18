@@ -2,8 +2,11 @@ package lk.aak.agency.controller;
 
 import lk.aak.agency.model.Customer;
 import lk.aak.agency.service.CustomerService;
+import lk.aak.agency.service.QrCodeService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Controller
 @RequestMapping("/customers")
@@ -22,9 +26,11 @@ public class CustomerController {
     private static final int PAGE_SIZE = 20;
 
     private final CustomerService customerService;
+    private final QrCodeService qrCodeService;
 
-    public CustomerController(CustomerService customerService) {
+    public CustomerController(CustomerService customerService, QrCodeService qrCodeService) {
         this.customerService = customerService;
+        this.qrCodeService = qrCodeService;
     }
 
     @GetMapping
@@ -124,5 +130,36 @@ public class CustomerController {
         );
 
         return "redirect:/customers";
+    }
+
+    @GetMapping("/{id}/qr-code")
+    public ResponseEntity<byte[]> getShopQrCode(@PathVariable Long id) {
+
+        Customer customer = customerService.getCustomerById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Customer not found."));
+
+        String scanUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/customers/scan/{qrCode}")
+                .buildAndExpand(customer.getQrCode())
+                .toUriString();
+
+        byte[] pngImage = qrCodeService.generatePng(scanUrl);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_PNG)
+                .body(pngImage);
+    }
+
+    @GetMapping("/scan/{qrCode}")
+    public String scanShopQrCode(@PathVariable String qrCode, RedirectAttributes redirectAttributes) {
+
+        Customer customer = customerService.getCustomerByQrCode(qrCode).orElse(null);
+
+        if (customer == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "No shop matches this QR code.");
+            return "redirect:/customers";
+        }
+
+        return "redirect:/customers/" + customer.getId() + "/credit-history";
     }
 }

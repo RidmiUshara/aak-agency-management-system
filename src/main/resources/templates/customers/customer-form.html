@@ -195,6 +195,19 @@
                  readonly>
         </div>
 
+        <div class="form-group" th:if="${customer.id != null}">
+          <label>Shop QR Code</label>
+          <div>
+            <img th:src="@{/customers/{id}/qr-code(id=${customer.id})}"
+                 alt="Shop QR code" width="150" height="150"
+                 style="border: 1px solid #dce3ee; border-radius: 8px; padding: 8px; background: #fff;">
+          </div>
+          <a th:href="@{/customers/{id}/qr-code(id=${customer.id})}" target="_blank"
+             style="display: inline-block; margin-top: 8px; font-size: 13px;">
+            Open / print QR code
+          </a>
+        </div>
+
         <div class="form-group">
           <label>
              Outlet ID
