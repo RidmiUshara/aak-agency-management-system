@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop Return - AAK Agency</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background-color: #f4f6f9; color: #222222; }
+    .header { background-color: #1e3a5f; color: white; padding: 20px 5%; display: flex; align-items: center; justify-content: space-between; }
+    .header a { color: white; text-decoration: none; }
+    .container { width: 92%; max-width: 1100px; margin: 35px auto; display: flex; flex-direction: column; gap: 20px; }
+    .card { background-color: white; border-radius: 10px; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08); padding: 24px; }
+    .card h3 { color: #1e3a5f; margin-bottom: 14px; }
+    .trip-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+    .trip-meta .label { display: block; color: #6c757d; font-size: 12px; text-transform: uppercase; font-weight: bold; }
+    .trip-meta .value { display: block; font-size: 15px; font-weight: bold; color: #1e3a5f; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background-color: #e9eef5; color: #1e3a5f; text-align: left; padding: 12px; white-space: nowrap; }
+    td { padding: 12px; border-top: 1px solid #eeeeee; white-space: nowrap; }
+    .add-form { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+    .add-form select, .add-form input { padding: 9px; border: 1px solid #ccd4de; border-radius: 6px; }
+    .btn { display: inline-block; border: none; border-radius: 6px; padding: 9px 14px; color: white; text-decoration: none; cursor: pointer; font-size: 13px; }
+    .btn-add { background-color: #198754; }
+    .empty-message { padding: 25px; text-align: center; color: #777777; }
+    .message { border-radius: 6px; padding: 13px; }
+    .success-message { background-color: #d1e7dd; color: #0f5132; }
+    .error-message { background-color: #f8d7da; color: #842029; }
+  </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+<body>
+<header class="header">
+  <div>
+    <h1>AAK Agency</h1>
+    <p>Shop Return</p>
+  </div>
+  <a th:href="@{/shop-returns}">Back to Shop Returns</a>
+</header>
+
+<main class="container">
+
+  <div class="message success-message" th:if="${successMessage}" th:text="${successMessage}"></div>
+  <div class="message error-message" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+  <section class="card">
+    <h3>Return Details</h3>
+    <div class="trip-meta">
+      <div><span class="label">Date</span><span class="value" th:text="${shopReturn.returnDate}"></span></div>
+      <div><span class="label">Shop</span><span class="value" th:text="${shopReturn.customerName}"></span></div>
+      <div><span class="label">Reason</span><span class="value" th:text="${shopReturn.reason != null ? shopReturn.reason : '-'}"></span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Add Returned Item</h3>
+    <form class="add-form" method="post" th:action="@{/shop-returns/{id}/items/save(id=${shopReturn.id})}">
+      <select name="productId" required>
+        <option value="">Select product</option>
+        <option th:each="product : ${products}" th:value="${product.id}" th:text="${product.productName}"></option>
+      </select>
+      <input type="number" name="quantity" step="0.01" min="0.01" placeholder="Quantity" required>
+      <input type="number" name="unitPrice" step="0.01" min="0" placeholder="Unit price (optional)">
+      <button class="btn btn-add" type="submit">+ Add Item</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h3>Returned Items</h3>
+    <table th:if="${!#lists.isEmpty(items)}">
+      <thead>
+      <tr>
+        <th>Product</th>
+        <th>Quantity</th>
+        <th>Unit</th>
+        <th>Unit Price</th>
+        <th>Amount</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="item : ${items}">
+        <td th:text="${item.product.productName}"></td>
+        <td th:text="${item.quantity}"></td>
+        <td th:text="${item.unit}"></td>
+        <td th:text="${'Rs. ' + #numbers.formatDecimal(item.unitPrice, 1, 2)}"></td>
+        <td th:text="${'Rs. ' + #numbers.formatDecimal(item.amount, 1, 2)}"></td>
+      </tr>
+      </tbody>
+    </table>
+    <div class="empty-message" th:if="${#lists.isEmpty(items)}">
+      No items added yet - each item added here restocks the warehouse automatically.
+    </div>
+  </section>
+
+</main>
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>

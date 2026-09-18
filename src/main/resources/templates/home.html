@@ -896,6 +896,16 @@
         Vehicle Stock
       </a>
 
+      <a th:href="@{/shop-returns}">
+        <span class="nav-icon">SR</span>
+        Shop Returns
+      </a>
+
+      <a th:href="@{/supplier-returns}">
+        <span class="nav-icon">CR</span>
+        CBL Returns
+      </a>
+
       <a th:if="${loggedInRole == 'ADMIN'}" th:href="@{/users}">
         <span class="nav-icon">US</span>
         Manage Users

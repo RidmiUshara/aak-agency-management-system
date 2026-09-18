@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CBL Returns - AAK Agency</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background-color: #f4f6f9; color: #222222; }
+    .header { background-color: #1e3a5f; color: white; padding: 20px 5%; display: flex; align-items: center; justify-content: space-between; }
+    .header a { color: white; text-decoration: none; }
+    .container { width: 90%; max-width: 1200px; margin: 35px auto; }
+    .page-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .page-heading h2 { color: #1e3a5f; }
+    .btn { display: inline-block; border: none; border-radius: 6px; padding: 11px 16px; color: white; text-decoration: none; cursor: pointer; font-size: 14px; white-space: nowrap; }
+    .btn-add { background-color: #198754; }
+    .btn-view { background-color: #6f42c1; }
+    .message { border-radius: 6px; padding: 13px; margin-bottom: 20px; }
+    .success-message { background-color: #d1e7dd; color: #0f5132; }
+    .error-message { background-color: #f8d7da; color: #842029; }
+    .table-container { background-color: white; border-radius: 10px; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08); overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background-color: #e9eef5; color: #1e3a5f; text-align: left; padding: 15px; white-space: nowrap; }
+    td { padding: 14px 15px; border-top: 1px solid #eeeeee; white-space: nowrap; }
+    .empty-message { padding: 35px; text-align: center; color: #777777; }
+  </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+<body>
+<header class="header">
+  <div>
+    <h1>AAK Agency</h1>
+    <p>CBL Returns</p>
+  </div>
+  <a th:href="@{/}">Back to Dashboard</a>
+</header>
+
+<main class="container">
+  <section class="page-heading">
+    <div>
+      <h2>CBL Returns</h2>
+      <p>Goods sent back to CBL from the warehouse.</p>
+    </div>
+    <a class="btn btn-add" th:href="@{/supplier-returns/new}">+ Record New Return</a>
+  </section>
+
+  <div class="message success-message" th:if="${successMessage}" th:text="${successMessage}"></div>
+  <div class="message error-message" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+  <section class="table-container">
+    <table th:if="${!#lists.isEmpty(returns)}">
+      <thead>
+      <tr>
+        <th>Date</th>
+        <th>Purchase Invoice</th>
+        <th>Reason</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="supplierReturn : ${returns}">
+        <td th:text="${supplierReturn.returnDate}"></td>
+        <td th:text="${supplierReturn.purchaseInvoiceDocumentNumber != null ? supplierReturn.purchaseInvoiceDocumentNumber : '-'}"></td>
+        <td th:text="${supplierReturn.reason != null ? supplierReturn.reason : '-'}"></td>
+        <td>
+          <a class="btn btn-view" th:href="@{/supplier-returns/view/{id}(id=${supplierReturn.id})}">View</a>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <div class="empty-message" th:if="${#lists.isEmpty(returns)}">
+      No CBL returns recorded yet.
+    </div>
+  </section>
+</main>
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>

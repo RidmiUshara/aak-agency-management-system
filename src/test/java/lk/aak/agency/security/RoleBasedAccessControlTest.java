@@ -88,6 +88,18 @@ class RoleBasedAccessControlTest {
     }
 
     @Test
+    void officeRole_canManageReturns() throws Exception {
+        mockMvc.perform(get("/shop-returns").with(user("office1").roles("OFFICE"))).andExpect(status().isOk());
+        mockMvc.perform(get("/supplier-returns").with(user("office1").roles("OFFICE"))).andExpect(status().isOk());
+    }
+
+    @Test
+    void salesRepRole_isForbiddenFromReturns() throws Exception {
+        mockMvc.perform(get("/shop-returns").with(user("sales1").roles("SALES_REP"))).andExpect(status().isForbidden());
+        mockMvc.perform(get("/supplier-returns").with(user("sales1").roles("SALES_REP"))).andExpect(status().isForbidden());
+    }
+
+    @Test
     void adminRole_canReachEveryModule() throws Exception {
         mockMvc.perform(get("/customers").with(user("admin1").roles("ADMIN"))).andExpect(status().isOk());
         mockMvc.perform(get("/products").with(user("admin1").roles("ADMIN"))).andExpect(status().isOk());
