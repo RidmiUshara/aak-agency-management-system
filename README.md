@@ -42,6 +42,8 @@ sign-up. New staff (office, reps, drivers) must be added there before they can l
   opens the shop's record directly when scanned
 - Employee records for drivers, helpers, sales reps and office staff
 - Vehicle registry with driver assignment
+- Delivery routes, and delivery trip planning (assign completed bills to a date/route/vehicle, with a
+  computed product loading summary and per-bill delivery status tracking)
 - Product management with CBL/SKU codes, weights, units and prices
 - Purchase invoice management with original CBL invoice image/PDF upload and verification view
 - Sales invoice management for cash and credit sales
@@ -68,7 +70,7 @@ update:
 |---|---|---|
 | 1. Foundation | Login, roles, shops, QR identification, products, employees, vehicles | Done |
 | 2. Inventory | Supplier receipts, stock movements/adjustments | Mostly done - no dedicated "opening stock" entry screen yet |
-| 3. Distribution | Bills, vehicle loading, vehicle stock, delivery tracking (completed/partial/unsuccessful) | Not started |
+| 3. Distribution | Bills, vehicle loading, vehicle stock, delivery tracking (completed/partial/unsuccessful) | Partial - routes, delivery trip planning, bill assignment and a computed loading summary are done; actual warehouse-to-vehicle stock transfer is not wired up yet |
 | 4. Financial control | Credit blocking rules, daily cash/cheque handover reconciliation, CBL supplier balance | Partial - payments/cheques/collections exist, no formal handover reconciliation report or supplier balance view |
 | 5. Completion | Shop and CBL returns, employee attendance/advances/salary, final reports | Not started |
 
