@@ -61,6 +61,9 @@
     { href: "/cheques", label: "Cheques", icon: "🏦" },
     { href: "/collections", label: "Collections", icon: "📬" },
     { href: "/reports", label: "Reports", icon: "📈" },
+    { href: "/employees", label: "Employees", icon: "🧑‍💼" },
+    { href: "/vehicles", label: "Vehicles", icon: "🚚" },
+    { href: "/users", label: "Manage Users", icon: "🔑" },
     { href: "/account/change-password", label: "Change Password", icon: "🔒" },
     { href: "/logout", label: "Logout", icon: "🚪" }
   ];

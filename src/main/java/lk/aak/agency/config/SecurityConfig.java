@@ -105,7 +105,9 @@ public class SecurityConfig {
                                                 "/inventory/**",
                                                 "/payments/**",
                                                 "/cheques/**",
-                                                "/collections/**"
+                                                "/collections/**",
+                                                "/employees/**",
+                                                "/vehicles/**"
                                         )
                                         .hasAnyRole("ADMIN", "OFFICE")
 

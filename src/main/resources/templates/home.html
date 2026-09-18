@@ -861,6 +861,16 @@
         Reports
       </a>
 
+      <a th:href="@{/employees}">
+        <span class="nav-icon">EM</span>
+        Employees
+      </a>
+
+      <a th:href="@{/vehicles}">
+        <span class="nav-icon">VH</span>
+        Vehicles
+      </a>
+
       <a th:if="${loggedInRole == 'ADMIN'}" th:href="@{/users}">
         <span class="nav-icon">US</span>
         Manage Users
