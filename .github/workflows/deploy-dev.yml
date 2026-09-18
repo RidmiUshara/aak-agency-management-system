@@ -59,6 +59,14 @@ jobs:
           commands=$(cat <<EOF
           set -e
           mkdir -p /opt/aak-agency/nginx
+          if ! command -v docker >/dev/null 2>&1; then
+            dnf install -y docker curl
+            systemctl enable --now docker
+            mkdir -p /usr/local/lib/docker/cli-plugins
+            curl -fsSL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 \
+              -o /usr/local/lib/docker/cli-plugins/docker-compose
+            chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+          fi
           curl -fsSL "$DEPLOY_REPOSITORY/docker-compose.yml" -o /opt/aak-agency/docker-compose.yml
           curl -fsSL "$DEPLOY_REPOSITORY/nginx/aak-agency.conf" -o /opt/aak-agency/nginx/aak-agency.conf
           if [ ! -f /opt/aak-agency/.env ]; then
