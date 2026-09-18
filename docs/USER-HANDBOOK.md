@@ -173,7 +173,7 @@ collected. Once confirmed, click **Mark as Handed Over** for that collector - th
 separate step from just recording the payment, so the office always has a clear "still
 pending handover" list at any point in the day.
 
-## 12. Employees & Vehicles
+## 12. Employees, Vehicles & Payroll
 
 **Menu: Employees** / **Vehicles**
 
@@ -181,6 +181,30 @@ pending handover" list at any point in the day.
   contact details, join date, and status (active/inactive).
 - **Vehicles**: register each delivery vehicle (number, type, capacity notes) and optionally
   assign a regular driver to it.
+
+### 12.1 Attendance
+
+**Menu: Attendance**
+
+Pick a date to see every active employee with their attendance for that day, and mark each
+one Present, Absent, Half Day, or Leave. You can revisit and update any date at any time.
+
+### 12.2 Advances
+
+**Menu: Advances**
+
+Record a salary advance given to a staff member (amount, date, optional notes). It stays
+"Unsettled" until it's deducted from a salary payment (see below).
+
+### 12.3 Salary Payments
+
+**Menu: Salary**
+
+Click **+ Record Salary Payment**, pick the employee, and enter the pay period month and
+gross salary. If that employee has any unsettled advances, they're listed with checkboxes -
+tick the ones to deduct from this payment. The deduction total and net pay are calculated
+automatically from what you ticked (you can't accidentally deduct more than the gross
+salary), and every advance you tick is marked "Settled" once the payment is saved.
 
 ## 13. Routes & Delivery Trips
 
@@ -225,14 +249,32 @@ This page shows, in real time, what is currently loaded onto each vehicle that i
 trip (status = Loaded) - a live answer to "what's on that truck right now?". A trip drops off
 this list automatically once it is closed at the end of the day.
 
-## 14. Reports
+## 14. Shop Returns & CBL Returns
+
+**Menu: Shop Returns** / **CBL Returns**
+
+- **Shop Returns**: when a shop sends goods back (damaged packaging, wrong item, etc.), click
+  **+ Record New Return**, pick the shop and a reason, save, then add each returned product
+  and quantity on the return's page. Each item added automatically restocks the warehouse.
+- **CBL Returns**: when AAK sends goods back to CBL (expired stock, damaged in transit, etc.),
+  click **+ Record New Return**, optionally link it to the original CBL purchase invoice, save,
+  then add each returned product and quantity. Each item added automatically removes that
+  quantity from warehouse stock - the system won't let you return more than what's actually
+  in stock.
+
+Neither type of return automatically changes the money side of the original bill/purchase
+invoice - the office reconciles any refund or credit note with the shop/CBL separately.
+
+## 15. Reports
 
 **Menu: Reports**
 
-The Report Dashboard brings together purchase, sales, payment and outstanding-credit reports
-in one place for management review.
+The Report Dashboard brings together purchase, sales, payment, outstanding-credit and
+inventory reports for a chosen date range, plus a **Returns & Employee Costs** summary:
+total value of shop/CBL returns in that range, the current CBL supplier balance, total
+salary paid in that range, and the current total of unsettled employee advances.
 
-## 15. Everyday tips
+## 16. Everyday tips
 
 - **Dark mode**: use the toggle in the top navigation if you prefer a darker screen.
 - **On mobile**: the app shows a bottom navigation bar with quick access to the most-used
@@ -243,7 +285,7 @@ in one place for management review.
 - **Never share your password.** Each staff member should have their own login so that
   every action in the system can be traced back to the person who did it.
 
-## 16. Getting help
+## 17. Getting help
 
 If you're stuck or think something isn't working as it should, note down:
 

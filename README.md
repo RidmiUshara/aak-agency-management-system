@@ -64,7 +64,12 @@ sign-up. New staff (office, reps, drivers) must be added there before they can l
   a running total and a way to record payments made to CBL against a specific invoice
 - Outstanding-credit and overdue-invoice tracking, cheque status management
 - Daily, weekly and monthly collection reporting
-- Purchase, sales, payment and outstanding-credit reports
+- Purchase, sales, payment and outstanding-credit reports, plus a Returns &amp; Employee Costs summary
+  (shop/CBL returns value, CBL supplier balance, salary paid, outstanding advances)
+- Shop Returns and CBL Returns - goods a shop sends back restock the warehouse, goods sent back to CBL
+  remove stock, each tracked as its own record with per-product line items
+- Employee daily attendance marking (Present/Absent/Half Day/Leave), a salary-advance ledger, and
+  monthly salary payments where the office picks exactly which outstanding advances to deduct
 - Printable invoice and payment receipt views
 - Dark mode, and an app-like bottom navigation bar on mobile
 - Server-side input validation (Bean Validation) with inline form error messages
@@ -84,7 +89,7 @@ update:
 | 2. Inventory | Supplier receipts, stock movements/adjustments | Done - includes a dedicated "Set Opening Stock" entry for initializing a product's starting balance |
 | 3. Distribution | Bills, vehicle loading, vehicle stock, delivery tracking (completed/partial/unsuccessful) | Done - trips can be loaded (confirming actual vs planned quantities) and closed, with a live "what's on each vehicle right now" view |
 | 4. Financial control | Credit blocking rules, daily cash/cheque handover reconciliation, CBL supplier balance | Done - completing a credit sale now enforces the customer's credit limit, a Daily Handover page reconciles field-collected cash/cheques per collector, and a Supplier Balance page tracks what's owed to CBL per purchase invoice |
-| 5. Completion | Shop and CBL returns, employee attendance/advances/salary, final reports | Not started |
+| 5. Completion | Shop and CBL returns, employee attendance/advances/salary, final reports | Done - shop/CBL returns adjust warehouse stock, daily attendance marking, an advance ledger with pick-which-advances-to-deduct salary payments, and a Returns & Employee Costs summary on the Reports dashboard |
 
 When picking up new work, check this table first so effort lines up with the agreed stage order.
 

@@ -4,11 +4,18 @@ import lk.aak.agency.model.Payment;
 import lk.aak.agency.model.Product;
 import lk.aak.agency.model.PurchaseInvoice;
 import lk.aak.agency.model.SalesInvoice;
+import lk.aak.agency.model.ShopReturn;
+import lk.aak.agency.model.SupplierReturn;
 import lk.aak.agency.repository.PaymentRepository;
 import lk.aak.agency.repository.ProductRepository;
 import lk.aak.agency.repository.PurchaseInvoiceRepository;
 import lk.aak.agency.repository.SalesInvoiceRepository;
 import lk.aak.agency.repository.StockMovementRepository;
+import lk.aak.agency.service.EmployeeAdvanceService;
+import lk.aak.agency.service.EmployeeSalaryService;
+import lk.aak.agency.service.ShopReturnService;
+import lk.aak.agency.service.SupplierPaymentService;
+import lk.aak.agency.service.SupplierReturnService;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -47,12 +54,23 @@ public class ReportController {
     private final StockMovementRepository
             stockMovementRepository;
 
+    private final ShopReturnService shopReturnService;
+    private final SupplierReturnService supplierReturnService;
+    private final SupplierPaymentService supplierPaymentService;
+    private final EmployeeSalaryService employeeSalaryService;
+    private final EmployeeAdvanceService employeeAdvanceService;
+
     public ReportController(
             PurchaseInvoiceRepository purchaseInvoiceRepository,
             SalesInvoiceRepository salesInvoiceRepository,
             PaymentRepository paymentRepository,
             ProductRepository productRepository,
-            StockMovementRepository stockMovementRepository) {
+            StockMovementRepository stockMovementRepository,
+            ShopReturnService shopReturnService,
+            SupplierReturnService supplierReturnService,
+            SupplierPaymentService supplierPaymentService,
+            EmployeeSalaryService employeeSalaryService,
+            EmployeeAdvanceService employeeAdvanceService) {
 
         this.purchaseInvoiceRepository =
                 purchaseInvoiceRepository;
@@ -68,6 +86,12 @@ public class ReportController {
 
         this.stockMovementRepository =
                 stockMovementRepository;
+
+        this.shopReturnService = shopReturnService;
+        this.supplierReturnService = supplierReturnService;
+        this.supplierPaymentService = supplierPaymentService;
+        this.employeeSalaryService = employeeSalaryService;
+        this.employeeAdvanceService = employeeAdvanceService;
     }
 
     @GetMapping
@@ -256,7 +280,98 @@ public class ReportController {
                 LocalDateTime.now()
         );
 
+        model.addAttribute(
+                "totalShopReturnsValue",
+                calculateShopReturnsValue(fromDate, toDate)
+        );
+
+        model.addAttribute(
+                "totalSupplierReturnsValue",
+                calculateSupplierReturnsValue(fromDate, toDate)
+        );
+
+        model.addAttribute(
+                "totalOwedToSupplier",
+                supplierPaymentService.getSupplierBalanceSummary().totalOwed()
+        );
+
+        model.addAttribute(
+                "totalSalaryPaid",
+                calculateSalaryPaid(fromDate, toDate)
+        );
+
+        model.addAttribute(
+                "totalOutstandingAdvances",
+                calculateOutstandingAdvances()
+        );
+
         return "reports/report-dashboard";
+    }
+
+    private BigDecimal calculateShopReturnsValue(LocalDate fromDate, LocalDate toDate) {
+
+        BigDecimal total = BigDecimal.ZERO;
+
+        for (ShopReturn shopReturn : shopReturnService.getAllReturns()) {
+
+            if (!isDateWithinRange(shopReturn.getReturnDate(), fromDate, toDate)) {
+                continue;
+            }
+
+            for (var item : shopReturnService.getItemsForReturn(shopReturn.getId())) {
+                total = total.add(item.getAmount());
+            }
+        }
+
+        return total;
+    }
+
+    private BigDecimal calculateSupplierReturnsValue(LocalDate fromDate, LocalDate toDate) {
+
+        BigDecimal total = BigDecimal.ZERO;
+
+        for (SupplierReturn supplierReturn : supplierReturnService.getAllReturns()) {
+
+            if (!isDateWithinRange(supplierReturn.getReturnDate(), fromDate, toDate)) {
+                continue;
+            }
+
+            for (var item : supplierReturnService.getItemsForReturn(supplierReturn.getId())) {
+                total = total.add(item.getAmount());
+            }
+        }
+
+        return total;
+    }
+
+    private BigDecimal calculateSalaryPaid(LocalDate fromDate, LocalDate toDate) {
+
+        BigDecimal total = BigDecimal.ZERO;
+
+        for (var payment : employeeSalaryService.getAllPayments()) {
+
+            if (!isDateWithinRange(payment.getPaymentDate(), fromDate, toDate)) {
+                continue;
+            }
+
+            total = total.add(payment.getNetPaid());
+        }
+
+        return total;
+    }
+
+    private BigDecimal calculateOutstandingAdvances() {
+
+        BigDecimal total = BigDecimal.ZERO;
+
+        for (var advance : employeeAdvanceService.getAllAdvances()) {
+
+            if (!advance.isSettled()) {
+                total = total.add(advance.getAmount());
+            }
+        }
+
+        return total;
     }
 
     private List<PurchaseInvoice>

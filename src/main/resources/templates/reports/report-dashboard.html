@@ -676,6 +676,47 @@
 
     </section>
 
+    <section class="card">
+        <h3 class="card-title">Returns &amp; Employee Costs Summary</h3>
+        <p class="card-description">
+            Shop/CBL returns are totalled for the selected date range above; supplier balance and
+            outstanding advances are always shown as of right now.
+        </p>
+        <div class="summary-grid">
+
+            <div class="summary-card outstanding-summary">
+                <label>Shop Returns (value)</label>
+                <strong th:text="${'Rs. ' + #numbers.formatDecimal(totalShopReturnsValue, 1, 2)}">Rs. 0.00</strong>
+                <small>Goods returned by shops, restocked to warehouse</small>
+            </div>
+
+            <div class="summary-card outstanding-summary">
+                <label>CBL Returns (value)</label>
+                <strong th:text="${'Rs. ' + #numbers.formatDecimal(totalSupplierReturnsValue, 1, 2)}">Rs. 0.00</strong>
+                <small>Goods sent back to CBL from the warehouse</small>
+            </div>
+
+            <div class="summary-card outstanding-summary">
+                <label>Owed to CBL</label>
+                <strong th:text="${'Rs. ' + #numbers.formatDecimal(totalOwedToSupplier, 1, 2)}">Rs. 0.00</strong>
+                <small>Outstanding supplier balance right now</small>
+            </div>
+
+            <div class="summary-card payment-summary">
+                <label>Salary Paid</label>
+                <strong th:text="${'Rs. ' + #numbers.formatDecimal(totalSalaryPaid, 1, 2)}">Rs. 0.00</strong>
+                <small>Net salary paid to staff in this date range</small>
+            </div>
+
+            <div class="summary-card outstanding-summary">
+                <label>Outstanding Advances</label>
+                <strong th:text="${'Rs. ' + #numbers.formatDecimal(totalOutstandingAdvances, 1, 2)}">Rs. 0.00</strong>
+                <small>Given to staff, not yet deducted from salary</small>
+            </div>
+
+        </div>
+    </section>
+
     <section class="card purchase-card">
 
         <h3 class="card-title">Purchase Invoice Report</h3>
