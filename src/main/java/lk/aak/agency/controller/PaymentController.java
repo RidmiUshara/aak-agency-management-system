@@ -5,6 +5,7 @@ import lk.aak.agency.model.SalesInvoice;
 import lk.aak.agency.repository.SalesInvoiceRepository;
 import lk.aak.agency.service.PaymentService;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -329,6 +330,7 @@ public class PaymentController {
         return "redirect:/payments/view/" + id;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/delete/{id}")
     public String deletePayment(
             @PathVariable Long id,

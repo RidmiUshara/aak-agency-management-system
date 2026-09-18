@@ -213,11 +213,15 @@ public class StockAdjustmentService {
         );
 
         stockMovement.setMovementType(
-                "IN".equals(
-                        adjustment.getDirection()
+                "OPENING_STOCK".equals(
+                        adjustment.getAdjustmentType()
                 )
-                        ? "ADJUSTMENT_IN"
-                        : "ADJUSTMENT_OUT"
+                        ? "OPENING_STOCK"
+                        : ("IN".equals(
+                                adjustment.getDirection()
+                        )
+                                ? "ADJUSTMENT_IN"
+                                : "ADJUSTMENT_OUT")
         );
 
         stockMovement.setQuantityChange(
@@ -316,6 +320,7 @@ public class StockAdjustmentService {
                         || normalizedType.equals(
                         "STOCK_CORRECTION_IN"
                 )
+                        || normalizedType.equals("OPENING_STOCK")
                         || normalizedType.equals("OTHER");
 
         if (!validType) {
@@ -332,8 +337,8 @@ public class StockAdjustmentService {
             String adjustmentType,
             String selectedDirection) {
 
-        if ("STOCK_CORRECTION_IN".equals(
-                adjustmentType)) {
+        if ("STOCK_CORRECTION_IN".equals(adjustmentType)
+                || "OPENING_STOCK".equals(adjustmentType)) {
 
             return "IN";
         }

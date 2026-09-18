@@ -62,6 +62,34 @@
 			</artifactId>
 		</dependency>
 
+		<!-- Health checks for container orchestration and uptime monitoring -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>
+				spring-boot-starter-actuator
+			</artifactId>
+		</dependency>
+
+		<!-- Bean Validation for form/request input -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>
+				spring-boot-starter-validation
+			</artifactId>
+		</dependency>
+
+		<!-- QR code generation for shop identification -->
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>core</artifactId>
+			<version>3.5.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>javase</artifactId>
+			<version>3.5.3</version>
+		</dependency>
+
 		<!-- MySQL database driver -->
 		<dependency>
 			<groupId>com.mysql</groupId>
@@ -89,6 +117,29 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Core test support: JUnit 5, Mockito, AssertJ -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>
+				spring-boot-starter-test
+			</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- MockMvc helpers for @WithMockUser and CSRF in security tests -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- In-memory database used only for test-context repository/security tests -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -100,6 +151,13 @@
 				<artifactId>
 					spring-boot-maven-plugin
 				</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>build-info</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 
 		</plugins>

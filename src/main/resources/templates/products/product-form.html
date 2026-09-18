@@ -303,6 +303,8 @@
                         Enter the product code printed on the CBL invoice.
                     </span>
 
+                    <span class="field-error" th:if="${#fields.hasErrors('cblProductCode')}" th:errors="*{cblProductCode}"></span>
+
                 </div>
 
                 <div class="form-group">
@@ -322,6 +324,8 @@
                     <span class="help-text">
                         Enter only the product name. Add its weight separately.
                     </span>
+
+                    <span class="field-error" th:if="${#fields.hasErrors('productName')}" th:errors="*{productName}"></span>
 
                 </div>
 
@@ -430,6 +434,8 @@
                         sales and current stock.
                     </span>
 
+                    <span class="field-error" th:if="${#fields.hasErrors('unit')}" th:errors="*{unit}"></span>
+
                 </div>
 
                 <div class="form-group">
@@ -450,6 +456,8 @@
                     <span class="help-text">
                         Maximum retail price printed on the product.
                     </span>
+
+                    <span class="field-error" th:if="${#fields.hasErrors('mrp')}" th:errors="*{mrp}"></span>
 
                 </div>
 
@@ -472,6 +480,8 @@
                         Normal rate charged for one selected unit.
                     </span>
 
+                    <span class="field-error" th:if="${#fields.hasErrors('standardSellingPrice')}" th:errors="*{standardSellingPrice}"></span>
+
                 </div>
 
                 <div class="form-group">
@@ -493,6 +503,8 @@
                         A low-stock alert will appear when current stock
                         reaches or falls below this quantity.
                     </span>
+
+                    <span class="field-error" th:if="${#fields.hasErrors('reorderLevel')}" th:errors="*{reorderLevel}"></span>
 
                 </div>
 

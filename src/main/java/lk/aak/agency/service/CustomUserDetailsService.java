@@ -2,6 +2,7 @@ package lk.aak.agency.service;
 
 import lk.aak.agency.model.SystemUser;
 import lk.aak.agency.repository.SystemUserRepository;
+import lk.aak.agency.security.LoginAttemptService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,11 +16,15 @@ public class CustomUserDetailsService
     private final SystemUserRepository
             systemUserRepository;
 
+    private final LoginAttemptService loginAttemptService;
+
     public CustomUserDetailsService(
-            SystemUserRepository systemUserRepository) {
+            SystemUserRepository systemUserRepository,
+            LoginAttemptService loginAttemptService) {
 
         this.systemUserRepository =
                 systemUserRepository;
+        this.loginAttemptService = loginAttemptService;
     }
 
     @Override
@@ -45,6 +50,9 @@ public class CustomUserDetailsService
                 )
                 .roles(
                         systemUser.getRole()
+                )
+                .accountLocked(
+                        loginAttemptService.isLocked(systemUser.getUsername())
                 )
                 .disabled(
                         !systemUser.isEnabled()

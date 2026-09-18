@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vehicle Stock - AAK Agency</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background-color: #f4f6f9; color: #222222; }
+    .header { background-color: #1e3a5f; color: white; padding: 20px 5%; display: flex; align-items: center; justify-content: space-between; }
+    .header a { color: white; text-decoration: none; }
+    .container { width: 92%; max-width: 1100px; margin: 35px auto; }
+    .card { background-color: white; border-radius: 10px; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08); padding: 24px; }
+    .card h3 { color: #1e3a5f; margin-bottom: 6px; }
+    .card p { color: #6c757d; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background-color: #e9eef5; color: #1e3a5f; text-align: left; padding: 12px; white-space: nowrap; }
+    td { padding: 12px; border-top: 1px solid #eeeeee; white-space: nowrap; }
+    .empty-message { padding: 25px; text-align: center; color: #777777; }
+  </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+<body>
+<header class="header">
+  <div>
+    <h1>AAK Agency</h1>
+    <p>Vehicle Stock</p>
+  </div>
+  <a th:href="@{/delivery-trips}">Back to Trips</a>
+</header>
+
+<main class="container">
+  <section class="card">
+    <h3>Currently Loaded on Vehicles</h3>
+    <p>
+      Confirmed loaded quantities for trips that have not yet been closed. A trip drops off this list
+      once it is marked Closed at the end of the day.
+    </p>
+    <table th:if="${!#lists.isEmpty(vehicleStockRows)}">
+      <thead>
+      <tr>
+        <th>Vehicle</th>
+        <th>Product</th>
+        <th>Unit</th>
+        <th>Loaded Quantity</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="row : ${vehicleStockRows}">
+        <td th:text="${row.vehicleNumber}"></td>
+        <td th:text="${row.productName}"></td>
+        <td th:text="${row.unit}"></td>
+        <td th:text="${row.loadedQuantity}"></td>
+      </tr>
+      </tbody>
+    </table>
+    <div class="empty-message" th:if="${#lists.isEmpty(vehicleStockRows)}">
+      No vehicles currently have confirmed loaded stock.
+    </div>
+  </section>
+</main>
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>

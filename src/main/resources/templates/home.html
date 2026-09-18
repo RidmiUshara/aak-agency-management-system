@@ -861,6 +861,36 @@
         Reports
       </a>
 
+      <a th:href="@{/employees}">
+        <span class="nav-icon">EM</span>
+        Employees
+      </a>
+
+      <a th:href="@{/vehicles}">
+        <span class="nav-icon">VH</span>
+        Vehicles
+      </a>
+
+      <a th:href="@{/routes}">
+        <span class="nav-icon">RT</span>
+        Routes
+      </a>
+
+      <a th:href="@{/delivery-trips}">
+        <span class="nav-icon">DT</span>
+        Delivery Trips
+      </a>
+
+      <a th:href="@{/delivery-trips/vehicle-stock}">
+        <span class="nav-icon">VS</span>
+        Vehicle Stock
+      </a>
+
+      <a th:if="${loggedInRole == 'ADMIN'}" th:href="@{/users}">
+        <span class="nav-icon">US</span>
+        Manage Users
+      </a>
+
     </nav>
 
     <div class="sidebar-footer">

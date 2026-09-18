@@ -350,6 +350,10 @@
                             Select reason
                         </option>
 
+                        <option value="OPENING_STOCK">
+                            Opening Stock (Initial Balance)
+                        </option>
+
                         <option value="DAMAGED">
                             Damaged Stock
                         </option>
@@ -580,7 +584,8 @@
         const selectedType =
             adjustmentType.value;
 
-        if (selectedType === "STOCK_CORRECTION_IN") {
+        if (selectedType === "STOCK_CORRECTION_IN"
+            || selectedType === "OPENING_STOCK") {
             setAutomaticDirection("IN");
 
         } else if (
@@ -613,6 +618,9 @@
         direction.value =
             directionSelector.value;
     }
+
+    // Re-run the direction lock on load in case a reason was pre-selected (e.g. Opening Stock shortcut).
+    updateDirection();
 
     document.getElementById(
         "adjustmentForm"

@@ -1,0 +1,103 @@
+name: Deploy AAK dev
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ap-southeast-1
+  ECR_REPOSITORY: aak-dev-app
+  DEPLOY_REPOSITORY: https://raw.githubusercontent.com/lakal96/aak-agency-management-system/main/deploy
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout application
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_GITHUB_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker build \
+            --tag "$ECR_REGISTRY/${ECR_REPOSITORY}:${GITHUB_SHA}" \
+            --tag "$ECR_REGISTRY/${ECR_REPOSITORY}:latest" .
+          docker push "$ECR_REGISTRY/${ECR_REPOSITORY}:${GITHUB_SHA}"
+          docker push "$ECR_REGISTRY/${ECR_REPOSITORY}:latest"
+
+      - name: Find dev EC2 instance
+        id: instance
+        run: |
+          instance_id=$(aws ec2 describe-instances \
+            --filters 'Name=tag:Name,Values=aak-dev-app-host' 'Name=instance-state-name,Values=running' \
+            --query 'Reservations[0].Instances[0].InstanceId' --output text)
+          test "$instance_id" != "None"
+          echo "instance_id=$instance_id" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy through SSM
+        env:
+          INSTANCE_ID: ${{ steps.instance.outputs.instance_id }}
+          ACCOUNT_ID: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          registry="${ACCOUNT_ID%%/*}"
+          commands=$(cat <<EOF
+          set -e
+          mkdir -p /opt/aak-agency/nginx
+          if ! rpm -q docker >/dev/null 2>&1; then
+            dnf install -y docker
+          fi
+          systemctl enable --now docker
+          mkdir -p /usr/local/lib/docker/cli-plugins
+          if [ ! -x /usr/local/lib/docker/cli-plugins/docker-compose ]; then
+            curl -fsSL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 \
+              -o /usr/local/lib/docker/cli-plugins/docker-compose
+            chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+          fi
+          curl -fsSL "$DEPLOY_REPOSITORY/docker-compose.yml" -o /opt/aak-agency/docker-compose.yml
+          curl -fsSL "$DEPLOY_REPOSITORY/nginx/aak-agency.conf" -o /opt/aak-agency/nginx/aak-agency.conf
+          if [ ! -f /opt/aak-agency/.env ]; then
+            cat > /opt/aak-agency/.env <<'ENV'
+          APP_IMAGE=REPLACE_WITH_ECR_IMAGE
+          APP_IMAGE_TAG=latest
+          MYSQL_ROOT_PASSWORD=dev-root-change-me
+          MYSQL_DATABASE=aak_agency_db
+          MYSQL_USER=aak_app
+          MYSQL_PASSWORD=dev-app-change-me
+          DDL_AUTO=update
+          APP_ADMIN_USERNAME=admin
+          APP_ADMIN_PASSWORD=dev-admin-change-me
+          APP_ADMIN_FULL_NAME=AAK Agency Administrator
+          ENV
+          fi
+          sed -i "s#REPLACE_WITH_ECR_IMAGE#$registry/$ECR_REPOSITORY#" /opt/aak-agency/.env
+          aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$registry"
+          docker compose -f /opt/aak-agency/docker-compose.yml pull app
+          docker compose -f /opt/aak-agency/docker-compose.yml up -d --remove-orphans
+          EOF
+          )
+          parameters=$(jq -nc --arg commands "$commands" '{commands: [$commands]}')
+          command_id=$(aws ssm send-command \
+            --document-name AWS-RunShellScript \
+            --targets "Key=instanceIds,Values=$INSTANCE_ID" \
+            --parameters "$parameters" \
+            --query 'Command.CommandId' --output text)
+          aws ssm wait command-executed --command-id "$command_id" --instance-id "$INSTANCE_ID" || true
+          result=$(aws ssm get-command-invocation --command-id "$command_id" --instance-id "$INSTANCE_ID")
+          printf '%s\n' "$result" | jq '{Status: .Status, Output: .StandardOutputContent, Error: .StandardErrorContent}'
+          test "$(printf '%s\n' "$result" | jq -r .Status)" = "Success"

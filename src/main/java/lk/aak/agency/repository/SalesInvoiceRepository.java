@@ -27,4 +27,14 @@ public interface SalesInvoiceRepository
     findByCustomerIdOrderByInvoiceDateDesc(
             Long customerId
     );
+
+    /*
+     * Completed bills not yet assigned to any delivery trip - eligible for loading.
+     */
+    List<SalesInvoice> findByStatusAndDeliveryTripIdIsNullOrderByInvoiceDateAsc(String status);
+
+    /*
+     * Bills currently assigned to a given delivery trip.
+     */
+    List<SalesInvoice> findByDeliveryTripIdOrderByIdAsc(Long deliveryTripId);
 }

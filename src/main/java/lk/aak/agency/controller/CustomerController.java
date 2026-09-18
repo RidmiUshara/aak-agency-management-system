@@ -2,30 +2,48 @@ package lk.aak.agency.controller;
 
 import lk.aak.agency.model.Customer;
 import lk.aak.agency.service.CustomerService;
+import lk.aak.agency.service.QrCodeService;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Controller
 @RequestMapping("/customers")
 public class CustomerController {
 
-    private final CustomerService customerService;
+    private static final int PAGE_SIZE = 20;
 
-    public CustomerController(CustomerService customerService) {
+    private final CustomerService customerService;
+    private final QrCodeService qrCodeService;
+
+    public CustomerController(CustomerService customerService, QrCodeService qrCodeService) {
         this.customerService = customerService;
+        this.qrCodeService = qrCodeService;
     }
 
     @GetMapping
-    public String showCustomerList(Model model) {
-        model.addAttribute(
-                "customers",
-                customerService.getAllCustomers()
-        );
+    public String showCustomerList(
+            @RequestParam(defaultValue = "0") int page,
+            Model model) {
+
+        Page<Customer> customerPage = customerService.getCustomers(page, PAGE_SIZE);
+
+        model.addAttribute("customers", customerPage.getContent());
+        model.addAttribute("currentPage", customerPage.getNumber());
+        model.addAttribute("totalPages", customerPage.getTotalPages());
+        model.addAttribute("totalRecords", customerPage.getTotalElements());
 
         return "customers/customer-list";
     }
@@ -65,8 +83,19 @@ public class CustomerController {
 
     @PostMapping("/save")
     public String saveCustomer(
-            Customer customer,
+            @Valid Customer customer,
+            BindingResult bindingResult,
+            Model model,
             RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute(
+                    "pageTitle",
+                    customer.getId() == null ? "Add New Customer" : "Edit Customer"
+            );
+
+            return "customers/customer-form";
+        }
 
         customerService.saveCustomer(customer);
 
@@ -78,6 +107,7 @@ public class CustomerController {
         return "redirect:/customers";
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/delete/{id}")
     public String deleteCustomer(
             @PathVariable Long id,
@@ -100,5 +130,36 @@ public class CustomerController {
         );
 
         return "redirect:/customers";
+    }
+
+    @GetMapping("/{id}/qr-code")
+    public ResponseEntity<byte[]> getShopQrCode(@PathVariable Long id) {
+
+        Customer customer = customerService.getCustomerById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Customer not found."));
+
+        String scanUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/customers/scan/{qrCode}")
+                .buildAndExpand(customer.getQrCode())
+                .toUriString();
+
+        byte[] pngImage = qrCodeService.generatePng(scanUrl);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_PNG)
+                .body(pngImage);
+    }
+
+    @GetMapping("/scan/{qrCode}")
+    public String scanShopQrCode(@PathVariable String qrCode, RedirectAttributes redirectAttributes) {
+
+        Customer customer = customerService.getCustomerByQrCode(qrCode).orElse(null);
+
+        if (customer == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "No shop matches this QR code.");
+            return "redirect:/customers";
+        }
+
+        return "redirect:/customers/" + customer.getId() + "/credit-history";
     }
 }
