@@ -53,6 +53,7 @@ public class StockAdjustmentController {
 
     @GetMapping("/new")
     public String showNewAdjustmentForm(
+            @RequestParam(required = false) String reason,
             Model model) {
 
         StockAdjustment stockAdjustment =
@@ -62,7 +63,15 @@ public class StockAdjustmentController {
                 LocalDateTime.now()
         );
 
-        stockAdjustment.setDirection("OUT");
+        if ("OPENING_STOCK".equalsIgnoreCase(reason)) {
+
+            stockAdjustment.setAdjustmentType("OPENING_STOCK");
+            stockAdjustment.setDirection("IN");
+
+        } else {
+
+            stockAdjustment.setDirection("OUT");
+        }
 
         model.addAttribute(
                 "stockAdjustment",

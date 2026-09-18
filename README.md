@@ -48,9 +48,11 @@ sign-up. New staff (office, reps, drivers) must be added there before they can l
   "area covered" note
 - Product management with CBL/SKU codes, weights, units and prices
 - Purchase invoice management with original CBL invoice image/PDF upload and verification view
+- Inventory tracking with stock movement history, low/out-of-stock alerts, manual stock adjustments
+  (damaged/expired/missing/corrections) and a dedicated "Set Opening Stock" entry for initializing a
+  product's starting balance
 - Sales invoice management for cash and credit sales
 - Automatic inventory updates from completed purchase and sales invoices
-- Stock movement history and manual stock adjustments
 - Payment recording for cash, cheque and bank-transfer collections
 - Outstanding-credit and overdue-invoice tracking, cheque status management
 - Daily, weekly and monthly collection reporting
@@ -71,7 +73,7 @@ update:
 | Stage | Deliverable | Status |
 |---|---|---|
 | 1. Foundation | Login, roles, shops, QR identification, products, employees, vehicles | Done |
-| 2. Inventory | Supplier receipts, stock movements/adjustments | Mostly done - no dedicated "opening stock" entry screen yet |
+| 2. Inventory | Supplier receipts, stock movements/adjustments | Done - includes a dedicated "Set Opening Stock" entry for initializing a product's starting balance |
 | 3. Distribution | Bills, vehicle loading, vehicle stock, delivery tracking (completed/partial/unsuccessful) | Partial - routes, delivery trip planning, bill assignment and a computed loading summary are done; actual warehouse-to-vehicle stock transfer is not wired up yet |
 | 4. Financial control | Credit blocking rules, daily cash/cheque handover reconciliation, CBL supplier balance | Partial - payments/cheques/collections exist, no formal handover reconciliation report or supplier balance view |
 | 5. Completion | Shop and CBL returns, employee attendance/advances/salary, final reports | Not started |
