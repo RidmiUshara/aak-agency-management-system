@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delivery Trip Form - AAK Agency</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background-color: #f4f6f9; color: #222222; }
+    .header { background-color: #1e3a5f; color: white; padding: 20px 5%; display: flex; align-items: center; justify-content: space-between; }
+    .header a { color: white; text-decoration: none; }
+    .container { width: 90%; max-width: 700px; margin: 35px auto; }
+    .page-heading { margin-bottom: 25px; }
+    .page-heading h2 { color: #1e3a5f; }
+    .form-card { background-color: white; border-radius: 10px; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08); padding: 30px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 7px; font-weight: bold; color: #1e3a5f; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 11px; border: 1px solid #ccd4de; border-radius: 6px; font-size: 14px; font-family: inherit; }
+    .form-actions { display: flex; gap: 12px; margin-top: 25px; }
+    .btn { display: inline-block; border: none; border-radius: 6px; padding: 12px 20px; color: white; text-decoration: none; cursor: pointer; font-size: 14px; }
+    .btn-save { background-color: #198754; }
+    .btn-cancel { background-color: #6c757d; }
+  </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+<body>
+<header class="header">
+  <div>
+    <h1>AAK Agency</h1>
+    <p>Delivery Trips</p>
+  </div>
+  <a th:href="@{/delivery-trips}">Back to Trips</a>
+</header>
+
+<main class="container">
+  <section class="page-heading">
+    <h2 th:text="${pageTitle}">Delivery Trip Form</h2>
+  </section>
+
+  <section class="form-card">
+    <form method="post" th:action="@{/delivery-trips/save}" th:object="${trip}">
+      <input type="hidden" th:field="*{id}">
+
+      <div class="form-group">
+        <label for="tripDate">Trip Date</label>
+        <input id="tripDate" type="date" th:field="*{tripDate}" required>
+        <span class="field-error" th:if="${#fields.hasErrors('tripDate')}" th:errors="*{tripDate}"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="routeId">Route</label>
+        <select id="routeId" th:field="*{routeId}" required>
+          <option value="">Select route</option>
+          <option th:each="route : ${routes}" th:value="${route.id}" th:text="${route.routeName}"></option>
+        </select>
+        <span class="field-error" th:if="${#fields.hasErrors('routeId')}" th:errors="*{routeId}"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="vehicleId">Vehicle</label>
+        <select id="vehicleId" th:field="*{vehicleId}" required>
+          <option value="">Select vehicle</option>
+          <option th:each="vehicle : ${vehicles}" th:value="${vehicle.id}" th:text="${vehicle.vehicleNumber}"></option>
+        </select>
+        <span class="field-error" th:if="${#fields.hasErrors('vehicleId')}" th:errors="*{vehicleId}"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="driverEmployeeId">Driver</label>
+        <select id="driverEmployeeId" th:field="*{driverEmployeeId}">
+          <option value="">Unassigned</option>
+          <option th:each="driver : ${drivers}" th:value="${driver.id}" th:text="${driver.fullName}"></option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="helperEmployeeId">Helper</label>
+        <select id="helperEmployeeId" th:field="*{helperEmployeeId}">
+          <option value="">Unassigned</option>
+          <option th:each="helper : ${helpers}" th:value="${helper.id}" th:text="${helper.fullName}"></option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select id="status" th:field="*{status}">
+          <option value="PLANNED">Planned</option>
+          <option value="LOADED">Loaded</option>
+          <option value="CLOSED">Closed</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="notes">Notes</label>
+        <textarea id="notes" th:field="*{notes}" rows="3" placeholder="Optional notes"></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-save" type="submit">Save Trip</button>
+        <a class="btn btn-cancel" th:href="@{/delivery-trips}">Cancel</a>
+      </div>
+    </form>
+  </section>
+</main>
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>

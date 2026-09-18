@@ -67,6 +67,14 @@ public class SalesInvoice {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    // Set once this bill is assigned to a delivery trip (Stage 3: Distribution). Null = not yet assigned.
+    @Column(name = "delivery_trip_id")
+    private Long deliveryTripId;
+
+    // PENDING / COMPLETED / PARTIAL / UNSUCCESSFUL - only meaningful once deliveryTripId is set.
+    @Column(name = "delivery_status")
+    private String deliveryStatus;
+
     public SalesInvoice() {
     }
 
@@ -228,5 +236,21 @@ public class SalesInvoice {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Long getDeliveryTripId() {
+        return deliveryTripId;
+    }
+
+    public void setDeliveryTripId(Long deliveryTripId) {
+        this.deliveryTripId = deliveryTripId;
+    }
+
+    public String getDeliveryStatus() {
+        return deliveryStatus;
+    }
+
+    public void setDeliveryStatus(String deliveryStatus) {
+        this.deliveryStatus = deliveryStatus;
     }
 }

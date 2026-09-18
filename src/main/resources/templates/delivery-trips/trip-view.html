@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delivery Trip - AAK Agency</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background-color: #f4f6f9; color: #222222; }
+    .header { background-color: #1e3a5f; color: white; padding: 20px 5%; display: flex; align-items: center; justify-content: space-between; }
+    .header a { color: white; text-decoration: none; }
+    .container { width: 92%; max-width: 1300px; margin: 35px auto; display: flex; flex-direction: column; gap: 22px; }
+    .card { background-color: white; border-radius: 10px; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08); padding: 24px; }
+    .card h3 { color: #1e3a5f; margin-bottom: 14px; }
+    .trip-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+    .trip-meta div span { display: block; }
+    .trip-meta .label { color: #6c757d; font-size: 12px; text-transform: uppercase; font-weight: bold; }
+    .trip-meta .value { font-size: 15px; font-weight: bold; color: #1e3a5f; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background-color: #e9eef5; color: #1e3a5f; text-align: left; padding: 12px; white-space: nowrap; }
+    td { padding: 12px; border-top: 1px solid #eeeeee; white-space: nowrap; vertical-align: middle; }
+    .btn { display: inline-block; border: none; border-radius: 6px; padding: 8px 14px; color: white; text-decoration: none; cursor: pointer; font-size: 13px; white-space: nowrap; }
+    .btn-add { background-color: #198754; }
+    .btn-remove { background-color: #dc3545; }
+    .message { border-radius: 6px; padding: 13px; margin-bottom: 0; }
+    .success-message { background-color: #d1e7dd; color: #0f5132; }
+    .error-message { background-color: #f8d7da; color: #842029; }
+    .assign-form { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+    .assign-form select { padding: 9px; border: 1px solid #ccd4de; border-radius: 6px; min-width: 260px; }
+    .status-select { padding: 6px; border: 1px solid #ccd4de; border-radius: 6px; }
+    .empty-message { padding: 25px; text-align: center; color: #777777; }
+  </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+<body>
+<header class="header">
+  <div>
+    <h1>AAK Agency</h1>
+    <p>Delivery Trip</p>
+  </div>
+  <a th:href="@{/delivery-trips}">Back to Trips</a>
+</header>
+
+<main class="container">
+
+  <div class="message success-message" th:if="${successMessage}" th:text="${successMessage}"></div>
+  <div class="message error-message" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+  <section class="card">
+    <h3>Trip Details</h3>
+    <div class="trip-meta">
+      <div><span class="label">Date</span><span class="value" th:text="${trip.tripDate}"></span></div>
+      <div><span class="label">Route</span><span class="value" th:text="${trip.routeName}"></span></div>
+      <div><span class="label">Vehicle</span><span class="value" th:text="${trip.vehicleNumber}"></span></div>
+      <div><span class="label">Driver</span><span class="value" th:text="${trip.driverName != null ? trip.driverName : '-'}"></span></div>
+      <div><span class="label">Helper</span><span class="value" th:text="${trip.helperName != null ? trip.helperName : '-'}"></span></div>
+      <div><span class="label">Status</span><span class="value" th:text="${trip.status}"></span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Assign a Bill to This Trip</h3>
+    <form class="assign-form" method="post" th:action="@{/delivery-trips/{id}/assign-invoice(id=${trip.id})}">
+      <select name="invoiceId" required>
+        <option value="">Select an unassigned completed bill</option>
+        <option th:each="invoice : ${unassignedInvoices}" th:value="${invoice.id}"
+                th:text="${invoice.invoiceNumber + ' - ' + invoice.customer.customerName}"></option>
+      </select>
+      <button class="btn btn-add" type="submit">+ Assign</button>
+    </form>
+    <p th:if="${#lists.isEmpty(unassignedInvoices)}" style="color: #6c757d;">
+      No completed bills are currently unassigned.
+    </p>
+  </section>
+
+  <section class="card">
+    <h3>Bills Assigned to This Trip</h3>
+    <table th:if="${!#lists.isEmpty(assignedInvoices)}">
+      <thead>
+      <tr>
+        <th>Invoice #</th>
+        <th>Shop</th>
+        <th>Net Amount</th>
+        <th>Delivery Status</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="invoice : ${assignedInvoices}">
+        <td th:text="${invoice.invoiceNumber}"></td>
+        <td th:text="${invoice.customer.customerName}"></td>
+        <td th:text="${'Rs. ' + #numbers.formatDecimal(invoice.netAmount != null ? invoice.netAmount : 0, 1, 2)}"></td>
+        <td>
+          <form method="post" th:action="@{/delivery-trips/{id}/delivery-status(id=${trip.id})}" style="display:flex; gap:8px;">
+            <input type="hidden" name="invoiceId" th:value="${invoice.id}">
+            <select class="status-select" name="deliveryStatus" onchange="this.form.submit()">
+              <option value="PENDING" th:selected="${invoice.deliveryStatus == 'PENDING'}">Pending</option>
+              <option value="COMPLETED" th:selected="${invoice.deliveryStatus == 'COMPLETED'}">Completed</option>
+              <option value="PARTIAL" th:selected="${invoice.deliveryStatus == 'PARTIAL'}">Partial</option>
+              <option value="UNSUCCESSFUL" th:selected="${invoice.deliveryStatus == 'UNSUCCESSFUL'}">Unsuccessful</option>
+            </select>
+          </form>
+        </td>
+        <td>
+          <form method="post" th:action="@{/delivery-trips/{id}/remove-invoice(id=${trip.id})}"
+                onsubmit="return confirm('Remove this bill from the trip?');">
+            <input type="hidden" name="invoiceId" th:value="${invoice.id}">
+            <button class="btn btn-remove" type="submit">Remove</button>
+          </form>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <div class="empty-message" th:if="${#lists.isEmpty(assignedInvoices)}">
+      No bills assigned yet.
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Loading Summary</h3>
+    <p style="color: #6c757d; margin-bottom: 14px;">
+      Combined product quantities across all bills assigned to this trip - check this against what is
+      actually loaded onto the vehicle.
+    </p>
+    <table th:if="${!#lists.isEmpty(loadingSummary)}">
+      <thead>
+      <tr>
+        <th>Product</th>
+        <th>Unit</th>
+        <th>Planned Quantity</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="row : ${loadingSummary}">
+        <td th:text="${row.productName}"></td>
+        <td th:text="${row.unit}"></td>
+        <td th:text="${row.plannedQuantity}"></td>
+      </tr>
+      </tbody>
+    </table>
+    <div class="empty-message" th:if="${#lists.isEmpty(loadingSummary)}">
+      No bills assigned yet, so there is nothing to load.
+    </div>
+  </section>
+
+</main>
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>

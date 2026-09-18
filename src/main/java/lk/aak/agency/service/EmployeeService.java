@@ -25,6 +25,10 @@ public class EmployeeService {
         return employeeRepository.findByDesignationAndStatus("DRIVER", "ACTIVE");
     }
 
+    public List<Employee> getActiveHelpers() {
+        return employeeRepository.findByDesignationAndStatus("HELPER", "ACTIVE");
+    }
+
     public Optional<Employee> getEmployeeById(Long id) {
         return employeeRepository.findById(id);
     }
