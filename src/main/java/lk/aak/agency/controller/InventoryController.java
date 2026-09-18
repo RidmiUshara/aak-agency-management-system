@@ -73,6 +73,19 @@ public class InventoryController {
                 outOfStockProducts.size()
         );
 
+        List<InventoryService.ExpiringProductRow> expiringSoonProducts =
+                inventoryService.getExpiringSoonProducts();
+
+        model.addAttribute(
+                "expiringSoonProducts",
+                expiringSoonProducts
+        );
+
+        model.addAttribute(
+                "totalExpiringSoonProducts",
+                expiringSoonProducts.size()
+        );
+
         return "inventory/inventory-list";
     }
 }

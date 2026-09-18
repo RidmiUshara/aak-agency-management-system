@@ -895,6 +895,17 @@
 
                 </div>
 
+                <div class="form-group">
+
+                    <label for="expiryDateInput">
+                        Expiry Date (optional)
+                    </label>
+
+                    <input id="expiryDateInput"
+                           type="date">
+
+                </div>
+
                 <button class="add-product-button"
                         type="button"
                         onclick="addProduct()">
@@ -941,6 +952,7 @@
                         <th>Unit</th>
                         <th>Purchase Rate</th>
                         <th>Amount</th>
+                        <th>Expiry Date</th>
                         <th>Action</th>
                     </tr>
                     </thead>
@@ -993,6 +1005,10 @@
                             Rs. 0.00
                         </td>
 
+                        <td th:text="${item.expiryDate != null ? item.expiryDate : '-'}">
+                            -
+                        </td>
+
                         <td>
                             <button class="remove-button"
                                     type="button"
@@ -1011,6 +1027,10 @@
                             <input type="hidden"
                                    name="unitPrices"
                                    th:value="${item.unitPrice}">
+
+                            <input type="hidden"
+                                   name="expiryDates"
+                                   th:value="${item.expiryDate}">
                         </td>
 
                     </tr>
@@ -1338,6 +1358,11 @@
                 "priceInput"
             );
 
+        const expiryDateInput =
+            document.getElementById(
+                "expiryDateInput"
+            );
+
         if (!selectedOption || !selectedOption.value) {
             alert("Please select a product.");
             selector.focus();
@@ -1459,6 +1484,13 @@
 
         amountCell.className = "amount-cell";
 
+        const expiryDate = expiryDateInput.value || "";
+
+        appendTextCell(
+            row,
+            expiryDate ? expiryDate : "-"
+        );
+
         const actionCell =
             document.createElement("td");
 
@@ -1498,6 +1530,12 @@
             unitPrice.toFixed(2)
         );
 
+        appendHiddenInput(
+            actionCell,
+            "expiryDates",
+            expiryDate
+        );
+
         row.appendChild(actionCell);
 
         document.getElementById(
@@ -1507,6 +1545,7 @@
         selector.value = "";
         quantityInput.value = "";
         priceInput.value = "";
+        expiryDateInput.value = "";
 
         hideSelectedProduct();
         updateEmptyMessage();

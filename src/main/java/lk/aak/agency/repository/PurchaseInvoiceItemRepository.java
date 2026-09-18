@@ -11,5 +11,8 @@ public interface PurchaseInvoiceItemRepository
     List<PurchaseInvoiceItem>
     findByPurchaseInvoiceIdOrderByIdAsc(Long purchaseInvoiceId);
 
+    List<PurchaseInvoiceItem>
+    findByProductIdAndExpiryDateIsNotNullOrderByExpiryDateAsc(Long productId);
+
     void deleteByPurchaseInvoiceId(Long purchaseInvoiceId);
 }

@@ -1,13 +1,16 @@
 package lk.aak.agency.service;
 
 import lk.aak.agency.model.Product;
+import lk.aak.agency.model.PurchaseInvoiceItem;
 import lk.aak.agency.model.StockMovement;
 import lk.aak.agency.repository.ProductRepository;
+import lk.aak.agency.repository.PurchaseInvoiceItemRepository;
 import lk.aak.agency.repository.StockMovementRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,13 +21,16 @@ public class InventoryService {
 
     private final ProductRepository productRepository;
     private final StockMovementRepository stockMovementRepository;
+    private final PurchaseInvoiceItemRepository purchaseInvoiceItemRepository;
 
     public InventoryService(
             ProductRepository productRepository,
-            StockMovementRepository stockMovementRepository) {
+            StockMovementRepository stockMovementRepository,
+            PurchaseInvoiceItemRepository purchaseInvoiceItemRepository) {
 
         this.productRepository = productRepository;
         this.stockMovementRepository = stockMovementRepository;
+        this.purchaseInvoiceItemRepository = purchaseInvoiceItemRepository;
     }
 
     public List<Product> getAllProducts() {
@@ -193,6 +199,62 @@ public class InventoryService {
                 .findByProductIdOrderByMovementDateDesc(
                         productId
                 );
+    }
+
+    /**
+     * Products that currently have stock and a received batch expiring within the next
+     * 30 days (or already expired). This is an approximation, not batch-level tracking -
+     * it flags the product for a physical check rather than pinpointing exact remaining
+     * quantity of that specific batch, since stock is not tracked per batch/lot.
+     */
+    public List<ExpiringProductRow> getExpiringSoonProducts() {
+
+        LocalDate alertCutoff = LocalDate.now().plusDays(30);
+
+        List<ExpiringProductRow> expiringProducts = new ArrayList<>();
+
+        for (Product product : getAllProducts()) {
+
+            if (!isActiveProduct(product)) {
+                continue;
+            }
+
+            BigDecimal currentStock = getCurrentStock(product.getId());
+
+            if (currentStock.compareTo(BigDecimal.ZERO) <= 0) {
+                continue;
+            }
+
+            List<PurchaseInvoiceItem> receivedBatches =
+                    purchaseInvoiceItemRepository
+                            .findByProductIdAndExpiryDateIsNotNullOrderByExpiryDateAsc(
+                                    product.getId()
+                            );
+
+            if (receivedBatches.isEmpty()) {
+                continue;
+            }
+
+            LocalDate earliestExpiry = receivedBatches.get(0).getExpiryDate();
+
+            if (earliestExpiry.isBefore(alertCutoff)) {
+                expiringProducts.add(
+                        new ExpiringProductRow(product, earliestExpiry, currentStock)
+                );
+            }
+        }
+
+        return expiringProducts;
+    }
+
+    public record ExpiringProductRow(
+            Product product,
+            LocalDate earliestExpiryDate,
+            BigDecimal currentStock) {
+
+        public boolean isAlreadyExpired() {
+            return earliestExpiryDate.isBefore(LocalDate.now());
+        }
     }
 
     private boolean isActiveProduct(Product product) {

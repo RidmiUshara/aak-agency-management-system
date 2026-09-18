@@ -1121,6 +1121,16 @@
                            required>
                 </div>
 
+                <div class="form-group">
+                    <label for="expiryDate">
+                        Expiry Date (optional)
+                    </label>
+
+                    <input id="expiryDate"
+                           name="expiryDate"
+                           type="date">
+                </div>
+
                 <button class="button add-button"
                         type="submit">
                     + Add Product
@@ -1178,6 +1188,7 @@
                     <th>Unit</th>
                     <th>Purchase Rate</th>
                     <th>Amount</th>
+                    <th>Expiry Date</th>
 
                     <th class="action-column"
                         th:if="${invoice.status != 'COMPLETED'}">
@@ -1231,6 +1242,10 @@
                         th:text="${'Rs. ' +
                         #numbers.formatDecimal(item.amount, 1, 2)}">
                         Rs. 0.00
+                    </td>
+
+                    <td th:text="${item.expiryDate != null ? item.expiryDate : '-'}">
+                        -
                     </td>
 
                     <td class="action-column"

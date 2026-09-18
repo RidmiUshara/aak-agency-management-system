@@ -3,6 +3,7 @@ package lk.aak.agency.model;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "purchase_invoice_items")
@@ -62,6 +63,10 @@ public class PurchaseInvoiceItem {
     )
     private BigDecimal amount;
 
+    // Optional - the expiry date of this specific received batch, if known.
+    @Column(name = "expiry_date")
+    private LocalDate expiryDate;
+
     public PurchaseInvoiceItem() {
     }
 
@@ -116,6 +121,14 @@ public class PurchaseInvoiceItem {
 
     public Product getProduct() {
         return product;
+    }
+
+    public LocalDate getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(LocalDate expiryDate) {
+        this.expiryDate = expiryDate;
     }
 
     public void setProduct(Product product) {

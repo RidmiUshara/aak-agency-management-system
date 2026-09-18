@@ -451,6 +451,16 @@
 
         </div>
 
+        <div class="summary-card out">
+
+            <label>Expiring Soon</label>
+
+            <strong th:text="${totalExpiringSoonProducts}">
+                0
+            </strong>
+
+        </div>
+
     </div>
 
     <section class="card alert-card"
@@ -558,6 +568,60 @@
          th:if="${#lists.isEmpty(lowStockProducts)}">
         All active products are above their reorder levels.
     </div>
+
+    <section class="card alert-card"
+             th:if="${!#lists.isEmpty(expiringSoonProducts)}">
+
+        <h3 class="card-title">Expiring Soon</h3>
+
+        <p class="alert-description">
+            Products currently in stock with a received batch expiring within 30 days (or
+            already expired), based on expiry dates entered on purchase invoices. This is a
+            product-level flag for a physical check, not exact remaining quantity of that batch.
+        </p>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+                <tr>
+                    <th>CBL Code</th>
+                    <th>Product</th>
+                    <th>Current Stock</th>
+                    <th>Earliest Expiry</th>
+                    <th>Alert</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                <tr th:each="row : ${expiringSoonProducts}">
+
+                    <td class="product-code" th:text="${row.product.cblProductCode}">-</td>
+                    <td class="product-name" th:text="${row.product.productName}">-</td>
+
+                    <td class="stock-quantity"
+                        th:text="${#numbers.formatDecimal(row.currentStock, 1, 2) + ' ' + row.product.unit}">
+                        0.00 PKT
+                    </td>
+
+                    <td th:text="${row.earliestExpiryDate}">-</td>
+
+                    <td>
+                        <span class="badge out-stock" th:if="${row.alreadyExpired}">EXPIRED</span>
+                        <span class="badge low-stock" th:unless="${row.alreadyExpired}">EXPIRING SOON</span>
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
 
     <section class="card stock-card">
 

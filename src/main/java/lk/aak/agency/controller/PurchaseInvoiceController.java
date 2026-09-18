@@ -159,6 +159,12 @@ public class PurchaseInvoiceController {
             )
             List<BigDecimal> unitPrices,
 
+            @RequestParam(
+                    name = "expiryDates",
+                    required = false
+            )
+            List<String> expiryDates,
+
             RedirectAttributes redirectAttributes) {
 
         String newlyStoredFileName = null;
@@ -228,7 +234,8 @@ public class PurchaseInvoiceController {
                     createInvoiceItems(
                             productIds,
                             quantities,
-                            unitPrices
+                            unitPrices,
+                            expiryDates
                     );
 
             PurchaseInvoice savedInvoice =
@@ -366,6 +373,7 @@ public class PurchaseInvoiceController {
             @RequestParam Long productId,
             @RequestParam BigDecimal quantity,
             @RequestParam BigDecimal unitPrice,
+            @RequestParam(required = false) String expiryDate,
             RedirectAttributes redirectAttributes) {
 
         try {
@@ -390,6 +398,10 @@ public class PurchaseInvoiceController {
             item.setQuantity(quantity);
             item.setUnit(product.getUnit());
             item.setUnitPrice(unitPrice);
+
+            if (expiryDate != null && !expiryDate.isBlank()) {
+                item.setExpiryDate(java.time.LocalDate.parse(expiryDate));
+            }
 
             purchaseInvoiceService.saveItem(item);
 
@@ -601,7 +613,8 @@ public class PurchaseInvoiceController {
     private List<PurchaseInvoiceItem> createInvoiceItems(
             List<Long> productIds,
             List<BigDecimal> quantities,
-            List<BigDecimal> unitPrices) {
+            List<BigDecimal> unitPrices,
+            List<String> expiryDates) {
 
         List<PurchaseInvoiceItem> invoiceItems =
                 new ArrayList<>();
@@ -630,6 +643,17 @@ public class PurchaseInvoiceController {
             item.setQuantity(quantity);
             item.setUnit(product.getUnit());
             item.setUnitPrice(unitPrice);
+
+            if (expiryDates != null
+                    && index < expiryDates.size()
+                    && expiryDates.get(index) != null
+                    && !expiryDates.get(index).isBlank()) {
+
+                item.setExpiryDate(
+                        java.time.LocalDate.parse(expiryDates.get(index))
+                );
+            }
+
             item.calculateAmount();
 
             invoiceItems.add(item);
