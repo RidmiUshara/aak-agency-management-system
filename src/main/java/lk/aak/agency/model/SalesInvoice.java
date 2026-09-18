@@ -64,6 +64,16 @@ public class SalesInvoice {
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
+    // Recorded when the Owner overrides a blocked over-credit-limit completion.
+    @Column(name = "credit_override_approved_by")
+    private String creditOverrideApprovedBy;
+
+    @Column(name = "credit_override_reason", length = 500)
+    private String creditOverrideReason;
+
+    @Column(name = "credit_override_at")
+    private LocalDateTime creditOverrideAt;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -228,6 +238,30 @@ public class SalesInvoice {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public String getCreditOverrideApprovedBy() {
+        return creditOverrideApprovedBy;
+    }
+
+    public void setCreditOverrideApprovedBy(String creditOverrideApprovedBy) {
+        this.creditOverrideApprovedBy = creditOverrideApprovedBy;
+    }
+
+    public String getCreditOverrideReason() {
+        return creditOverrideReason;
+    }
+
+    public void setCreditOverrideReason(String creditOverrideReason) {
+        this.creditOverrideReason = creditOverrideReason;
+    }
+
+    public LocalDateTime getCreditOverrideAt() {
+        return creditOverrideAt;
+    }
+
+    public void setCreditOverrideAt(LocalDateTime creditOverrideAt) {
+        this.creditOverrideAt = creditOverrideAt;
     }
 
     public LocalDateTime getCreatedAt() {

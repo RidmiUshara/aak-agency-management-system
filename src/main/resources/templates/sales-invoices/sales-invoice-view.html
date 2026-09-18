@@ -606,6 +606,32 @@
          th:text="${errorMessage}">
     </div>
 
+    <div class="card screen-only" style="margin-bottom: 20px; border-left: 4px solid #dc3545; padding: 18px 22px;"
+         th:if="${isAdmin != null and isAdmin and errorMessage != null
+                 and #strings.contains(errorMessage, 'credit limit')
+                 and invoice.status != 'COMPLETED'}">
+
+        <h3 style="color:#1e3a5f; margin-bottom: 10px;">Owner Override</h3>
+        <p style="color:#6c757d; margin-bottom: 14px;">
+            As the Owner, you can complete this bill anyway. Record why below - this is kept on the
+            invoice permanently for the record.
+        </p>
+        <form method="post" th:action="@{/sales-invoices/{invoiceId}/complete-with-override(invoiceId=${invoice.id})}"
+              style="display:flex; gap:10px; flex-wrap:wrap;">
+            <input type="text" name="overrideReason" placeholder="Reason for override" required
+                   style="flex:1; min-width:220px; padding:10px; border:1px solid #ccd4de; border-radius:6px;">
+            <button type="submit" class="button complete-button">Override &amp; Complete</button>
+        </form>
+    </div>
+
+    <div class="card screen-only" style="margin-bottom: 20px; border-left: 4px solid #664d03; padding: 18px 22px;"
+         th:if="${invoice.creditOverrideApprovedBy != null}">
+        <strong>Credit limit override applied</strong> by
+        <span th:text="${invoice.creditOverrideApprovedBy}"></span>
+        on <span th:text="${invoice.creditOverrideAt}"></span>:
+        <em th:text="${invoice.creditOverrideReason}"></em>
+    </div>
+
     <div class="completed-message screen-only"
          th:if="${invoice.status == 'COMPLETED'}">
 

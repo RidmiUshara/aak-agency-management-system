@@ -9,6 +9,7 @@ import lk.aak.agency.repository.ProductRepository;
 import lk.aak.agency.service.SalesInvoiceService;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -226,7 +227,8 @@ public class SalesInvoiceController {
     @GetMapping("/view/{id}")
     public String viewInvoice(
             @PathVariable Long id,
-            Model model) {
+            Model model,
+            Authentication authentication) {
 
         SalesInvoice invoice =
                 salesInvoiceService
@@ -241,6 +243,12 @@ public class SalesInvoiceController {
                 "items",
                 salesInvoiceService
                         .getItemsByInvoiceId(id)
+        );
+
+        model.addAttribute(
+                "isAdmin",
+                authentication.getAuthorities().stream()
+                        .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"))
         );
 
         addProductData(model);
@@ -333,6 +341,36 @@ public class SalesInvoiceController {
                     "successMessage",
                     "Sales invoice completed successfully. "
                             + "Sold quantities were deducted from stock."
+            );
+
+        } catch (IllegalArgumentException exception) {
+
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    exception.getMessage()
+            );
+        }
+
+        return "redirect:/sales-invoices/view/"
+                + invoiceId;
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/{invoiceId}/complete-with-override")
+    public String completeInvoiceWithCreditOverride(
+            @PathVariable Long invoiceId,
+            @RequestParam String overrideReason,
+            Authentication authentication,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            salesInvoiceService.completeInvoiceWithCreditOverride(
+                    invoiceId, authentication.getName(), overrideReason
+            );
+
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "Sales invoice completed with a credit limit override."
             );
 
         } catch (IllegalArgumentException exception) {

@@ -89,6 +89,49 @@ class SalesInvoiceServiceTest {
     }
 
     @Test
+    void completeInvoiceWithCreditOverride_completesDespiteExceedingLimitAndRecordsApprover() {
+
+        SalesInvoiceService service = newService();
+
+        Customer customer = creditCustomer(new BigDecimal("1000"));
+
+        SalesInvoice invoice = new SalesInvoice();
+        invoice.setId(5L);
+        invoice.setCustomer(customer);
+        invoice.setSaleType("CREDIT");
+        invoice.setStatus("DRAFT");
+        invoice.setNetAmount(new BigDecimal("1500"));
+
+        SalesInvoiceItem item = new SalesInvoiceItem();
+        item.setId(50L);
+        item.setSalesInvoice(invoice);
+        item.setProduct(product());
+        item.setQuantity(new BigDecimal("5"));
+        item.setUnitPrice(new BigDecimal("300"));
+
+        when(salesInvoiceRepository.findById(5L)).thenReturn(Optional.of(invoice));
+        when(salesInvoiceItemRepository.findBySalesInvoiceIdOrderByIdAsc(5L)).thenReturn(List.of(item));
+        when(stockMovementRepository.calculateCurrentStock(10L)).thenReturn(new BigDecimal("100"));
+
+        service.completeInvoiceWithCreditOverride(5L, "owner1", "Trusted long-term customer");
+
+        assertThat(invoice.getStatus()).isEqualTo("COMPLETED");
+        assertThat(invoice.getCreditOverrideApprovedBy()).isEqualTo("owner1");
+        assertThat(invoice.getCreditOverrideReason()).isEqualTo("Trusted long-term customer");
+        assertThat(invoice.getCreditOverrideAt()).isNotNull();
+    }
+
+    @Test
+    void completeInvoiceWithCreditOverride_requiresANonBlankReason() {
+
+        SalesInvoiceService service = newService();
+
+        assertThatThrownBy(() -> service.completeInvoiceWithCreditOverride(5L, "owner1", "  "))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("reason");
+    }
+
+    @Test
     void completeInvoice_allowsCashSaleRegardlessOfCreditLimit() {
 
         SalesInvoiceService service = newService();

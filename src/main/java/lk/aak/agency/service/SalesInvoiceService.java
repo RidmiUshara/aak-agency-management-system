@@ -331,6 +331,31 @@ public class SalesInvoiceService {
 
     @Transactional
     public void completeInvoice(Long invoiceId) {
+        completeInvoiceInternal(invoiceId, null, null);
+    }
+
+    /**
+     * Owner-approved credit exception: completes a credit sale even though it would exceed
+     * the customer's credit limit, recording who approved it and why. Every other check
+     * (stock availability, item validation) still applies as normal.
+     */
+    @Transactional
+    public void completeInvoiceWithCreditOverride(
+            Long invoiceId, String overrideApprovedBy, String overrideReason) {
+
+        if (overrideApprovedBy == null || overrideApprovedBy.isBlank()) {
+            throw new IllegalArgumentException("Approver name is required for a credit override.");
+        }
+
+        if (overrideReason == null || overrideReason.isBlank()) {
+            throw new IllegalArgumentException("A reason is required to override the credit limit.");
+        }
+
+        completeInvoiceInternal(invoiceId, overrideApprovedBy.trim(), overrideReason.trim());
+    }
+
+    private void completeInvoiceInternal(
+            Long invoiceId, String overrideApprovedBy, String overrideReason) {
 
         SalesInvoice invoice =
                 getInvoiceById(invoiceId);
@@ -358,9 +383,12 @@ public class SalesInvoiceService {
         /*
          * A credit sale is only ever a real commitment once it is completed
          * (a draft can be built up freely), so the credit limit is enforced
-         * here rather than at draft-save time.
+         * here rather than at draft-save time - unless an owner-approved
+         * override has been supplied.
          */
-        validateCustomerCreditLimit(invoice);
+        if (overrideApprovedBy == null) {
+            validateCustomerCreditLimit(invoice);
+        }
 
         /*
          * Several invoice rows may contain the same product.
@@ -497,6 +525,12 @@ public class SalesInvoiceService {
         }
 
         invoice.setStatus("COMPLETED");
+
+        if (overrideApprovedBy != null) {
+            invoice.setCreditOverrideApprovedBy(overrideApprovedBy);
+            invoice.setCreditOverrideReason(overrideReason);
+            invoice.setCreditOverrideAt(java.time.LocalDateTime.now());
+        }
 
         if ("CASH".equalsIgnoreCase(
                 invoice.getSaleType())) {
