@@ -871,6 +871,16 @@
         Vehicles
       </a>
 
+      <a th:href="@{/routes}">
+        <span class="nav-icon">RT</span>
+        Routes
+      </a>
+
+      <a th:href="@{/delivery-trips}">
+        <span class="nav-icon">DT</span>
+        Delivery Trips
+      </a>
+
       <a th:if="${loggedInRole == 'ADMIN'}" th:href="@{/users}">
         <span class="nav-icon">US</span>
         Manage Users

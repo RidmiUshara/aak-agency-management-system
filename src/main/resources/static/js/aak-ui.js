@@ -63,6 +63,8 @@
     { href: "/reports", label: "Reports", icon: "📈" },
     { href: "/employees", label: "Employees", icon: "🧑‍💼" },
     { href: "/vehicles", label: "Vehicles", icon: "🚚" },
+    { href: "/routes", label: "Routes", icon: "🗺️" },
+    { href: "/delivery-trips", label: "Delivery Trips", icon: "🚛" },
     { href: "/users", label: "Manage Users", icon: "🔑" },
     { href: "/account/change-password", label: "Change Password", icon: "🔒" },
     { href: "/logout", label: "Logout", icon: "🚪" }

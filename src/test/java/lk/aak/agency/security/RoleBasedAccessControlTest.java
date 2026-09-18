@@ -70,6 +70,18 @@ class RoleBasedAccessControlTest {
     }
 
     @Test
+    void officeRole_canManageRoutesAndDeliveryTrips() throws Exception {
+        mockMvc.perform(get("/routes").with(user("office1").roles("OFFICE"))).andExpect(status().isOk());
+        mockMvc.perform(get("/delivery-trips").with(user("office1").roles("OFFICE"))).andExpect(status().isOk());
+    }
+
+    @Test
+    void salesRepRole_isForbiddenFromRoutesAndDeliveryTrips() throws Exception {
+        mockMvc.perform(get("/routes").with(user("sales1").roles("SALES_REP"))).andExpect(status().isForbidden());
+        mockMvc.perform(get("/delivery-trips").with(user("sales1").roles("SALES_REP"))).andExpect(status().isForbidden());
+    }
+
+    @Test
     void salesRepRole_isForbiddenFromEmployeesAndVehicles() throws Exception {
         mockMvc.perform(get("/employees").with(user("sales1").roles("SALES_REP"))).andExpect(status().isForbidden());
         mockMvc.perform(get("/vehicles").with(user("sales1").roles("SALES_REP"))).andExpect(status().isForbidden());
