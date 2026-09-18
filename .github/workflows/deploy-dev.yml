@@ -73,6 +73,7 @@ jobs:
             --targets "Key=instanceIds,Values=$INSTANCE_ID" \
             --parameters "$parameters" \
             --query 'Command.CommandId' --output text)
-          aws ssm wait command-executed --command-id "$command_id" --instance-id "$INSTANCE_ID"
-          aws ssm get-command-invocation --command-id "$command_id" --instance-id "$INSTANCE_ID" \
-            --query '{Status:Status,Output:StandardOutputContent,Error:StandardErrorContent}' --output json
+          aws ssm wait command-executed --command-id "$command_id" --instance-id "$INSTANCE_ID" || true
+          result=$(aws ssm get-command-invocation --command-id "$command_id" --instance-id "$INSTANCE_ID")
+          printf '%s\n' "$result" | jq '{Status: .Status, Output: .StandardOutputContent, Error: .StandardErrorContent}'
+          test "$(printf '%s\n' "$result" | jq -r .Status)" = "Success"
