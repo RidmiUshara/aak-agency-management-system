@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Form - AAK Agency</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background-color: #f4f6f9; color: #222222; }
+    .header { background-color: #1e3a5f; color: white; padding: 20px 5%; display: flex; align-items: center; justify-content: space-between; }
+    .header a { color: white; text-decoration: none; }
+    .container { width: 90%; max-width: 700px; margin: 35px auto; }
+    .page-heading { margin-bottom: 25px; }
+    .page-heading h2 { color: #1e3a5f; }
+    .form-card { background-color: white; border-radius: 10px; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08); padding: 30px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 7px; font-weight: bold; color: #1e3a5f; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 11px; border: 1px solid #ccd4de; border-radius: 6px; font-size: 14px; font-family: inherit; }
+    .form-group input[readonly] { background: #eef1f5; }
+    .form-actions { display: flex; gap: 12px; margin-top: 25px; }
+    .btn { display: inline-block; border: none; border-radius: 6px; padding: 12px 20px; color: white; text-decoration: none; cursor: pointer; font-size: 14px; }
+    .btn-save { background-color: #198754; }
+    .btn-cancel { background-color: #6c757d; }
+  </style>
+  <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
+</head>
+<body>
+<header class="header">
+  <div>
+    <h1>AAK Agency</h1>
+    <p>Employee Management</p>
+  </div>
+  <a th:href="@{/employees}">Back to Employees</a>
+</header>
+
+<main class="container">
+  <section class="page-heading">
+    <h2 th:text="${pageTitle}">Employee Form</h2>
+  </section>
+
+  <section class="form-card">
+    <form method="post" th:action="@{/employees/save}" th:object="${employee}">
+      <input type="hidden" th:field="*{id}">
+      <input type="hidden" th:field="*{employeeCode}">
+
+      <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <input id="fullName" type="text" th:field="*{fullName}" placeholder="Enter full name" required>
+        <span class="field-error" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="designation">Designation</label>
+        <select id="designation" th:field="*{designation}" required>
+          <option value="">Select designation</option>
+          <option value="DRIVER">Driver</option>
+          <option value="HELPER">Helper</option>
+          <option value="SALES_REP">Sales Representative</option>
+          <option value="OFFICE_STAFF">Office Staff</option>
+        </select>
+        <span class="field-error" th:if="${#fields.hasErrors('designation')}" th:errors="*{designation}"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input id="phone" type="tel" th:field="*{phone}" placeholder="Example: 0712345678">
+        <span class="field-error" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="nicNumber">NIC Number</label>
+        <input id="nicNumber" type="text" th:field="*{nicNumber}" placeholder="Enter NIC number">
+      </div>
+
+      <div class="form-group">
+        <label for="address">Address</label>
+        <textarea id="address" th:field="*{address}" rows="3" placeholder="Enter address"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="joinDate">Join Date</label>
+        <input id="joinDate" type="date" th:field="*{joinDate}">
+      </div>
+
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select id="status" th:field="*{status}">
+          <option value="ACTIVE">Active</option>
+          <option value="INACTIVE">Inactive</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="systemUsername">Linked Login Username</label>
+        <input id="systemUsername" type="text" th:field="*{systemUsername}"
+               placeholder="Optional - matches a username under Manage Users">
+      </div>
+
+      <div class="form-group">
+        <label for="notes">Notes</label>
+        <textarea id="notes" th:field="*{notes}" rows="3" placeholder="Optional notes"></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-save" type="submit">Save Employee</button>
+        <a class="btn btn-cancel" th:href="@{/employees}">Cancel</a>
+      </div>
+    </form>
+  </section>
+</main>
+  <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
+</body>
+</html>
