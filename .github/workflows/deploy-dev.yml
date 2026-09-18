@@ -21,14 +21,6 @@ jobs:
       - name: Checkout application
         uses: actions/checkout@v4
 
-      - name: Inspect OIDC claims
-        shell: bash
-        run: |
-          token=$(curl -fsSL -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r .value)
-          payload=$(printf '%s' "$token" | cut -d. -f2 | tr '_-' '/+' | base64 -d 2>/dev/null || true)
-          printf '%s\n' "$payload" | jq '{sub,aud,job_workflow_ref,repository,ref}'
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
