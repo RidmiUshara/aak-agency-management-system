@@ -66,6 +66,7 @@ public class SecurityConfig {
                                                 "/css/**",
                                                 "/js/**",
                                                 "/images/**",
+                                                "/img/**",
                                                 "/favicon.ico",
                                                 "/error",
                                                 "/actuator/health"

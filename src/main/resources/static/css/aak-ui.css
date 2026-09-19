@@ -4,9 +4,9 @@
   --aak-muted: #667085;
   --aak-soft: #f6f7fb;
   --aak-panel: #ffffff;
-  --aak-line: #dce3ee;
-  --aak-primary: #1d4a8f;
-  --aak-primary-strong: #123061;
+  --aak-line: #e5e7eb;
+  --aak-primary: #0b3d91;
+  --aak-primary-strong: #082a66;
   --aak-accent: #0fae72;
   --aak-accent-strong: #0b8a5a;
   --aak-highlight: #f5860f;
@@ -14,9 +14,10 @@
   --aak-warning: #b7791f;
   --aak-danger: #c7374a;
   --aak-info: #2563eb;
+  --aak-info-light: #93c5fd;
   --aak-purple: #7357c8;
-  --aak-shadow: 0 16px 40px rgba(20, 34, 55, 0.08);
-  --aak-shadow-soft: 0 8px 22px rgba(20, 34, 55, 0.06);
+  --aak-shadow: 0 16px 40px rgba(11, 61, 145, 0.1);
+  --aak-shadow-soft: 0 8px 22px rgba(11, 61, 145, 0.07);
   --aak-radius: 10px;
   --aak-bottom-nav-height: 64px;
   color-scheme: light;
@@ -113,7 +114,7 @@ html {
   scroll-behavior: smooth;
 }
 
-body {
+body:not(.login-body) {
   background:
     radial-gradient(circle at top left, rgba(34, 70, 111, 0.08), transparent 34rem),
     linear-gradient(180deg, #f9fbfd 0%, var(--aak-soft) 42%, #f4f6fa 100%) !important;

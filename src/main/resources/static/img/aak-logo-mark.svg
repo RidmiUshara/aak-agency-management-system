@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="AAK Agency">
+  <defs>
+    <linearGradient id="aakSwoosh" x1="4" y1="46" x2="56" y2="18" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0B3D91"/>
+      <stop offset="0.55" stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#93C5FD"/>
+    </linearGradient>
+  </defs>
+  <path d="M27 6 L47 52 L37.5 52 L32.5 40 L18.5 40 L24 27.5 L28.5 27.5 L23 15 Z" fill="#0B3D91"/>
+  <path d="M6 50
+           C 16 46, 22 34, 27 21
+           C 30 13.5, 35 9, 44 7.5
+           C 36 12.5, 32.5 20, 29.5 28
+           C 25.5 38.5, 18 47.5, 6 50 Z"
+        fill="url(#aakSwoosh)"/>
+</svg>

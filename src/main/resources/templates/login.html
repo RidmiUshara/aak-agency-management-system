@@ -10,6 +10,9 @@
 
     <title>Login - AAK Agency</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+
     <style>
         * {
             box-sizing: border-box;
@@ -19,12 +22,13 @@
 
         body {
             min-height: 100vh;
-            font-family: Arial, sans-serif;
+            font-family: "Inter", "Segoe UI", Arial, sans-serif;
             background:
+                    radial-gradient(circle at 15% 15%, rgba(147, 197, 253, 0.25), transparent 45%),
                     linear-gradient(
                             135deg,
-                            #173454,
-                            #285884
+                            #0b3d91,
+                            #082a66
                     );
             display: flex;
             justify-content: center;
@@ -44,28 +48,42 @@
         }
 
         .brand-logo {
-            width: 75px;
-            height: 75px;
-            margin: 0 auto 15px;
-            border-radius: 50%;
+            width: 84px;
+            height: 84px;
+            margin: 0 auto 16px;
+            border-radius: 22px;
             background: white;
-            color: #213f66;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 30px;
-            font-weight: bold;
-            box-shadow: 0 5px 18px
-            rgba(0, 0, 0, 0.18);
+            padding: 14px;
+            box-shadow: 0 10px 28px
+            rgba(0, 0, 0, 0.25);
+        }
+
+        .brand-logo img {
+            width: 100%;
+            height: 100%;
         }
 
         .brand-section h1 {
-            font-size: 34px;
-            margin-bottom: 7px;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .brand-section .brand-tagline {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: #93c5fd;
+            margin-bottom: 10px;
         }
 
         .brand-section p {
-            font-size: 16px;
+            font-size: 15px;
             color: #dce8f5;
         }
 
@@ -83,8 +101,9 @@
         }
 
         .login-title h2 {
-            color: #213f66;
+            color: #0b3d91;
             font-size: 25px;
+            font-weight: 700;
             margin-bottom: 7px;
         }
 
@@ -119,8 +138,8 @@
 
         .form-group label {
             display: block;
-            color: #213f66;
-            font-weight: bold;
+            color: #0b3d91;
+            font-weight: 600;
             margin-bottom: 8px;
         }
 
@@ -143,9 +162,9 @@
 
         .form-control:focus {
             outline: none;
-            border-color: #087cf0;
+            border-color: #2563eb;
             box-shadow: 0 0 0 3px
-            rgba(8, 124, 240, 0.12);
+            rgba(37, 99, 235, 0.15);
         }
 
         .show-password {
@@ -155,7 +174,7 @@
             transform: translateY(-50%);
             border: none;
             background: transparent;
-            color: #213f66;
+            color: #0b3d91;
             font-weight: bold;
             cursor: pointer;
             padding: 5px;
@@ -166,16 +185,19 @@
             border: none;
             border-radius: 8px;
             padding: 14px;
-            background: #148b57;
+            background: linear-gradient(135deg, #0b3d91, #2563eb);
             color: white;
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 700;
+            letter-spacing: 0.3px;
             cursor: pointer;
             margin-top: 5px;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
 
         .login-button:hover {
-            background: #107247;
+            box-shadow: 0 8px 20px rgba(11, 61, 145, 0.35);
+            transform: translateY(-1px);
         }
 
         .security-note {
@@ -205,11 +227,12 @@
 
         .role-chip {
             background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.28);
+            border: 1px solid rgba(147, 197, 253, 0.4);
             color: #dce8f5;
             border-radius: 20px;
             padding: 6px 14px;
             font-size: 12px;
+            font-weight: 500;
         }
 
         @media (max-width: 500px) {
@@ -225,17 +248,21 @@
   <link rel="stylesheet" th:href="@{/css/aak-ui.css}" href="/css/aak-ui.css">
 </head>
 
-<body>
+<body class="login-body">
 
 <div class="login-wrapper">
 
     <section class="brand-section">
 
         <div class="brand-logo">
-            AAK
+            <img th:src="@{/img/aak-logo-mark.svg}" src="/img/aak-logo-mark.svg" alt="AAK Agency logo">
         </div>
 
         <h1>AAK Agency</h1>
+
+        <p class="brand-tagline">
+            Trusted Brands. Brighter Communities.
+        </p>
 
         <p>
             Inventory &bull; Sales &bull; Credit &bull; Deliveries &bull; Returns &bull; Employees

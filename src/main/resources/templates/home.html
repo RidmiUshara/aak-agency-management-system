@@ -10,11 +10,14 @@
 
   <title>Dashboard - AAK Agency</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+
   <style>
     :root {
-      --navy: #1e3a5f;
-      --navy-dark: #142b48;
-      --navy-light: #e8eef7;
+      --navy: #0b3d91;
+      --navy-dark: #082a66;
+      --navy-light: #eaf1fd;
       --green: #198754;
       --green-light: #d1e7dd;
       --red: #dc3545;
@@ -26,14 +29,14 @@
       --white: #ffffff;
       --text: #222222;
       --muted: #6c757d;
-      --border: #e5e9ef;
+      --border: #e5e7eb;
     }
 
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: Arial, sans-serif;
+      font-family: "Inter", "Segoe UI", Arial, sans-serif;
     }
 
     body {
@@ -78,13 +81,17 @@
       width: 43px;
       height: 43px;
       border-radius: 11px;
-      background: var(--navy);
-      color: var(--white);
+      background: var(--white);
+      border: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 15px;
-      font-weight: bold;
+      padding: 6px;
+    }
+
+    .logo-mark img {
+      width: 100%;
+      height: 100%;
     }
 
     .logo-text h1 {
@@ -794,7 +801,7 @@
     <div class="logo">
 
       <div class="logo-mark">
-        AAK
+        <img th:src="@{/img/aak-logo-mark.svg}" src="/img/aak-logo-mark.svg" alt="AAK Agency">
       </div>
 
       <div class="logo-text">
