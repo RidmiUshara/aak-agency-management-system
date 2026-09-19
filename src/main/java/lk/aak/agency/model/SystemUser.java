@@ -7,6 +7,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "system_users")
 public class SystemUser {
@@ -51,6 +53,12 @@ public class SystemUser {
             nullable = false
     )
     private boolean enabled = true;
+
+    @Column(name = "failed_attempt_count", nullable = false)
+    private int failedAttemptCount = 0;
+
+    @Column(name = "locked_until")
+    private LocalDateTime lockedUntil;
 
     public SystemUser() {
     }
@@ -125,5 +133,21 @@ public class SystemUser {
             boolean enabled) {
 
         this.enabled = enabled;
+    }
+
+    public int getFailedAttemptCount() {
+        return failedAttemptCount;
+    }
+
+    public void setFailedAttemptCount(int failedAttemptCount) {
+        this.failedAttemptCount = failedAttemptCount;
+    }
+
+    public LocalDateTime getLockedUntil() {
+        return lockedUntil;
+    }
+
+    public void setLockedUntil(LocalDateTime lockedUntil) {
+        this.lockedUntil = lockedUntil;
     }
 }

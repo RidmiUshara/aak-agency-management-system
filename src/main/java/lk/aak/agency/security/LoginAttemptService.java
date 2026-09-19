@@ -1,68 +1,90 @@
 package lk.aak.agency.security;
 
+import lk.aak.agency.model.SystemUser;
+import lk.aak.agency.repository.SystemUserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.time.Instant;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
-/** Tracks failed login attempts per username and temporarily locks accounts after too many. */
+/**
+ * Tracks failed login attempts per username and temporarily locks accounts after too many.
+ * Persisted on the SystemUser row itself, so a lock survives app restarts and works correctly
+ * even if there is more than one app instance.
+ */
 @Service
 public class LoginAttemptService {
 
     private static final int MAX_ATTEMPTS = 5;
     private static final Duration LOCK_DURATION = Duration.ofMinutes(15);
 
-    private static class Attempts {
-        final AtomicInteger count = new AtomicInteger(0);
-        volatile Instant lockedUntil;
+    private final SystemUserRepository systemUserRepository;
+
+    public LoginAttemptService(SystemUserRepository systemUserRepository) {
+        this.systemUserRepository = systemUserRepository;
     }
 
-    private final ConcurrentHashMap<String, Attempts> attemptsByUsername = new ConcurrentHashMap<>();
-
+    @Transactional
     public void recordFailure(String username) {
-        if (username == null || username.isBlank()) {
-            return;
-        }
 
-        Attempts attempts = attemptsByUsername.computeIfAbsent(normalize(username), key -> new Attempts());
-        int failures = attempts.count.incrementAndGet();
+        findUser(username).ifPresent(user -> {
 
-        if (failures >= MAX_ATTEMPTS) {
-            attempts.lockedUntil = Instant.now().plus(LOCK_DURATION);
-        }
+            int failures = user.getFailedAttemptCount() + 1;
+            user.setFailedAttemptCount(failures);
+
+            if (failures >= MAX_ATTEMPTS) {
+                user.setLockedUntil(LocalDateTime.now().plus(LOCK_DURATION));
+            }
+
+            systemUserRepository.save(user);
+        });
     }
 
+    @Transactional
     public void recordSuccess(String username) {
-        if (username == null || username.isBlank()) {
-            return;
-        }
 
-        attemptsByUsername.remove(normalize(username));
+        findUser(username).ifPresent(user -> {
+
+            user.setFailedAttemptCount(0);
+            user.setLockedUntil(null);
+
+            systemUserRepository.save(user);
+        });
     }
 
+    @Transactional
     public boolean isLocked(String username) {
-        if (username == null || username.isBlank()) {
-            return false;
-        }
 
-        Attempts attempts = attemptsByUsername.get(normalize(username));
+        return findUser(username)
+                .map(user -> {
 
-        if (attempts == null || attempts.lockedUntil == null) {
-            return false;
-        }
+                    LocalDateTime lockedUntil = user.getLockedUntil();
 
-        if (Instant.now().isAfter(attempts.lockedUntil)) {
-            // Lock has expired - reset so the user can try again.
-            attemptsByUsername.remove(normalize(username));
-            return false;
-        }
+                    if (lockedUntil == null) {
+                        return false;
+                    }
 
-        return true;
+                    if (LocalDateTime.now().isAfter(lockedUntil)) {
+                        // Lock has expired - reset so the user can try again.
+                        user.setFailedAttemptCount(0);
+                        user.setLockedUntil(null);
+                        systemUserRepository.save(user);
+                        return false;
+                    }
+
+                    return true;
+                })
+                .orElse(false);
     }
 
-    private String normalize(String username) {
-        return username.trim().toLowerCase();
+    private Optional<SystemUser> findUser(String username) {
+
+        if (username == null || username.isBlank()) {
+            return Optional.empty();
+        }
+
+        return systemUserRepository.findByUsername(username.trim());
     }
 }
