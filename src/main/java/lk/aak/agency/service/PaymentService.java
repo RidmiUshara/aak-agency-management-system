@@ -5,6 +5,9 @@ import lk.aak.agency.model.SalesInvoice;
 import lk.aak.agency.repository.EmployeeRepository;
 import lk.aak.agency.repository.PaymentRepository;
 import lk.aak.agency.repository.SalesInvoiceRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +55,33 @@ public class PaymentService {
 
         return paymentRepository
                 .findAllByOrderByPaymentDateDesc();
+    }
+
+    public Page<Payment> getPaymentPage(
+            String search, int page, int size) {
+
+        return paymentRepository.search(
+                search == null ? "" : search.trim(),
+                PageRequest.of(
+                        Math.max(page, 0),
+                        Math.max(size, 1),
+                        Sort.by(Sort.Direction.DESC, "paymentDate")
+                )
+        );
+    }
+
+    public BigDecimal getTotalCollected(String search) {
+
+        return paymentRepository.sumReceivedAmount(
+                search == null ? "" : search.trim()
+        );
+    }
+
+    public long getReceivedPaymentCount(String search) {
+
+        return paymentRepository.countReceived(
+                search == null ? "" : search.trim()
+        );
     }
 
     public Payment getPaymentById(Long id) {

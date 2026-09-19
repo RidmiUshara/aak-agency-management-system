@@ -1,6 +1,8 @@
 package lk.aak.agency.repository;
 
 import lk.aak.agency.model.Payment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,6 +20,66 @@ public interface PaymentRepository
     boolean existsByReceiptNumber(String receiptNumber);
 
     List<Payment> findAllByOrderByPaymentDateDesc();
+
+    /*
+     * Paginated list, optionally filtered by receipt number, invoice number,
+     * customer name/area, payment method or reference number.
+     */
+    @Query("""
+            SELECT p FROM Payment p
+            LEFT JOIN p.salesInvoice i
+            LEFT JOIN i.customer c
+            WHERE :keyword IS NULL OR :keyword = ''
+                OR LOWER(p.receiptNumber) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(i.invoiceNumber) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(c.customerName) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(c.area) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(p.paymentMethod) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(p.referenceNumber) LIKE LOWER(CONCAT('%', :keyword, '%'))
+            """)
+    Page<Payment> search(
+            @Param("keyword") String keyword,
+            Pageable pageable
+    );
+
+    /*
+     * Sum of RECEIVED payments matching the same search filter, used for the
+     * list screen's "Total Collected" summary card (independent of pagination).
+     */
+    @Query("""
+            SELECT COALESCE(SUM(p.amount), 0) FROM Payment p
+            LEFT JOIN p.salesInvoice i
+            LEFT JOIN i.customer c
+            WHERE UPPER(p.status) = 'RECEIVED'
+                AND (:keyword IS NULL OR :keyword = ''
+                    OR LOWER(p.receiptNumber) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                    OR LOWER(i.invoiceNumber) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                    OR LOWER(c.customerName) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                    OR LOWER(c.area) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                    OR LOWER(p.paymentMethod) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                    OR LOWER(p.referenceNumber) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                )
+            """)
+    BigDecimal sumReceivedAmount(@Param("keyword") String keyword);
+
+    /*
+     * Count of RECEIVED payments matching the same search filter.
+     */
+    @Query("""
+            SELECT COUNT(p) FROM Payment p
+            LEFT JOIN p.salesInvoice i
+            LEFT JOIN i.customer c
+            WHERE UPPER(p.status) = 'RECEIVED'
+                AND (:keyword IS NULL OR :keyword = ''
+                    OR LOWER(p.receiptNumber) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                    OR LOWER(i.invoiceNumber) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                    OR LOWER(c.customerName) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                    OR LOWER(c.area) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                    OR LOWER(p.paymentMethod) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                    OR LOWER(p.referenceNumber) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                )
+            """)
+    long countReceived(@Param("keyword") String keyword);
 
     List<Payment> findBySalesInvoiceIdOrderByPaymentDateDesc(
             Long invoiceId

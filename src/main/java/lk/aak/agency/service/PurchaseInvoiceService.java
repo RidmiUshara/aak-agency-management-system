@@ -6,6 +6,9 @@ import lk.aak.agency.model.StockMovement;
 import lk.aak.agency.repository.PurchaseInvoiceItemRepository;
 import lk.aak.agency.repository.PurchaseInvoiceRepository;
 import lk.aak.agency.repository.StockMovementRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +37,19 @@ public class PurchaseInvoiceService {
     public List<PurchaseInvoice> getAllInvoices() {
         return purchaseInvoiceRepository
                 .findAllByOrderByInvoiceDateDesc();
+    }
+
+    public Page<PurchaseInvoice> getInvoicePage(
+            String search, int page, int size) {
+
+        return purchaseInvoiceRepository.search(
+                search == null ? "" : search.trim(),
+                PageRequest.of(
+                        Math.max(page, 0),
+                        Math.max(size, 1),
+                        Sort.by(Sort.Direction.DESC, "invoiceDate")
+                )
+        );
     }
 
     public PurchaseInvoice getInvoiceById(Long id) {

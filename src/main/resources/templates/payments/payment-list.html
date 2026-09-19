@@ -469,30 +469,38 @@
 
     </section>
 
-    <section class="search-card"
-             th:if="${!#lists.isEmpty(payments)}">
+    <section class="search-card">
 
-        <h3>Search Payments</h3>
+        <form th:action="@{/payments}" method="get">
 
-        <div class="search-row">
+            <h3>Search Payments</h3>
 
-            <input type="text"
-                   id="paymentSearch"
-                   placeholder="Search receipt, invoice, customer, area, method or reference"
-                   autocomplete="off"
-                   oninput="filterPayments()">
+            <div class="search-row">
 
-            <button type="button"
-                    class="btn btn-grey"
-                    onclick="clearPaymentSearch()">
-                Clear
-            </button>
+                <input type="text"
+                       id="paymentSearch"
+                       name="search"
+                       th:value="${search}"
+                       placeholder="Search receipt, invoice, customer, area, method or reference"
+                       autocomplete="off">
 
-        </div>
+                <button type="submit" class="btn">
+                    Search
+                </button>
 
-        <p class="search-help">
-            The payment list will be filtered automatically while you type.
-        </p>
+                <a class="btn btn-grey"
+                   th:if="${search != null and !search.isEmpty()}"
+                   th:href="@{/payments}">
+                    Clear
+                </a>
+
+            </div>
+
+            <p class="search-help">
+                Press Enter or click Search. Searches every payment, not just this page.
+            </p>
+
+        </form>
 
     </section>
 
@@ -504,12 +512,11 @@
             <h3>Payment History</h3>
 
             <span class="result-count">
-                Showing
                 <span id="visiblePaymentCount"
                       th:text="${totalPayments}">
                     0
                 </span>
-                payment(s)
+                payment(s) total
             </span>
 
         </div>
@@ -678,7 +685,8 @@
         </div>
 
         <div id="noSearchResults"
-             class="no-search-results">
+             class="no-search-results"
+             th:if="${#lists.isEmpty(payments) and search != null and !search.isEmpty()}">
 
             <h3>No matching payments found</h3>
 
@@ -690,7 +698,7 @@
         </div>
 
         <div class="empty-message"
-             th:if="${#lists.isEmpty(payments)}">
+             th:if="${#lists.isEmpty(payments) and (search == null or search.isEmpty())}">
 
             <h3>No payments recorded</h3>
 
@@ -702,84 +710,14 @@
 
     </section>
 
+    <nav class="aak-pagination" th:if="${totalPages > 1}" aria-label="Payment pages">
+        <a th:if="${currentPage > 0}" th:href="@{/payments(search=${search}, page=${currentPage - 1})}" class="btn button">Previous</a>
+        <span class="aak-pagination-status" th:text="'Page ' + ${currentPage + 1} + ' of ' + ${totalPages} + ' (' + ${totalRecords} + ' total)'"></span>
+        <a th:if="${currentPage + 1 < totalPages}" th:href="@{/payments(search=${search}, page=${currentPage + 1})}" class="btn button">Next</a>
+    </nav>
+
 </main>
 
-<script>
-    function filterPayments() {
-
-        const searchInput =
-            document.getElementById("paymentSearch");
-
-        const searchValue =
-            searchInput.value
-                .toLowerCase()
-                .trim();
-
-        const paymentRows =
-            document.querySelectorAll(".payment-row");
-
-        let visibleCount = 0;
-
-        paymentRows.forEach(function (row) {
-
-            const rowText =
-                row.textContent
-                    .toLowerCase()
-                    .replace(/\s+/g, " ");
-
-            const isVisible =
-                rowText.includes(searchValue);
-
-            row.style.display =
-                isVisible ? "" : "none";
-
-            if (isVisible) {
-                visibleCount++;
-            }
-        });
-
-        const countElement =
-            document.getElementById(
-                "visiblePaymentCount"
-            );
-
-        if (countElement) {
-            countElement.textContent =
-                visibleCount;
-        }
-
-        const noResultsMessage =
-            document.getElementById(
-                "noSearchResults"
-            );
-
-        if (noResultsMessage) {
-
-            noResultsMessage.style.display =
-                visibleCount === 0
-                    ? "block"
-                    : "none";
-        }
-    }
-
-    function clearPaymentSearch() {
-
-        const searchInput =
-            document.getElementById(
-                "paymentSearch"
-            );
-
-        if (!searchInput) {
-            return;
-        }
-
-        searchInput.value = "";
-
-        filterPayments();
-
-        searchInput.focus();
-    }
-</script>
 
   <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
 </body>

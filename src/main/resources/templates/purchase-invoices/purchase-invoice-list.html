@@ -358,30 +358,39 @@
 
     <section class="search-card">
 
-        <label for="invoiceSearch">
-            Search Purchase Invoices
-        </label>
+        <form th:action="@{/purchase-invoices}" method="get">
 
-        <div class="search-row">
+            <label for="invoiceSearch">
+                Search Purchase Invoices
+            </label>
 
-            <input class="search-input"
-                   id="invoiceSearch"
-                   type="search"
-                   placeholder="Search by document number, tax invoice, PO number, territory or status"
-                   autocomplete="off"
-                   oninput="filterInvoices()">
+            <div class="search-row">
 
-            <button class="button clear-button"
-                    type="button"
-                    onclick="clearInvoiceSearch()">
-                Clear
-            </button>
+                <input class="search-input"
+                       id="invoiceSearch"
+                       name="search"
+                       type="search"
+                       th:value="${search}"
+                       placeholder="Search by document number, supplier, tax invoice, PO number, territory or status"
+                       autocomplete="off">
 
-        </div>
+                <button class="button" type="submit">
+                    Search
+                </button>
 
-        <p class="search-help">
-            Results are filtered immediately while you type.
-        </p>
+                <a class="button clear-button"
+                   th:if="${search != null and !search.isEmpty()}"
+                   th:href="@{/purchase-invoices}">
+                    Clear
+                </a>
+
+            </div>
+
+            <p class="search-help">
+                Press Enter or click Search. Searches every invoice, not just this page.
+            </p>
+
+        </form>
 
     </section>
 
@@ -541,7 +550,7 @@
         </table>
 
         <div class="empty-message"
-             th:if="${#lists.isEmpty(invoices)}">
+             th:if="${#lists.isEmpty(invoices) and (search == null or search.isEmpty())}">
 
             <h3>No purchase invoices found</h3>
 
@@ -553,7 +562,7 @@
         </div>
 
         <div class="empty-message"
-             id="searchEmptyMessage">
+             th:if="${#lists.isEmpty(invoices) and search != null and !search.isEmpty()}">
 
             <h3>No matching invoices found</h3>
 
@@ -566,65 +575,13 @@
 
     </div>
 
+    <nav class="aak-pagination" th:if="${totalPages > 1}" aria-label="Purchase invoice pages">
+        <a th:if="${currentPage > 0}" th:href="@{/purchase-invoices(search=${search}, page=${currentPage - 1})}" class="btn button">Previous</a>
+        <span class="aak-pagination-status" th:text="'Page ' + ${currentPage + 1} + ' of ' + ${totalPages} + ' (' + ${totalRecords} + ' total)'"></span>
+        <a th:if="${currentPage + 1 < totalPages}" th:href="@{/purchase-invoices(search=${search}, page=${currentPage + 1})}" class="btn button">Next</a>
+    </nav>
+
 </main>
-
-<script>
-    function filterInvoices() {
-        const searchInput =
-            document.getElementById("invoiceSearch");
-
-        const tableBody =
-            document.getElementById("invoiceTableBody");
-
-        const emptyMessage =
-            document.getElementById(
-                "searchEmptyMessage"
-            );
-
-        if (!tableBody) {
-            return;
-        }
-
-        const keyword =
-            searchInput.value
-                .toLowerCase()
-                .trim();
-
-        const rows =
-            tableBody.getElementsByTagName("tr");
-
-        let visibleRows = 0;
-
-        for (const row of rows) {
-            const rowText =
-                row.textContent.toLowerCase();
-
-            const isMatch =
-                rowText.includes(keyword);
-
-            row.style.display =
-                isMatch ? "" : "none";
-
-            if (isMatch) {
-                visibleRows++;
-            }
-        }
-
-        emptyMessage.style.display =
-            visibleRows === 0
-                ? "block"
-                : "none";
-    }
-
-    function clearInvoiceSearch() {
-        const searchInput =
-            document.getElementById("invoiceSearch");
-
-        searchInput.value = "";
-        filterInvoices();
-        searchInput.focus();
-    }
-</script>
 
   <script th:src="@{/js/aak-ui.js}" src="/js/aak-ui.js"></script>
 </body>

@@ -9,6 +9,7 @@ import lk.aak.agency.service.PurchaseInvoiceFileService;
 import lk.aak.agency.service.PurchaseInvoiceService;
 import lk.aak.agency.service.SupplierPaymentService;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -37,6 +38,8 @@ import java.util.List;
 @RequestMapping("/purchase-invoices")
 public class PurchaseInvoiceController {
 
+    private static final int PAGE_SIZE = 25;
+
     private final PurchaseInvoiceService purchaseInvoiceService;
     private final ProductRepository productRepository;
     private final PurchaseInvoiceFileService purchaseInvoiceFileService;
@@ -55,12 +58,25 @@ public class PurchaseInvoiceController {
     }
 
     @GetMapping
-    public String listPurchaseInvoices(Model model) {
+    public String listPurchaseInvoices(
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(defaultValue = "0") int page,
+            Model model) {
+
+        Page<PurchaseInvoice> invoicePage =
+                purchaseInvoiceService.getInvoicePage(
+                        search, page, PAGE_SIZE
+                );
 
         model.addAttribute(
                 "invoices",
-                purchaseInvoiceService.getAllInvoices()
+                invoicePage.getContent()
         );
+
+        model.addAttribute("search", search);
+        model.addAttribute("currentPage", invoicePage.getNumber());
+        model.addAttribute("totalPages", invoicePage.getTotalPages());
+        model.addAttribute("totalRecords", invoicePage.getTotalElements());
 
         return "purchase-invoices/purchase-invoice-list";
     }

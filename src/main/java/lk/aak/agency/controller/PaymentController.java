@@ -5,6 +5,7 @@ import lk.aak.agency.model.SalesInvoice;
 import lk.aak.agency.repository.SalesInvoiceRepository;
 import lk.aak.agency.service.EmployeeService;
 import lk.aak.agency.service.PaymentService;
+import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -26,6 +27,8 @@ import java.util.Map;
 @RequestMapping("/payments")
 public class PaymentController {
 
+    private static final int PAGE_SIZE = 25;
+
     private final PaymentService paymentService;
     private final SalesInvoiceRepository salesInvoiceRepository;
     private final EmployeeService employeeService;
@@ -42,42 +45,40 @@ public class PaymentController {
     }
 
     @GetMapping
-    public String showPaymentList(Model model) {
+    public String showPaymentList(
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(defaultValue = "0") int page,
+            Model model) {
 
-        List<Payment> payments =
-                paymentService.getAllPayments();
-
-        BigDecimal totalCollected =
-                calculateTotalCollected(payments);
-
-        long receivedPaymentCount =
-                payments.stream()
-                        .filter(payment ->
-                                "RECEIVED".equalsIgnoreCase(
-                                        payment.getStatus()
-                                )
-                        )
-                        .count();
+        Page<Payment> paymentPage =
+                paymentService.getPaymentPage(
+                        search, page, PAGE_SIZE
+                );
 
         model.addAttribute(
                 "payments",
-                payments
+                paymentPage.getContent()
         );
 
         model.addAttribute(
                 "totalPayments",
-                payments.size()
+                paymentPage.getTotalElements()
         );
 
         model.addAttribute(
                 "receivedPaymentCount",
-                receivedPaymentCount
+                paymentService.getReceivedPaymentCount(search)
         );
 
         model.addAttribute(
                 "totalCollected",
-                totalCollected
+                paymentService.getTotalCollected(search)
         );
+
+        model.addAttribute("search", search);
+        model.addAttribute("currentPage", paymentPage.getNumber());
+        model.addAttribute("totalPages", paymentPage.getTotalPages());
+        model.addAttribute("totalRecords", paymentPage.getTotalElements());
 
         return "payments/payment-list";
     }
@@ -388,32 +389,6 @@ public class PaymentController {
                                 ) > 0
                 )
                 .toList();
-    }
-
-    private BigDecimal calculateTotalCollected(
-            List<Payment> payments) {
-
-        BigDecimal totalCollected =
-                BigDecimal.ZERO;
-
-        for (Payment payment : payments) {
-
-            boolean isReceived =
-                    "RECEIVED".equalsIgnoreCase(
-                            payment.getStatus()
-                    );
-
-            if (isReceived
-                    && payment.getAmount() != null) {
-
-                totalCollected =
-                        totalCollected.add(
-                                payment.getAmount()
-                        );
-            }
-        }
-
-        return totalCollected;
     }
 
     private String createChequeStatusMessage(
