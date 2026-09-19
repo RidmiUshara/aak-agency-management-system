@@ -91,11 +91,18 @@ jobs:
           MYSQL_DATABASE=aak_agency_db
           MYSQL_USER=aak_app
           MYSQL_PASSWORD=dev-app-change-me
-          DDL_AUTO=update
+          DDL_AUTO=validate
           APP_ADMIN_USERNAME=admin
           APP_ADMIN_PASSWORD=dev-admin-change-me
           APP_ADMIN_FULL_NAME=AAK Agency Owner
           ENV
+          fi
+          # Schema is Flyway-managed now - force validate on every deploy, in case an
+          # older .env from before the Flyway migration still has DDL_AUTO=update.
+          if grep -q '^DDL_AUTO=' /opt/aak-agency/.env; then
+            sed -i 's/^DDL_AUTO=.*/DDL_AUTO=validate/' /opt/aak-agency/.env
+          else
+            echo 'DDL_AUTO=validate' >> /opt/aak-agency/.env
           fi
           sed -i "s#REPLACE_WITH_ECR_IMAGE#$registry/$ECR_REPOSITORY#" /opt/aak-agency/.env
           aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$registry"

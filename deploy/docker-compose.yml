@@ -29,7 +29,7 @@ services:
       DB_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-aak_agency_db}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Colombo
       DB_USERNAME: ${MYSQL_USER:-aak_app}
       DB_PASSWORD: ${MYSQL_PASSWORD}
-      DDL_AUTO: ${DDL_AUTO:-update}
+      DDL_AUTO: ${DDL_AUTO:-validate}
       APP_ADMIN_USERNAME: ${APP_ADMIN_USERNAME:-admin}
       APP_ADMIN_PASSWORD: ${APP_ADMIN_PASSWORD}
       APP_ADMIN_FULL_NAME: ${APP_ADMIN_FULL_NAME:-AAK Agency Owner}
