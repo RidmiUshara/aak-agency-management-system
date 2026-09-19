@@ -370,6 +370,7 @@
                            class="form-control"
                            placeholder="Example: REC-0001"
                            required>
+                    <span class="field-error" th:if="${#fields.hasErrors('receiptNumber')}" th:errors="*{receiptNumber}"></span>
                 </div>
 
                 <div class="form-group">
@@ -384,6 +385,7 @@
                            th:field="*{paymentDate}"
                            class="form-control"
                            required>
+                    <span class="field-error" th:if="${#fields.hasErrors('paymentDate')}" th:errors="*{paymentDate}"></span>
                 </div>
 
                 <div class="form-group full-width">
@@ -526,6 +528,7 @@
                            placeholder="Example: 300.00"
                            oninput="validatePaymentAmount()"
                            required>
+                    <span class="field-error" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></span>
 
                     <div class="amount-warning"
                          id="amountWarning">
@@ -563,6 +566,7 @@
                         </option>
 
                     </select>
+                    <span class="field-error" th:if="${#fields.hasErrors('paymentMethod')}" th:errors="*{paymentMethod}"></span>
 
                 </div>
 

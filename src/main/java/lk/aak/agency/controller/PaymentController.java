@@ -5,11 +5,13 @@ import lk.aak.agency.model.SalesInvoice;
 import lk.aak.agency.repository.SalesInvoiceRepository;
 import lk.aak.agency.service.EmployeeService;
 import lk.aak.agency.service.PaymentService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -95,32 +97,45 @@ public class PaymentController {
         payment.setPaymentMethod("CASH");
         payment.setStatus("RECEIVED");
 
-        Long selectedInvoiceId = null;
+        Long selectedInvoiceId =
+                applySelectedInvoice(payment, invoiceId);
 
-        if (invoiceId != null) {
+        populatePaymentFormModel(model, selectedInvoiceId);
 
-            SalesInvoice selectedInvoice =
-                    salesInvoiceRepository
-                            .findById(invoiceId)
-                            .orElse(null);
+        model.addAttribute("payment", payment);
 
-            if (selectedInvoice != null
-                    && "COMPLETED".equalsIgnoreCase(
-                    selectedInvoice.getStatus())
-                    && "CREDIT".equalsIgnoreCase(
-                    selectedInvoice.getSaleType())
-                    && paymentService
-                    .getRemainingBalance(selectedInvoice)
-                    .compareTo(BigDecimal.ZERO) > 0) {
+        return "payments/payment-form";
+    }
 
-                payment.setSalesInvoice(
-                        selectedInvoice
-                );
+    private Long applySelectedInvoice(
+            Payment payment, Long invoiceId) {
 
-                selectedInvoiceId =
-                        selectedInvoice.getId();
-            }
+        if (invoiceId == null) {
+            return null;
         }
+
+        SalesInvoice selectedInvoice =
+                salesInvoiceRepository
+                        .findById(invoiceId)
+                        .orElse(null);
+
+        if (selectedInvoice == null
+                || !"COMPLETED".equalsIgnoreCase(selectedInvoice.getStatus())
+                || !"CREDIT".equalsIgnoreCase(selectedInvoice.getSaleType())
+                || paymentService.getRemainingBalance(selectedInvoice)
+                        .compareTo(BigDecimal.ZERO) <= 0) {
+
+            return null;
+        }
+
+        payment.setSalesInvoice(selectedInvoice);
+
+        return selectedInvoice.getId();
+    }
+
+    /** Shared by the "new payment" GET view and the "save" POST's validation-failure path. */
+    private void populatePaymentFormModel(
+            Model model, Long selectedInvoiceId) {
 
         List<SalesInvoice> creditInvoices =
                 getOutstandingCreditInvoices();
@@ -155,11 +170,6 @@ public class PaymentController {
         }
 
         model.addAttribute(
-                "payment",
-                payment
-        );
-
-        model.addAttribute(
                 "creditInvoices",
                 creditInvoices
         );
@@ -183,15 +193,27 @@ public class PaymentController {
                 "fieldCollectors",
                 employeeService.getActiveFieldCollectors()
         );
-
-        return "payments/payment-form";
     }
 
     @PostMapping("/save")
     public String savePayment(
-            Payment payment,
+            @Valid Payment payment,
+            BindingResult bindingResult,
             @RequestParam Long salesInvoiceId,
+            Model model,
             RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+
+            populatePaymentFormModel(model, salesInvoiceId);
+
+            SalesInvoice selectedInvoice =
+                    salesInvoiceRepository.findById(salesInvoiceId).orElse(null);
+
+            payment.setSalesInvoice(selectedInvoice);
+
+            return "payments/payment-form";
+        }
 
         try {
             SalesInvoice salesInvoice =
