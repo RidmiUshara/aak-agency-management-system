@@ -160,6 +160,31 @@ public class SecurityConfig {
                                                 "JSESSIONID"
                                         )
                                         .permitAll()
+                )
+
+                /*
+                 * X-Frame-Options, X-Content-Type-Options and (on HTTPS) HSTS are already
+                 * enabled by Spring Security's defaults - only CSP needs to be added.
+                 * 'unsafe-inline' is required for script-src/style-src because the templates
+                 * use inline onclick="..." handlers and inline <style> blocks throughout;
+                 * removing those (in favour of nonces/external files) would let this be tightened.
+                 */
+                .headers(
+                        headers ->
+                                headers.contentSecurityPolicy(
+                                        csp ->
+                                                csp.policyDirectives(
+                                                        "default-src 'self'; "
+                                                                + "script-src 'self' 'unsafe-inline'; "
+                                                                + "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+                                                                + "font-src 'self' https://fonts.gstatic.com; "
+                                                                + "img-src 'self' data:; "
+                                                                + "object-src 'none'; "
+                                                                + "base-uri 'self'; "
+                                                                + "form-action 'self'; "
+                                                                + "frame-ancestors 'self'"
+                                                )
+                                )
                 );
 
         return http.build();
