@@ -12,11 +12,14 @@ import java.util.Optional;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final AuditLogService auditLogService;
 
     public ProductService(
-            ProductRepository productRepository) {
+            ProductRepository productRepository,
+            AuditLogService auditLogService) {
 
         this.productRepository = productRepository;
+        this.auditLogService = auditLogService;
     }
 
     public List<Product> getAllProducts() {
@@ -84,6 +87,14 @@ public class ProductService {
     }
 
     public void deleteProduct(Long id) {
+
+        Product product = productRepository.findById(id).orElse(null);
+
         productRepository.deleteById(id);
+
+        auditLogService.record(
+                "PRODUCT_DELETED", "Product", id,
+                product == null ? null : "Deleted product \"" + product.getProductName() + "\""
+        );
     }
 }

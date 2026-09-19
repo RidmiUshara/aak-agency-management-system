@@ -87,6 +87,13 @@ public class SecurityConfig {
                                         .hasRole("ADMIN")
 
                                         /*
+                                         * Audit trail (who deleted/approved/overrode what) is
+                                         * an Owner-only function.
+                                         */
+                                        .requestMatchers("/audit-log/**")
+                                        .hasRole("ADMIN")
+
+                                        /*
                                          * Sales reps only see shops (customers) and bills
                                          * (sales invoices) - no purchasing/financial access.
                                          */

@@ -25,19 +25,22 @@ public class ShopReturnService {
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
     private final StockMovementRepository stockMovementRepository;
+    private final AuditLogService auditLogService;
 
     public ShopReturnService(
             ShopReturnRepository shopReturnRepository,
             ShopReturnItemRepository shopReturnItemRepository,
             CustomerRepository customerRepository,
             ProductRepository productRepository,
-            StockMovementRepository stockMovementRepository) {
+            StockMovementRepository stockMovementRepository,
+            AuditLogService auditLogService) {
 
         this.shopReturnRepository = shopReturnRepository;
         this.shopReturnItemRepository = shopReturnItemRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
         this.stockMovementRepository = stockMovementRepository;
+        this.auditLogService = auditLogService;
     }
 
     public List<ShopReturn> getAllReturns() {
@@ -141,6 +144,11 @@ public class ShopReturnService {
 
         shopReturn.setStatus("APPROVED");
         shopReturnRepository.save(shopReturn);
+
+        auditLogService.record(
+                "SHOP_RETURN_APPROVED", "ShopReturn", shopReturnId,
+                "Approved return from " + shopReturn.getCustomerName()
+        );
     }
 
     @Transactional
@@ -155,5 +163,10 @@ public class ShopReturnService {
 
         shopReturn.setStatus("REJECTED");
         shopReturnRepository.save(shopReturn);
+
+        auditLogService.record(
+                "SHOP_RETURN_REJECTED", "ShopReturn", shopReturnId,
+                "Rejected return from " + shopReturn.getCustomerName()
+        );
     }
 }

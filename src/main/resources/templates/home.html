@@ -983,6 +983,11 @@
         Manage Users
       </a>
 
+      <a th:if="${loggedInRole == 'ADMIN'}" th:href="@{/audit-log}">
+        <span class="nav-icon">AL</span>
+        Audit Log
+      </a>
+
     </nav>
 
     <div class="sidebar-footer">

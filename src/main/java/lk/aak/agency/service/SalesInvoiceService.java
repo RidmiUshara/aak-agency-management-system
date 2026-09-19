@@ -29,12 +29,14 @@ public class SalesInvoiceService {
     private final StockMovementRepository
             stockMovementRepository;
     private final PaymentRepository paymentRepository;
+    private final AuditLogService auditLogService;
 
     public SalesInvoiceService(
             SalesInvoiceRepository salesInvoiceRepository,
             SalesInvoiceItemRepository salesInvoiceItemRepository,
             StockMovementRepository stockMovementRepository,
-            PaymentRepository paymentRepository) {
+            PaymentRepository paymentRepository,
+            AuditLogService auditLogService) {
 
         this.salesInvoiceRepository =
                 salesInvoiceRepository;
@@ -47,6 +49,8 @@ public class SalesInvoiceService {
 
         this.paymentRepository =
                 paymentRepository;
+
+        this.auditLogService = auditLogService;
     }
 
     public List<SalesInvoice> getAllInvoices() {
@@ -368,6 +372,11 @@ public class SalesInvoiceService {
         }
 
         completeInvoiceInternal(invoiceId, overrideApprovedBy.trim(), overrideReason.trim());
+
+        auditLogService.record(
+                "CREDIT_LIMIT_OVERRIDE", "SalesInvoice", invoiceId,
+                "Approved by " + overrideApprovedBy.trim() + ": " + overrideReason.trim()
+        );
     }
 
     private void completeInvoiceInternal(
@@ -578,6 +587,11 @@ public class SalesInvoiceService {
 
         salesInvoiceRepository
                 .deleteById(invoiceId);
+
+        auditLogService.record(
+                "SALES_INVOICE_DELETED", "SalesInvoice", invoiceId,
+                "Deleted sales invoice \"" + invoice.getInvoiceNumber() + "\""
+        );
     }
 
     public BigDecimal getAvailableStock(

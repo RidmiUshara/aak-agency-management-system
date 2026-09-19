@@ -41,11 +41,13 @@ class SupplierReturnServiceTest {
     private StockMovementRepository stockMovementRepository;
     @Mock
     private InventoryService inventoryService;
+    @Mock
+    private AuditLogService auditLogService;
 
     private SupplierReturnService newService() {
         return new SupplierReturnService(
                 supplierReturnRepository, supplierReturnItemRepository, purchaseInvoiceRepository,
-                productRepository, stockMovementRepository, inventoryService
+                productRepository, stockMovementRepository, inventoryService, auditLogService
         );
     }
 

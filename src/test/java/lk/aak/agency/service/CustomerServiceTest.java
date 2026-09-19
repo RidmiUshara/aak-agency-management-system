@@ -21,6 +21,9 @@ class CustomerServiceTest {
     @Mock
     private CustomerRepository customerRepository;
 
+    @Mock
+    private AuditLogService auditLogService;
+
     @InjectMocks
     private CustomerService customerService;
 

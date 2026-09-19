@@ -26,6 +26,7 @@ public class SupplierReturnService {
     private final ProductRepository productRepository;
     private final StockMovementRepository stockMovementRepository;
     private final InventoryService inventoryService;
+    private final AuditLogService auditLogService;
 
     public SupplierReturnService(
             SupplierReturnRepository supplierReturnRepository,
@@ -33,7 +34,8 @@ public class SupplierReturnService {
             PurchaseInvoiceRepository purchaseInvoiceRepository,
             ProductRepository productRepository,
             StockMovementRepository stockMovementRepository,
-            InventoryService inventoryService) {
+            InventoryService inventoryService,
+            AuditLogService auditLogService) {
 
         this.supplierReturnRepository = supplierReturnRepository;
         this.supplierReturnItemRepository = supplierReturnItemRepository;
@@ -41,6 +43,7 @@ public class SupplierReturnService {
         this.productRepository = productRepository;
         this.stockMovementRepository = stockMovementRepository;
         this.inventoryService = inventoryService;
+        this.auditLogService = auditLogService;
     }
 
     public List<SupplierReturn> getAllReturns() {
@@ -156,6 +159,11 @@ public class SupplierReturnService {
 
         supplierReturn.setStatus("APPROVED");
         supplierReturnRepository.save(supplierReturn);
+
+        auditLogService.record(
+                "SUPPLIER_RETURN_APPROVED", "SupplierReturn", supplierReturnId,
+                "Approved supplier return"
+        );
     }
 
     @Transactional
@@ -170,5 +178,10 @@ public class SupplierReturnService {
 
         supplierReturn.setStatus("REJECTED");
         supplierReturnRepository.save(supplierReturn);
+
+        auditLogService.record(
+                "SUPPLIER_RETURN_REJECTED", "SupplierReturn", supplierReturnId,
+                "Rejected supplier return"
+        );
     }
 }

@@ -27,9 +27,11 @@ class PaymentServiceHandoverTest {
     private SalesInvoiceRepository salesInvoiceRepository;
     @Mock
     private EmployeeRepository employeeRepository;
+    @Mock
+    private AuditLogService auditLogService;
 
     private PaymentService newService() {
-        return new PaymentService(paymentRepository, salesInvoiceRepository, employeeRepository);
+        return new PaymentService(paymentRepository, salesInvoiceRepository, employeeRepository, auditLogService);
     }
 
     @Test

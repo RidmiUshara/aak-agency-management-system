@@ -15,9 +15,11 @@ import java.util.UUID;
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final AuditLogService auditLogService;
 
-    public CustomerService(CustomerRepository customerRepository) {
+    public CustomerService(CustomerRepository customerRepository, AuditLogService auditLogService) {
         this.customerRepository = customerRepository;
+        this.auditLogService = auditLogService;
     }
 
     public List<Customer> getAllCustomers() {
@@ -63,7 +65,15 @@ public class CustomerService {
     }
 
     public void deleteCustomer(Long id) {
+
+        Customer customer = customerRepository.findById(id).orElse(null);
+
         customerRepository.deleteById(id);
+
+        auditLogService.record(
+                "CUSTOMER_DELETED", "Customer", id,
+                customer == null ? null : "Deleted customer \"" + customer.getCustomerName() + "\""
+        );
     }
 
     private String generateCustomerCode() {

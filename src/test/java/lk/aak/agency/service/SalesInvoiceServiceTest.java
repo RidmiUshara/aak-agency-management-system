@@ -32,11 +32,13 @@ class SalesInvoiceServiceTest {
     private StockMovementRepository stockMovementRepository;
     @Mock
     private PaymentRepository paymentRepository;
+    @Mock
+    private AuditLogService auditLogService;
 
     private SalesInvoiceService newService() {
         return new SalesInvoiceService(
                 salesInvoiceRepository, salesInvoiceItemRepository,
-                stockMovementRepository, paymentRepository
+                stockMovementRepository, paymentRepository, auditLogService
         );
     }
 

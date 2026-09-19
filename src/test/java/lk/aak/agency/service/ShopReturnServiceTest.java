@@ -39,11 +39,13 @@ class ShopReturnServiceTest {
     private ProductRepository productRepository;
     @Mock
     private StockMovementRepository stockMovementRepository;
+    @Mock
+    private AuditLogService auditLogService;
 
     private ShopReturnService newService() {
         return new ShopReturnService(
                 shopReturnRepository, shopReturnItemRepository,
-                customerRepository, productRepository, stockMovementRepository
+                customerRepository, productRepository, stockMovementRepository, auditLogService
         );
     }
 

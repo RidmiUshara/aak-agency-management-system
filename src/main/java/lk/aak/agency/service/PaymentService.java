@@ -39,16 +39,19 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final SalesInvoiceRepository salesInvoiceRepository;
     private final EmployeeRepository employeeRepository;
+    private final AuditLogService auditLogService;
 
     public PaymentService(
             PaymentRepository paymentRepository,
             SalesInvoiceRepository salesInvoiceRepository,
-            EmployeeRepository employeeRepository) {
+            EmployeeRepository employeeRepository,
+            AuditLogService auditLogService) {
 
         this.paymentRepository = paymentRepository;
         this.salesInvoiceRepository =
                 salesInvoiceRepository;
         this.employeeRepository = employeeRepository;
+        this.auditLogService = auditLogService;
     }
 
     public List<Payment> getAllPayments() {
@@ -494,6 +497,11 @@ public class PaymentService {
         updateInvoicePaymentStatus(
                 invoice,
                 remainingPaidAmount
+        );
+
+        auditLogService.record(
+                "PAYMENT_DELETED", "Payment", paymentId,
+                "Deleted payment receipt \"" + payment.getReceiptNumber() + "\""
         );
     }
 

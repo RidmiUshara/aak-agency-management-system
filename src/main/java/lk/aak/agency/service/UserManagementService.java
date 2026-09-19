@@ -14,13 +14,16 @@ public class UserManagementService {
 
     private final SystemUserRepository systemUserRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuditLogService auditLogService;
 
     public UserManagementService(
             SystemUserRepository systemUserRepository,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            AuditLogService auditLogService) {
 
         this.systemUserRepository = systemUserRepository;
         this.passwordEncoder = passwordEncoder;
+        this.auditLogService = auditLogService;
     }
 
     public List<SystemUser> getAllUsers() {
@@ -44,6 +47,11 @@ public class UserManagementService {
         newUser.setPassword(passwordEncoder.encode(rawPassword));
 
         systemUserRepository.save(newUser);
+
+        auditLogService.record(
+                "USER_CREATED", "SystemUser", newUser.getId(),
+                "Created user \"" + username + "\" with role " + newUser.getRole()
+        );
     }
 
     public void updateUser(
@@ -65,15 +73,37 @@ public class UserManagementService {
             );
         }
 
+        String previousRole = user.getRole();
+        boolean previousEnabled = user.isEnabled();
+        boolean passwordChanged = rawPassword != null && !rawPassword.isBlank();
+
         user.setFullName(fullName);
         user.setRole(role);
         user.setEnabled(enabled);
 
-        if (rawPassword != null && !rawPassword.isBlank()) {
+        if (passwordChanged) {
             user.setPassword(passwordEncoder.encode(rawPassword));
         }
 
         systemUserRepository.save(user);
+
+        StringBuilder details = new StringBuilder("Updated user \"" + user.getUsername() + "\"");
+
+        if (!previousRole.equals(role)) {
+            details.append(": role ").append(previousRole).append(" -> ").append(role);
+        }
+
+        if (previousEnabled != enabled) {
+            details.append(", ").append(enabled ? "enabled" : "disabled");
+        }
+
+        if (passwordChanged) {
+            details.append(", password reset");
+        }
+
+        auditLogService.record(
+                "USER_UPDATED", "SystemUser", user.getId(), details.toString()
+        );
     }
 
     private long countOtherEnabledAdmins(Long excludingId) {
@@ -84,3 +114,4 @@ public class UserManagementService {
                 .count();
     }
 }
+

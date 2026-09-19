@@ -23,15 +23,18 @@ public class PurchaseInvoiceService {
     private final PurchaseInvoiceRepository purchaseInvoiceRepository;
     private final PurchaseInvoiceItemRepository purchaseInvoiceItemRepository;
     private final StockMovementRepository stockMovementRepository;
+    private final AuditLogService auditLogService;
 
     public PurchaseInvoiceService(
             PurchaseInvoiceRepository purchaseInvoiceRepository,
             PurchaseInvoiceItemRepository purchaseInvoiceItemRepository,
-            StockMovementRepository stockMovementRepository) {
+            StockMovementRepository stockMovementRepository,
+            AuditLogService auditLogService) {
 
         this.purchaseInvoiceRepository = purchaseInvoiceRepository;
         this.purchaseInvoiceItemRepository = purchaseInvoiceItemRepository;
         this.stockMovementRepository = stockMovementRepository;
+        this.auditLogService = auditLogService;
     }
 
     public List<PurchaseInvoice> getAllInvoices() {
@@ -370,6 +373,11 @@ public class PurchaseInvoiceService {
         purchaseInvoiceItemRepository.flush();
 
         purchaseInvoiceRepository.deleteById(invoiceId);
+
+        auditLogService.record(
+                "PURCHASE_INVOICE_DELETED", "PurchaseInvoice", invoiceId,
+                "Deleted purchase invoice \"" + invoice.getDocumentNumber() + "\""
+        );
     }
 
     private void validateInvoiceCanBeSaved(

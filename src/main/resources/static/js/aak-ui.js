@@ -77,7 +77,8 @@
     { href: "/attendance", label: "Attendance", icon: "📅", roles: OFFICE_ONLY_ROLES },
     { href: "/advances", label: "Advances", icon: "💵", roles: OFFICE_ONLY_ROLES },
     { href: "/salary", label: "Salary", icon: "💰", roles: OFFICE_ONLY_ROLES },
-    { href: "/users", label: "Manage Users", icon: "🔑", roles: ["ADMIN"] }
+    { href: "/users", label: "Manage Users", icon: "🔑", roles: ["ADMIN"] },
+    { href: "/audit-log", label: "Audit Log", icon: "🕵️", roles: ["ADMIN"] }
   ];
 
   var SIDEBAR_FOOTER_LINKS = [
