@@ -58,9 +58,12 @@ jobs:
           registry="${ACCOUNT_ID%%/*}"
           commands=$(cat <<EOF
           set -e
-          mkdir -p /opt/aak-agency/nginx
+          mkdir -p /opt/aak-agency/nginx/certs
           if ! rpm -q docker >/dev/null 2>&1; then
             dnf install -y docker
+          fi
+          if ! rpm -q openssl >/dev/null 2>&1; then
+            dnf install -y openssl
           fi
           systemctl enable --now docker
           mkdir -p /usr/local/lib/docker/cli-plugins
@@ -71,6 +74,15 @@ jobs:
           fi
           curl -fsSL "$DEPLOY_REPOSITORY/docker-compose.yml" -o /opt/aak-agency/docker-compose.yml
           curl -fsSL "$DEPLOY_REPOSITORY/nginx/aak-agency.conf" -o /opt/aak-agency/nginx/aak-agency.conf
+          if [ ! -f /opt/aak-agency/nginx/certs/cert.pem ]; then
+            token=\$(curl -fsS -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
+            public_ip=\$(curl -fsS -H "X-aws-ec2-metadata-token: \$token" http://169.254.169.254/latest/meta-data/public-ipv4 || echo "localhost")
+            openssl req -x509 -nodes -days 825 -newkey rsa:2048 \
+              -keyout /opt/aak-agency/nginx/certs/key.pem \
+              -out /opt/aak-agency/nginx/certs/cert.pem \
+              -subj "/CN=\$public_ip" \
+              -addext "subjectAltName=IP:\$public_ip"
+          fi
           if [ ! -f /opt/aak-agency/.env ]; then
             cat > /opt/aak-agency/.env <<'ENV'
           APP_IMAGE=REPLACE_WITH_ECR_IMAGE
