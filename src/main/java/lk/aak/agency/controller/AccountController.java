@@ -4,6 +4,7 @@ import lk.aak.agency.model.SystemUser;
 import lk.aak.agency.repository.SystemUserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,6 +53,13 @@ public class AccountController {
                 .map(authority -> authority.substring("ROLE_".length()))
                 .findFirst()
                 .orElse("");
+    }
+
+    /** Lets the JS-built nav (which has no server-rendered form) submit a real POST logout. */
+    @GetMapping("/account/csrf")
+    @ResponseBody
+    public CsrfToken currentCsrfToken(CsrfToken token) {
+        return token;
     }
 
     @PostMapping("/account/change-password")

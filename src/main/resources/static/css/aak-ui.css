@@ -20,6 +20,7 @@
   --aak-shadow-soft: 0 8px 22px rgba(11, 61, 145, 0.07);
   --aak-radius: 10px;
   --aak-bottom-nav-height: 64px;
+  --aak-side-nav-width: 236px;
   color-scheme: light;
 }
 
@@ -564,6 +565,88 @@ label,
 .aak-theme-toggle:hover {
   transform: translateY(-1px);
   box-shadow: var(--aak-shadow);
+}
+
+/* Shared desktop/tablet side nav, injected on every page except the dashboard
+   (which already has its own sidebar) so every screen has real navigation. */
+.aak-side-nav {
+  display: none;
+}
+
+@media (min-width: 901px) {
+  body.aak-has-side-nav {
+    padding-left: var(--aak-side-nav-width);
+  }
+
+  .aak-side-nav {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: var(--aak-side-nav-width);
+    background: var(--aak-panel);
+    border-right: 1px solid var(--aak-line);
+    z-index: 1000;
+    overflow-y: auto;
+  }
+
+  .aak-side-nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 16px;
+    border-bottom: 1px solid var(--aak-line);
+    text-decoration: none;
+    color: var(--aak-ink);
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  .aak-side-nav-brand img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .aak-side-nav-links {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    gap: 2px;
+    flex: 1;
+  }
+
+  .aak-side-nav-footer {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    gap: 2px;
+    border-top: 1px solid var(--aak-line);
+  }
+
+  .aak-side-nav-links a,
+  .aak-side-nav-footer a {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 10px 12px;
+    border-radius: var(--aak-radius);
+    color: var(--aak-text);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .aak-side-nav-links a:hover,
+  .aak-side-nav-footer a:hover {
+    background: var(--aak-soft);
+  }
+
+  .aak-side-nav-links a.active {
+    background: var(--aak-primary);
+    color: #ffffff;
+  }
 }
 
 /* App-like bottom navigation bar, shown on phones only */
