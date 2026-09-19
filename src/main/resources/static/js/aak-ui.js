@@ -46,36 +46,66 @@
     }
   }
 
+  // Roles omitted entirely (no "roles" key) means every logged-in role can see the link.
+  // These lists mirror the module access rules in SecurityConfig.java.
+  var OFFICE_ONLY_ROLES = ["ADMIN", "OFFICE"];
+
   var BOTTOM_NAV_LINKS = [
     { href: "/", label: "Dashboard", icon: "🏠" },
-    { href: "/customers", label: "Customers", icon: "👥" },
-    { href: "/sales-invoices", label: "Sales", icon: "🧾" },
-    { href: "/payments", label: "Payments", icon: "💳" }
+    { href: "/customers", label: "Customers", icon: "👥", roles: ["ADMIN", "OFFICE", "SALES_REP"] },
+    { href: "/sales-invoices", label: "Sales", icon: "🧾", roles: ["ADMIN", "OFFICE", "SALES_REP"] },
+    { href: "/payments", label: "Payments", icon: "💳", roles: OFFICE_ONLY_ROLES }
   ];
 
   var MORE_LINKS = [
-    { href: "/products", label: "Products", icon: "📦" },
-    { href: "/purchase-invoices", label: "Purchase Invoices", icon: "📥" },    { href: "/purchase-invoices/supplier-balance", label: "Supplier Balance", icon: "🏦" },    { href: "/inventory", label: "Inventory", icon: "📊" },
-    { href: "/inventory/adjustments", label: "Stock Adjustments", icon: "🛠️" },
-    { href: "/customers/credit-followup", label: "Credit Follow-up", icon: "📋" },
-    { href: "/cheques", label: "Cheques", icon: "🏦" },
-    { href: "/collections", label: "Collections", icon: "📬" },
-    { href: "/collections/handover", label: "Daily Handover", icon: "🧾" },
-    { href: "/reports", label: "Reports", icon: "📈" },
-    { href: "/employees", label: "Employees", icon: "🧑‍💼" },
-    { href: "/vehicles", label: "Vehicles", icon: "🚚" },
-    { href: "/routes", label: "Routes", icon: "🗺️" },
-    { href: "/delivery-trips", label: "Delivery Trips", icon: "🚛" },
-    { href: "/delivery-trips/vehicle-stock", label: "Vehicle Stock", icon: "📦" },
-    { href: "/shop-returns", label: "Shop Returns", icon: "↩️" },
-    { href: "/supplier-returns", label: "CBL Returns", icon: "↩️" },
-    { href: "/attendance", label: "Attendance", icon: "📅" },
-    { href: "/advances", label: "Advances", icon: "💵" },
-    { href: "/salary", label: "Salary", icon: "💰" },
-    { href: "/users", label: "Manage Users", icon: "🔑" },
+    { href: "/products", label: "Products", icon: "📦", roles: OFFICE_ONLY_ROLES },
+    { href: "/purchase-invoices", label: "Purchase Invoices", icon: "📥", roles: OFFICE_ONLY_ROLES },
+    { href: "/purchase-invoices/supplier-balance", label: "Supplier Balance", icon: "🏦", roles: OFFICE_ONLY_ROLES },
+    { href: "/inventory", label: "Inventory", icon: "📊", roles: OFFICE_ONLY_ROLES },
+    { href: "/inventory/adjustments", label: "Stock Adjustments", icon: "🛠️", roles: OFFICE_ONLY_ROLES },
+    { href: "/customers/credit-followup", label: "Credit Follow-up", icon: "📋", roles: ["ADMIN", "OFFICE", "SALES_REP"] },
+    { href: "/cheques", label: "Cheques", icon: "🏦", roles: OFFICE_ONLY_ROLES },
+    { href: "/collections", label: "Collections", icon: "📬", roles: OFFICE_ONLY_ROLES },
+    { href: "/collections/handover", label: "Daily Handover", icon: "🧾", roles: OFFICE_ONLY_ROLES },
+    { href: "/reports", label: "Reports", icon: "📈", roles: OFFICE_ONLY_ROLES },
+    { href: "/employees", label: "Employees", icon: "🧑‍💼", roles: OFFICE_ONLY_ROLES },
+    { href: "/vehicles", label: "Vehicles", icon: "🚚", roles: OFFICE_ONLY_ROLES },
+    { href: "/routes", label: "Routes", icon: "🗺️", roles: OFFICE_ONLY_ROLES },
+    { href: "/delivery-trips", label: "Delivery Trips", icon: "🚛", roles: OFFICE_ONLY_ROLES },
+    { href: "/delivery-trips/vehicle-stock", label: "Vehicle Stock", icon: "📦", roles: OFFICE_ONLY_ROLES },
+    { href: "/shop-returns", label: "Shop Returns", icon: "↩️", roles: OFFICE_ONLY_ROLES },
+    { href: "/supplier-returns", label: "CBL Returns", icon: "↩️", roles: OFFICE_ONLY_ROLES },
+    { href: "/attendance", label: "Attendance", icon: "📅", roles: OFFICE_ONLY_ROLES },
+    { href: "/advances", label: "Advances", icon: "💵", roles: OFFICE_ONLY_ROLES },
+    { href: "/salary", label: "Salary", icon: "💰", roles: OFFICE_ONLY_ROLES },
+    { href: "/users", label: "Manage Users", icon: "🔑", roles: ["ADMIN"] },
     { href: "/account/change-password", label: "Change Password", icon: "🔒" },
     { href: "/logout", label: "Logout", icon: "🚪" }
   ];
+
+  function allowedForRole(item, role) {
+    return !item.roles || item.roles.indexOf(role) !== -1;
+  }
+
+  function fetchCurrentRole(callback) {
+    if (typeof window.fetch !== "function") {
+      callback(null);
+      return;
+    }
+
+    window.fetch("/account/role", { credentials: "same-origin" })
+      .then(function (response) {
+        return response.ok ? response.text() : "";
+      })
+      .then(function (role) {
+        callback(role || null);
+      })
+      .catch(function () {
+        callback(null);
+      });
+  }
+
+
 
   function normalizedPath(href) {
     return (
@@ -106,18 +136,26 @@
     setTheme(currentTheme());
   }
 
-  function buildBottomNav() {
+  function buildBottomNav(role) {
     if (document.querySelector(".aak-bottom-nav")) {
       return;
     }
 
     document.body.classList.add("aak-has-bottom-nav");
 
+    var visibleBottomLinks = BOTTOM_NAV_LINKS.filter(function (item) {
+      return allowedForRole(item, role);
+    });
+
+    var visibleMoreLinks = MORE_LINKS.filter(function (item) {
+      return allowedForRole(item, role);
+    });
+
     var nav = document.createElement("nav");
     nav.className = "aak-bottom-nav";
     nav.setAttribute("aria-label", "Primary");
 
-    BOTTOM_NAV_LINKS.forEach(function (item) {
+    visibleBottomLinks.forEach(function (item) {
       var link = document.createElement("a");
       link.href = item.href;
 
@@ -139,7 +177,7 @@
     panel.className = "aak-bottom-nav-more-sheet-panel";
     panel.innerHTML = '<div class="aak-bottom-nav-more-sheet-handle"></div>';
 
-    MORE_LINKS.forEach(function (item) {
+    visibleMoreLinks.forEach(function (item) {
       var link = document.createElement("a");
       link.href = item.href;
       link.innerHTML =
@@ -195,7 +233,9 @@
     var isLoginPage = (window.location.pathname.replace(/\/$/, "") || "/") === "/login";
 
     if (!isLoginPage) {
-      buildBottomNav();
+      fetchCurrentRole(function (role) {
+        buildBottomNav(role);
+      });
     }
 
     var path = window.location.pathname.replace(/\/$/, "") || "/";

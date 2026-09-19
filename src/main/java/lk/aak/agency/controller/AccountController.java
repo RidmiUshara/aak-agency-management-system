@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -34,6 +35,23 @@ public class AccountController {
     public String showChangePasswordPage() {
 
         return "change-password";
+    }
+
+    /** Lets client-side nav (e.g. the mobile bottom nav) filter links by role without a page reload. */
+    @GetMapping("/account/role")
+    @ResponseBody
+    public String currentUserRole(Authentication authentication) {
+
+        if (authentication == null) {
+            return "";
+        }
+
+        return authentication.getAuthorities().stream()
+                .map(authority -> authority.getAuthority())
+                .filter(authority -> authority.startsWith("ROLE_"))
+                .map(authority -> authority.substring("ROLE_".length()))
+                .findFirst()
+                .orElse("");
     }
 
     @PostMapping("/account/change-password")
