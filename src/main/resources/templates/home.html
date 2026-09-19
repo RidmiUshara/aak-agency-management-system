@@ -212,6 +212,25 @@
       font-size: 20px;
     }
 
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      flex-shrink: 0;
+    }
+
+    .topbar-brand img {
+      width: 32px;
+      height: 32px;
+    }
+
+    .topbar-brand span {
+      color: var(--navy);
+      font-weight: 700;
+      font-size: 16px;
+      white-space: nowrap;
+    }
+
     .search-wrapper {
       position: relative;
       width: 100%;
@@ -769,6 +788,10 @@
         display: none;
       }
 
+      .topbar-brand span {
+        display: none;
+      }
+
       .topbar-user-info {
         display: none;
       }
@@ -823,112 +846,134 @@
         Dashboard
       </a>
 
-      <a th:href="@{/customers}">
+      <a th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE' or loggedInRole == 'SALES_REP'}"
+         th:href="@{/customers}">
         <span class="nav-icon">CU</span>
         Customers
       </a>
 
-      <a th:href="@{/customers/credit-followup}">
+      <a th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE' or loggedInRole == 'SALES_REP'}"
+         th:href="@{/customers/credit-followup}">
         <span class="nav-icon">CF</span>
         Credit Follow-up
       </a>
 
-      <a th:href="@{/products}">
+      <a th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
+         th:href="@{/products}">
         <span class="nav-icon">PR</span>
         Products
       </a>
 
-      <a th:href="@{/purchase-invoices}">
+      <a th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
+         th:href="@{/purchase-invoices}">
         <span class="nav-icon">PI</span>
         Purchase Invoices
       </a>
 
-      <a th:href="@{/purchase-invoices/supplier-balance}">
+      <a th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
+         th:href="@{/purchase-invoices/supplier-balance}">
         <span class="nav-icon">SB</span>
         Supplier Balance
       </a>
 
-      <a th:href="@{/sales-invoices}">
+      <a th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE' or loggedInRole == 'SALES_REP'}"
+         th:href="@{/sales-invoices}">
         <span class="nav-icon">SI</span>
         Sales Invoices
       </a>
 
-      <a th:href="@{/inventory}">
+      <a th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
+         th:href="@{/inventory}">
         <span class="nav-icon">ST</span>
         Inventory
       </a>
 
-      <a th:href="@{/payments}">
+      <a th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
+         th:href="@{/payments}">
         <span class="nav-icon">PY</span>
         Payments
       </a>
 
-      <a th:href="@{/collections}">
+      <a th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
+         th:href="@{/collections}">
         <span class="nav-icon">CL</span>
         Collections
       </a>
 
-      <a th:href="@{/collections/handover}">
+      <a th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
+         th:href="@{/collections/handover}">
         <span class="nav-icon">HO</span>
         Daily Handover
       </a>
 
-      <a th:href="@{/cheques}">
+      <a th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
+         th:href="@{/cheques}">
         <span class="nav-icon">CH</span>
         Cheques
       </a>
 
-      <a th:href="@{/reports}">
+      <a th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
+         th:href="@{/reports}">
         <span class="nav-icon">RP</span>
         Reports
       </a>
 
-      <a th:href="@{/employees}">
+      <a th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
+         th:href="@{/employees}">
         <span class="nav-icon">EM</span>
         Employees
       </a>
 
-      <a th:href="@{/vehicles}">
+      <a th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
+         th:href="@{/vehicles}">
         <span class="nav-icon">VH</span>
         Vehicles
       </a>
 
-      <a th:href="@{/routes}">
+      <a th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
+         th:href="@{/routes}">
         <span class="nav-icon">RT</span>
         Routes
       </a>
 
-      <a th:href="@{/delivery-trips}">
+      <a th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
+         th:href="@{/delivery-trips}">
         <span class="nav-icon">DT</span>
         Delivery Trips
       </a>
 
-      <a th:href="@{/delivery-trips/vehicle-stock}">
+      <a th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
+         th:href="@{/delivery-trips/vehicle-stock}">
         <span class="nav-icon">VS</span>
         Vehicle Stock
       </a>
 
-      <a th:href="@{/shop-returns}">
+      <a th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
+         th:href="@{/shop-returns}">
         <span class="nav-icon">SR</span>
         Shop Returns
       </a>
 
-      <a th:href="@{/supplier-returns}">
+      <a th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
+         th:href="@{/supplier-returns}">
         <span class="nav-icon">CR</span>
         CBL Returns
       </a>
 
-      <a th:href="@{/attendance}">
+      <a th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
+         th:href="@{/attendance}">
         <span class="nav-icon">AT</span>
         Attendance
       </a>
 
-      <a th:href="@{/advances}">
+      <a th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
+         th:href="@{/advances}">
         <span class="nav-icon">AD</span>
         Advances
       </a>
 
-      <a th:href="@{/salary}">
+      <a th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
+         th:href="@{/salary}">
         <span class="nav-icon">SL</span>
         Salary
       </a>
@@ -964,6 +1009,11 @@
               onclick="openSidebar()">
         ☰
       </button>
+
+      <div class="topbar-brand">
+        <img th:src="@{/img/aak-logo-mark.svg}" src="/img/aak-logo-mark.svg" alt="AAK Agency">
+        <span>AAK Agency</span>
+      </div>
 
       <div class="search-wrapper">
 
@@ -1187,6 +1237,7 @@
           <div class="quick-actions">
 
             <a class="quick-action"
+               th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
                th:href="@{/purchase-invoices/new}">
 
               <div class="quick-action-icon">+</div>
@@ -1199,6 +1250,7 @@
             </a>
 
             <a class="quick-action"
+               th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE' or loggedInRole == 'SALES_REP'}"
                th:href="@{/sales-invoices/new}">
 
               <div class="quick-action-icon">+</div>
@@ -1211,6 +1263,7 @@
             </a>
 
             <a class="quick-action"
+               th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
                th:href="@{/payments/new}">
 
               <div class="quick-action-icon">+</div>
@@ -1223,6 +1276,7 @@
             </a>
 
             <a class="quick-action"
+               th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
                th:href="@{/collections}">
 
               <div class="quick-action-icon">CL</div>
@@ -1235,6 +1289,7 @@
             </a>
 
             <a class="quick-action"
+               th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
                th:href="@{/cheques}">
 
               <div class="quick-action-icon">CH</div>
@@ -1485,6 +1540,7 @@
 
         <a class="module-card"
            data-search="customers shops"
+           th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE' or loggedInRole == 'SALES_REP'}"
            th:href="@{/customers}">
 
           <div class="module-icon">CU</div>
@@ -1500,6 +1556,7 @@
 
         <a class="module-card"
            data-search="products prices items"
+           th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
            th:href="@{/products}">
 
           <div class="module-icon">PR</div>
@@ -1515,6 +1572,7 @@
 
         <a class="module-card"
            data-search="collections daily weekly monthly cash cheque bank transfer payments"
+           th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
            th:href="@{/collections}">
 
           <div class="module-icon">CL</div>
@@ -1530,6 +1588,7 @@
 
         <a class="module-card"
            data-search="cheques received deposited cleared returned overdue bank"
+           th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
            th:href="@{/cheques}">
 
           <div class="module-icon">CH</div>
@@ -1545,6 +1604,7 @@
 
         <a class="module-card"
            data-search="purchase invoices stock"
+           th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
            th:href="@{/purchase-invoices}">
 
           <div class="module-icon">PI</div>
@@ -1560,6 +1620,7 @@
 
         <a class="module-card"
            data-search="sales invoices customers"
+           th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE' or loggedInRole == 'SALES_REP'}"
            th:href="@{/sales-invoices}">
 
           <div class="module-icon">SI</div>
@@ -1575,6 +1636,7 @@
 
         <a class="module-card"
            data-search="inventory stock movements"
+           th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
            th:href="@{/inventory}">
 
           <div class="module-icon">ST</div>
@@ -1590,6 +1652,7 @@
 
         <a class="module-card"
            data-search="payments receipts collections"
+           th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
            th:href="@{/payments}">
 
           <div class="module-icon">PY</div>
@@ -1604,6 +1667,7 @@
 
         <a class="module-card reports-module"
            data-search="reports summary credit"
+           th:if="${loggedInRole == 'ADMIN' or loggedInRole == 'OFFICE'}"
            th:href="@{/reports}">
 
           <div class="module-icon">RP</div>

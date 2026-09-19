@@ -98,13 +98,14 @@ public class SecurityConfig {
 
                                         /*
                                          * Office-only operational pipeline: purchasing,
-                                         * products, stock and payments/collections.
+                                         * products, stock, payments/collections and reports.
                                          */
                                         .requestMatchers(
                                                 "/products/**",
                                                 "/purchase-invoices/**",
                                                 "/inventory/**",
                                                 "/payments/**",
+                                                "/reports/**",
                                                 "/cheques/**",
                                                 "/collections/**",
                                                 "/employees/**",

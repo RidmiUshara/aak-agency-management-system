@@ -119,4 +119,14 @@ class RoleBasedAccessControlTest {
         mockMvc.perform(get("/products").with(user("admin1").roles("ADMIN"))).andExpect(status().isOk());
         mockMvc.perform(get("/payments").with(user("admin1").roles("ADMIN"))).andExpect(status().isOk());
     }
+
+    @Test
+    void officeRole_canViewReports() throws Exception {
+        mockMvc.perform(get("/reports").with(user("office1").roles("OFFICE"))).andExpect(status().isOk());
+    }
+
+    @Test
+    void salesRepRole_isForbiddenFromReports() throws Exception {
+        mockMvc.perform(get("/reports").with(user("sales1").roles("SALES_REP"))).andExpect(status().isForbidden());
+    }
 }
