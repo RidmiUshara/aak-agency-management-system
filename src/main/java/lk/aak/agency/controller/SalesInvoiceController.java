@@ -7,6 +7,7 @@ import lk.aak.agency.model.SalesInvoiceItem;
 import lk.aak.agency.repository.CustomerRepository;
 import lk.aak.agency.repository.ProductRepository;
 import lk.aak.agency.service.SalesInvoiceService;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -30,6 +31,8 @@ import java.util.Map;
 @RequestMapping("/sales-invoices")
 public class SalesInvoiceController {
 
+    private static final int PAGE_SIZE = 25;
+
     private final SalesInvoiceService salesInvoiceService;
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
@@ -50,12 +53,25 @@ public class SalesInvoiceController {
     }
 
     @GetMapping
-    public String showInvoiceList(Model model) {
+    public String showInvoiceList(
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(defaultValue = "0") int page,
+            Model model) {
+
+        Page<SalesInvoice> invoicePage =
+                salesInvoiceService.getInvoicePage(
+                        search, page, PAGE_SIZE
+                );
 
         model.addAttribute(
                 "invoices",
-                salesInvoiceService.getAllInvoices()
+                invoicePage.getContent()
         );
+
+        model.addAttribute("search", search);
+        model.addAttribute("currentPage", invoicePage.getNumber());
+        model.addAttribute("totalPages", invoicePage.getTotalPages());
+        model.addAttribute("totalRecords", invoicePage.getTotalElements());
 
         return "sales-invoices/sales-invoice-list";
     }

@@ -8,6 +8,9 @@ import lk.aak.agency.repository.SalesInvoiceItemRepository;
 import lk.aak.agency.repository.SalesInvoiceRepository;
 import lk.aak.agency.repository.StockMovementRepository;
 import lk.aak.agency.repository.PaymentRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +53,19 @@ public class SalesInvoiceService {
 
         return salesInvoiceRepository
                 .findAllByOrderByInvoiceDateDesc();
+    }
+
+    public Page<SalesInvoice> getInvoicePage(
+            String search, int page, int size) {
+
+        return salesInvoiceRepository.search(
+                search == null ? "" : search.trim(),
+                PageRequest.of(
+                        Math.max(page, 0),
+                        Math.max(size, 1),
+                        Sort.by(Sort.Direction.DESC, "invoiceDate")
+                )
+        );
     }
 
     public SalesInvoice getInvoiceById(Long id) {
